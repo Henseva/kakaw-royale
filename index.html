@@ -1,247 +1,110 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raiz — Peça no iFood</title>
-    <!-- Seus estilos e metatags permanecem IGUAIS até a linha 1293 -->
-    <!-- ... (todo o seu CSS atual) ... -->
+<script>
+    // === MANTER TODAS AS FUNÇÕES ORIGINAIS, MAS REDIRECIONAR AO INVÉS DE ADICIONAR AO CARRINHO ===
     
-    <!-- NOVO CSS para esconder elementos do carrinho -->
-    <style>
-        /* Esconder elementos do carrinho que não serão usados */
-        #cart-panel, #cart-overlay, #cart-btn, .cart-checkout, 
-        .cart-total, .cart-items, .cart-header, #fidelidade-bar,
-        #delivery-timer, #share-btn, #custom-modal, #preparo-overlay {
-            display: none !important;
-        }
-        
-        /* Transformar botões "Adicionar" em "Pedir no iFood" */
-        .btn-card {
-            background: #ea1d2c !important; /* Vermelho iFood */
-            color: white !important;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-        
-        .btn-card:hover {
-            background: #c41724 !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(234, 29, 44, 0.4) !important;
-        }
-        
-        .btn-card::before {
-            content: "🛵 ";
-            font-size: 1em;
-        }
-        
-        /* Link direto para iFood no logo */
-        .logo a {
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .logo a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Botão flutuante iFood mais visível */
-        .ifood-float {
-            position: fixed;
-            bottom: 100px;
-            right: 20px;
-            background: #ea1d2c;
-            color: white;
-            padding: 15px 25px;
-            border-radius: 50px;
-            font-weight: bold;
-            text-decoration: none;
-            box-shadow: 0 4px 20px rgba(234, 29, 44, 0.4);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.1rem;
-            animation: pulse-ifood 2s infinite;
-        }
-        
-        @keyframes pulse-ifood {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        .ifood-float:hover {
-            background: #c41724;
-            transform: scale(1.05);
-        }
-        
-        /* Badge "Disponível no iFood" nos cards */
-        .card::after {
-            content: "🛵 iFood";
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(234, 29, 44, 0.9);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            z-index: 10;
-        }
-        
-        /* Ajuste no botão iFood do footer */
-        .ifood-full-btn {
-            background: #ea1d2c !important;
-            font-size: 1.2rem !important;
-            padding: 25px !important;
-        }
-        
-        .ifood-full-btn::after {
-            content: " 🍔🍟🥤";
-            font-size: 1.2rem;
-        }
-    </style>
-</head>
-<body>
-    <!-- SEU CONTEÚDO ATUAL permanece IGUAL até a linha 1988 -->
-    <!-- ... (todo o seu HTML atual) ... -->
+    // Variáveis que não serão mais usadas (mas mantidas para não quebrar o código)
+    let cart = [];
     
-    <!-- NOVO: Substituir o botão de carrinho por link iFood -->
-    <nav class="navbar">
-        <div style="display: flex; align-items: center;">
-            <div class="logo">
-                <a href="SEU-LINK-DO-IFOOD" target="_blank">
-                    RAIZ
-                    <i class="fas fa-leaf sound-switch" id="soundToggle" title="Som da Natureza"></i>
-                </a>
-            </div>
-            <!-- resto igual -->
-        </div>
-        <div class="nav-links">
-            <i class="fas fa-moon theme-switch" id="themeToggle"></i>
-            <!-- Removido cart-btn, adicionado link iFood -->
-            <a href="SEU-LINK-DO-IFOOD" target="_blank" style="color: white; background: #ea1d2c; padding: 8px 15px; border-radius: 20px; font-weight: bold;">
-                <i class="fas fa-shopping-bag"></i> iFood
-            </a>
-            <!-- resto igual -->
-        </div>
-    </nav>
-    
-    <!-- NOVO botão flutuante iFood -->
-    <a href="SEU-LINK-DO-IFOOD" target="_blank" class="ifood-float">
-        <i class="fas fa-shopping-bag"></i>
-        Peça no iFood
-        <i class="fas fa-arrow-right"></i>
-    </a>
-    
-    <!-- SEU SCRIPT ATUAL permanece, mas com modificações -->
-    <script>
-        // SOBRESCREVER funções do carrinho para redirecionar ao iFood
+    // REDIRECIONAR PARA iFood EM VEZ DE ADICIONAR AO CARRINHO
+    function redirectToIfood(btn, nomeProduto) {
+        // Mesmo efeito visual de folhas
+        createLeaves(btn);
         
-        // Redirecionar todos os cliques em "Adicionar" para o iFood
-        document.querySelectorAll('.btn-card').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+        // Feedback visual
+        showToast(`🛵 Pedir ${nomeProduto} no iFood...`);
+        
+        // Redirecionar para o iFood após breve delay
+        setTimeout(() => {
+            window.open('SEU-LINK-DO-IFOOD-AQUI', '_blank');
+        }, 800);
+    }
+    
+    // SOBRESCREVER a função createLeaves original ou apenas usá-la junto
+    // (Sua função createLeaves original já existe, então vamos mantê-la)
+    
+    // MODIFICAR todos os botões "Adicionar" para redirecionar
+    document.addEventListener('DOMContentLoaded', function() {
+        // Selecionar todos os botões de card
+        const botoesCard = document.querySelectorAll('.card .btn-card');
+        
+        botoesCard.forEach(botao => {
+            // Guardar a função original se existir
+            const originalClick = botao.onclick;
+            
+            // Substituir pelo novo comportamento
+            botao.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 
-                // Pega nome do produto para feedback
                 const card = this.closest('.card');
-                const nome = card?.querySelector('h3')?.textContent || 'produto';
+                const nomeProduto = card?.querySelector('h3')?.textContent || 'produto';
                 
-                // Mostra toast dizendo que vai para o iFood
-                showToast(`🍔 Pedir ${nome} no iFood...`);
+                // Criar folhas (função original)
+                if (typeof createLeaves === 'function') {
+                    createLeaves(this);
+                }
                 
-                // Redireciona após 1 segundo
+                // Mostrar toast
+                showToast(`🛵 Pedir ${nomeProduto} no iFood...`);
+                
+                // Redirecionar
                 setTimeout(() => {
-                    window.open('SEU-LINK-DO-IFOOD', '_blank');
+                    window.open('SEU-LINK-DO-IFOOD-AQUI', '_blank');
                 }, 800);
-                
-                // Efeito visual
-                createLeaves(this);
             });
         });
         
-        // Redirecionar botão "Surpresa do Chef"
+        // Modificar botão "Surpresa do Chef"
         const surpresaBtn = document.getElementById('surpresa-btn');
         if (surpresaBtn) {
             surpresaBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 showToast('🎲 Descubra sua surpresa no iFood!');
-                setTimeout(() => window.open('SEU-LINK-DO-IFOOD', '_blank'), 800);
+                createLeaves(this);
+                setTimeout(() => window.open('SEU-LINK-DO-IFOOD-AQUI', '_blank'), 1000);
             });
         }
         
-        // Redirecionar botão "Adicionar combo"
+        // Modificar botão "Adicionar combo"
         const comboBtn = document.getElementById('combo-add');
         if (comboBtn) {
             comboBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 showToast('🎉 Monte seu combo no iFood!');
-                setTimeout(() => window.open('SEU-LINK-DO-IFOOD', '_blank'), 800);
+                createLeaves(this);
+                setTimeout(() => window.open('SEU-LINK-DO-IFOOD-AQUI', '_blank'), 1000);
             });
         }
         
-        // Botão "Roleta da Sorte" - redirecionar também
-        const roletaBtn = document.getElementById('roleta-btn');
-        if (roletaBtn) {
-            const originalClick = roletaBtn.onclick;
-            roletaBtn.onclick = function(e) {
-                e.preventDefault();
-                showToast('🎰 Gire a roleta e ganhe no iFood!');
-                setTimeout(() => window.open('SEU-LINK-DO-IFOOD', '_blank'), 800);
-            };
+        // Modificar botão grande iFood no footer
+        const ifoodFooterBtn = document.querySelector('.ifood-full-btn');
+        if (ifoodFooterBtn) {
+            ifoodFooterBtn.href = 'SEU-LINK-DO-IFOOD-AQUI';
+            ifoodFooterBtn.target = '_blank';
         }
         
-        // FUNÇÕES REMOVIDAS (não são mais necessárias)
-        // - addToCart
-        // - renderCart
-        // - toggleCart
-        // - finalizarPedido
-        // - changeQty
-        // - etc.
-        
-        // Mantemos apenas funções visuais e de entretenimento
-        // (createLeaves, showToast, dark mode, etc.)
-        
-        // Toast personalizado para iFood
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg + ' 🔄';
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2000);
+        // Modificar botão "iFood" na navbar
+        const ifoodNavBtn = document.querySelector('.btn-nav');
+        if (ifoodNavBtn) {
+            ifoodNavBtn.href = 'SEU-LINK-DO-IFOOD-AQUI';
+            ifoodNavBtn.target = '_blank';
         }
-        
-        // Links dos produtos (se quiser links específicos)
-        // Você pode criar um mapa de produtos -> link do iFood
-        const linksIfood = {
-            'Burger Raiz': 'SEU-LINK-BURGER',
-            'Bowl da Estação': 'SEU-LINK-BOWL',
-            'Cheese Raiz': 'SEU-LINK-CHEESE',
-            'Brownie Terra': 'SEU-LINK-BROWNIE',
-            'Mousse Frutas': 'SEU-LINK-MOUSSE',
-            'Coca-Cola Classic': 'SEU-LINK-COCA',
-            'Suco do Pomar': 'SEU-LINK-SUCO',
-            'Guaraná Raiz': 'SEU-LINK-GUARANA'
-        };
-        
-        // Redirecionamento específico por produto (opcional)
-        document.querySelectorAll('.btn-card').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                const card = this.closest('.card');
-                const nome = card?.querySelector('h3')?.textContent?.trim() || '';
-                const link = linksIfood[nome] || 'SEU-LINK-DO-IFOOD';
-                
-                showToast(`🍔 Pedir ${nome} no iFood...`);
-                setTimeout(() => window.open(link, '_blank'), 800);
-            });
-        });
-        
-        console.log('🚀 Site otimizado para iFood!');
-    </script>
-</body>
-</html>
+    });
+    
+    // MANTER TODAS AS SUAS FUNÇÕES ORIGINAIS AQUI
+    // (createLeaves, showToast, dark mode, slider, partículas, etc.)
+    // Elas já existem no seu código - NÃO REMOVA NADA
+    
+    // APENAS ADICIONAR ESTA FUNÇÃO para sobrescrever addToCart se existir
+    function addToCart(name, price) {
+        // Ao invés de adicionar ao carrinho, redireciona
+        showToast(`🛵 Pedir ${name} no iFood...`);
+        setTimeout(() => {
+            window.open('SEU-LINK-DO-IFOOD-AQUI', '_blank');
+        }, 800);
+        return; // Não faz nada do carrinho original
+    }
+    
+    // SEU CÓDIGO ORIGINAL CONTINUA ABAIXO...
+    // (Tudo que você já tinha no script permanece igual)
+    // Apenas cole todo o seu script original aqui e faça as modificações acima
+</script>
