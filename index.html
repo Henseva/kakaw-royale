@@ -1,110 +1,3266 @@
-<script>
-    // === MANTER TODAS AS FUNÇÕES ORIGINAIS, MAS REDIRECIONAR AO INVÉS DE ADICIONAR AO CARRINHO ===
-    
-    // Variáveis que não serão mais usadas (mas mantidas para não quebrar o código)
-    let cart = [];
-    
-    // REDIRECIONAR PARA iFood EM VEZ DE ADICIONAR AO CARRINHO
-    function redirectToIfood(btn, nomeProduto) {
-        // Mesmo efeito visual de folhas
-        createLeaves(btn);
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Raiz — restaurante com ingredientes orgânicos colhidos de produtores locais. Sabor artesanal, direto da terra para sua mesa.">
+    <meta name="theme-color" content="#2D4A3E">
+    <meta property="og:title" content="Raiz — Sabor que vem da terra">
+    <meta property="og:description" content="Ingredientes 100% orgânicos, processos artesanais e sabor que vem direto dos produtores locais.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80">
+    <meta property="og:type" content="restaurant.restaurant">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Raiz — Sabor que vem da terra">
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80">
+    <title>Raiz — Sabor que vem da terra</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-green: #2D4A3E;
+            --soft-peach: #E9C4A6;
+            --light-grey: #D9D9D9;
+            --cream: #F5F1E3;
+            --terracotta: #D97D54;
+            --white: #FFFFFF;
+            --whatsapp-green: #25D366;
+            --open-color: #2ecc71;
+            --closed-color: #e74c3c;
+            --bg-body: var(--white);
+            --text-main: var(--dark-green);
+            --card-shadow: rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode {
+            --bg-body: #0a0a0a;
+            --text-main: #f0f0f0;
+            --light-grey: #121212;
+            --cream: #1d1d1d;
+            --white: #0a0a0a;
+            --dark-green: #1a2e26;
+            --card-shadow: rgba(255,255,255,0.05);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; cursor: none; }
+        html { overflow-x: hidden; }
+
+        /* Focus visible para acessibilidade por teclado */
+        :focus-visible { outline: 2px solid var(--terracotta); outline-offset: 3px; border-radius: 4px; }
+
+        /* Active states em todos os botões */
+        button:active, a:active { transform: scale(0.96); }
+        .btn-nav:active, .filter-btn:active { transform: scale(0.94) !important; }
+        body { font-family: 'Inter', sans-serif; color: var(--text-main); background: var(--bg-body); overflow-x: hidden; max-width: 100vw; scroll-behavior: smooth; transition: background 0.5s ease, color 0.5s ease; }
+
+        #custom-cursor {
+            width: 20px; height: 20px; border: 2px solid var(--terracotta);
+            border-radius: 50%; position: fixed; pointer-events: none;
+            z-index: 9999; transition: transform 0.1s ease-out;
+            transform: translate(-50%, -50%);
+        }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @keyframes typing { from { width: 0 } to { width: 100% } }
+        @keyframes blink { 0%, 100% { border-color: var(--soft-peach); } 50% { border-color: transparent; } }
+        .typing-effect { 
+            display: inline-block; overflow: hidden; white-space: nowrap; 
+            border-right: 3px solid var(--soft-peach);
+            animation: typing 2.5s steps(30, end), blink .75s step-end infinite;
+        }
+
+        @keyframes steam {
+            0% { transform: translate(-50%, 0) scale(1); opacity: 0; }
+            40% { opacity: 0.4; }
+            100% { transform: translate(-50%, -60px) scale(2); opacity: 0; }
+        }
+        .steam-effect::after {
+            content: "☁"; font-size: 40px; position: absolute; 
+            top: 15%; left: 50%; transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.8); filter: blur(12px); 
+            animation: steam 3s infinite; pointer-events: none; z-index: 10;
+        }
+
+        .leaf { position: fixed; top: -15%; z-index: 9999; pointer-events: none; font-size: 20px; animation: fall linear forwards; }
+        @keyframes fall { to { transform: translateY(120vh) rotate(720deg); } }
+
+        .navbar { background: var(--dark-green); padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; color: #FFFFFF; position: sticky; top: 0; z-index: 1000; height: 60px; transition: height 0.3s ease, padding 0.3s ease, box-shadow 0.3s ease, background 0.5s; }
+        .navbar.shrunk { height: 46px; padding: 4px 5%; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .logo { font-family: 'DM Serif Display', serif; font-size: 1.6rem; letter-spacing: 2px; display: flex; align-items: center; gap: 8px; }
+
+        .nav-status { font-size: 0.65rem; font-weight: bold; display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.2); padding: 4px 10px; border-radius: 20px; margin-left: 15px; white-space: nowrap; }
+        .nav-dot { width: 8px; height: 8px; border-radius: 50%; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .dot-online { background-color: var(--open-color); box-shadow: 0 0 8px var(--open-color); animation: pulse 2s infinite; }
+        .dot-offline { background-color: var(--closed-color); }
+
+        .nav-links { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+        .nav-links a { color: #FFFFFF; text-decoration: none; font-size: 0.8rem; font-weight: bold; }
         
-        // Feedback visual
-        showToast(`🛵 Pedir ${nomeProduto} no iFood...`);
+        .theme-switch { cursor: pointer; font-size: 1.2rem; color: var(--soft-peach); margin-left: auto; margin-right: 5px; }
+        .sound-switch { cursor: pointer; font-size: 1.1rem; color: rgba(255,255,255,0.8); transition: 0.4s; }
+        .sound-switch.active { color: #2ecc71; filter: drop-shadow(0 0 8px #2ecc71); }
+
+        .btn-nav { background: rgba(217, 125, 84, 0.8); backdrop-filter: blur(10px); padding: 8px 20px; border-radius: 10px; color: white !important; font-weight: bold; animation: floatingBounce 3s ease-in-out infinite; }
+
+        @keyframes floatingBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+        .hero { height: 60vh; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1350&q=80'); background-size: cover; background-position: center; background-attachment: fixed; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        @supports (-webkit-touch-callout: none) { .hero { background-attachment: scroll; } }
+        .hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(2rem, 6vw, 4rem); color: #FFFFFF; text-align: center; }
+
+        .values-bar { background: var(--soft-peach); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); padding: 60px 10%; text-align: center; gap: 40px; color: var(--dark-green); transition: background 0.5s; }
+        .value-item { transition: 0.4s ease; padding: 20px; border-radius: 15px; }
+        .value-item:hover { transform: translateY(-10px); background: rgba(255,255,255,0.2); }
+        .value-item i { font-size: 2.5rem; color: var(--terracotta); margin-bottom: 15px; display: block; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+        .value-item:hover i { transform: scale(1.25) rotate(-8deg); }
+        .value-item h3 { font-family: 'DM Serif Display', serif; margin-bottom: 8px; font-size: 1.4rem; }
+        .value-item p { font-size: 0.9rem; opacity: 0.8; font-weight: 400; }
+
+        .menu-section { background: var(--light-grey); padding: 80px 5%; text-align: center; scroll-margin-top: 80px; transition: background 0.5s ease; }
+        .filter-container { margin-bottom: 30px; display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+        .filter-btn { padding: 10px 25px; border-radius: 25px; border: 1px solid var(--terracotta); background: transparent; color: var(--text-main); font-weight: bold; transition: 0.3s; cursor: pointer; }
+        .filter-btn.active, .filter-btn:hover { background: var(--terracotta); color: white; transform: translateY(-1px); }
+        .filter-btn.active { transform: none; box-shadow: 0 4px 14px rgba(217,125,84,0.35); }
         
-        // Redirecionar para o iFood após breve delay
-        setTimeout(() => {
-            window.open('SEU-LINK-DO-IFOOD-AQUI', '_blank');
-        }, 800);
-    }
-    
-    // SOBRESCREVER a função createLeaves original ou apenas usá-la junto
-    // (Sua função createLeaves original já existe, então vamos mantê-la)
-    
-    // MODIFICAR todos os botões "Adicionar" para redirecionar
-    document.addEventListener('DOMContentLoaded', function() {
-        // Selecionar todos os botões de card
-        const botoesCard = document.querySelectorAll('.card .btn-card');
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; max-width: 1200px; margin: 40px auto; }
+
+        .card { background: var(--cream); border-radius: 15px; overflow: hidden; display: flex; flex-direction: column; transition: all 0.4s ease; position: relative; box-shadow: 0 10px 30px var(--card-shadow); border: 1px solid rgba(0,0,0,0.05); will-change: transform; }
+        .card::before { content: ''; position: absolute; inset: 0; border-radius: 15px; background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 60%); opacity: 0; transition: opacity 0.4s; z-index: 0; pointer-events: none; }
+        .card > * { position: relative; z-index: 1; }
+        .card:hover { box-shadow: 0 25px 50px rgba(0,0,0,0.2); }
+        .card:hover::before { opacity: 1; }
+        .card.hidden { display: none; }
+        .card-img-container { width: 100%; height: 160px; overflow: hidden; }
+        .card-img { width: 100%; height: 100%; background-size: cover; background-position: center; transition: 0.8s ease; }
+        .card:hover .card-img { transform: scale(1.08); }
+        .card-info { padding: 20px; text-align: left; flex-grow: 1; display: flex; flex-direction: column; }
+        .card-info h3 { font-family: 'DM Serif Display', serif; font-size: 1.25rem; margin-bottom: 5px; }
+        .card-info p { font-size: 0.85rem; opacity: 0.7; line-height: 1.4; margin-bottom: 15px; height: 38px; overflow: hidden; }
+        .price-tag { font-weight: bold; color: var(--terracotta); margin-top: auto; margin-bottom: 12px; font-size: 1.1rem; }
+        .btn-card { background: var(--terracotta); color: white; border: none; padding: 11px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: 0.25s; }
+        .btn-card:hover { background: #c0642e; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(217,125,84,0.4); }
+        .btn-card:active { transform: translateY(0) scale(0.96) !important; }
+        .btn-card.checked { background: var(--dark-green); }
+
+        /* === ESPECIAIS DA CASA === */
+        .drink-slider-section {
+            padding: 110px 0 80px;
+            text-align: center;
+            background: linear-gradient(160deg, #0d1a12 0%, #1a2e1e 40%, #0f1a10 100%);
+            scroll-margin-top: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        /* Textura de folha no fundo */
+        .drink-slider-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(46,100,60,0.35) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .especiais-header { position: relative; z-index: 2; margin-bottom: 52px; }
+        .especiais-header h2 {
+            color: #fff;
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+        }
+        .especiais-header p {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+            font-weight: 300;
+        }
+
+        .slider-container {
+            display: flex;
+            gap: 22px;
+            padding: 30px 12% 20px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            align-items: center;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            position: relative;
+            z-index: 2;
+        }
+        .slider-container::-webkit-scrollbar { display: none; }
+
+        .slide {
+            min-width: 260px;
+            height: 440px;
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 28px;
+            padding: 28px 22px 24px;
+            scroll-snap-align: center;
+            transition: all 0.5s cubic-bezier(0.34,1.56,0.64,1);
+            opacity: 0.38;
+            transform: scale(0.88) translateY(8px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .slide.active {
+            opacity: 1;
+            transform: scale(1.04) translateY(0);
+            background: rgba(255,255,255,0.11);
+            border-color: rgba(255,255,255,0.22);
+            box-shadow:
+                0 24px 60px rgba(0,0,0,0.5),
+                0 0 0 1px rgba(255,255,255,0.12),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+        /* Glow colorido no ativo */
+        .slide.active::after {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 28px;
+            background: linear-gradient(135deg, var(--slide-color, rgba(46,139,87,0.3)), transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .slide > * { position: relative; z-index: 1; }
+
+        /* Badge */
+        .slide-badge {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            font-size: 0.58rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            border: 1px solid rgba(255,255,255,0.2);
+            z-index: 2;
+        }
+
+        /* Imagem */
+        .drink-img {
+            height: 165px;
+            object-fit: contain;
+            filter: drop-shadow(0 16px 24px rgba(0,0,0,0.5));
+            transition: transform 0.6s cubic-bezier(0.34,1.56,0.64,1), filter 0.4s;
+            margin-top: 24px;
+        }
+        .slide.active .drink-img {
+            transform: translateY(-12px) scale(1.06);
+            filter: drop-shadow(0 24px 36px rgba(0,0,0,0.6));
+        }
+
+        /* Nome */
+        .slide h3 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.1rem;
+            text-align: center;
+            line-height: 1.25;
+            margin-top: 4px;
+        }
+
+        /* Desc */
+        .drink-desc {
+            font-size: 0.75rem;
+            opacity: 0.65;
+            text-align: center;
+            line-height: 1.55;
+            margin: 4px 0 0;
+        }
+
+        /* Pílulas de info */
+        .slide-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+            margin-top: 8px;
+        }
+        .slide-pill {
+            font-size: 0.6rem;
+            padding: 2px 9px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            opacity: 0.85;
+        }
+
+        /* Preço */
+        .drink-price {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-top: 8px;
+            color: var(--soft-peach);
+        }
+        @keyframes pricePop { 0%{transform:scale(1)} 50%{transform:scale(1.35)} 100%{transform:scale(1)} }
+        .drink-price.pop { animation: pricePop 0.35s ease; }
+
+        /* CTA iFood no slide */
+        .slide-ifood-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: var(--terracotta);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            padding: 10px 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.25s;
+            width: 100%;
+            justify-content: center;
+            letter-spacing: 0.3px;
+            margin-top: 6px;
+        }
+        .slide-ifood-btn:hover {
+            background: #c0642e;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(217,125,84,0.45);
+        }
+        .slide-ifood-btn:active { transform: scale(0.97) !important; }
+
+        /* Dots */
+        .slider-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 36px;
+            position: relative;
+            z-index: 2;
+        }
+        .slider-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+        .slider-dot.active {
+            background: #fff;
+            width: 22px;
+            border-radius: 4px;
+        }
+
+        /* CTA seção */
+        .especiais-cta {
+            margin-top: 48px;
+            position: relative;
+            z-index: 2;
+        }
+        .especiais-cta a {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--terracotta);
+            color: #fff;
+            text-decoration: none;
+            padding: 16px 36px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.92rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.3px;
+        }
+        .especiais-cta a::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+        .especiais-cta a:hover::before { transform: translateX(100%); }
+        .especiais-cta a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 36px rgba(217,125,84,0.5);
+        }
+        .especiais-cta small {
+            display: block;
+            margin-top: 12px;
+            color: rgba(255,255,255,0.35);
+            font-size: 0.72rem;
+        }
+
+        /* Bolhas */
+        #drink-bubbles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; }
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            animation: riseUp linear infinite;
+            bottom: -20px;
+        }
+        @keyframes riseUp {
+            0%  { transform:translateY(0) scale(1); opacity:0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.2; }
+            100%{ transform:translateY(-100vh) scale(1.8); opacity:0; }
+        }
+
+        /* Navegação por setas */
+        .slider-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #fff;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.25s;
+            z-index: 3;
+            backdrop-filter: blur(8px);
+        }
+        .slider-arrow:hover { background: rgba(255,255,255,0.2); transform: translateY(-50%) scale(1.1); }
+        .slider-arrow.left  { left:  24px; }
+        .slider-arrow.right { right: 24px; }
+        @media(max-width:768px){ .slider-arrow { display: none; } }
+
+        /* Mobile slider */
+        @media(max-width:768px){
+            .drink-slider-section { padding: 70px 0 60px; }
+            .slider-container { padding: 20px 6% 16px; gap: 14px; }
+            .slide { min-width: 230px; height: 400px; padding: 22px 16px 18px; }
+            .drink-img { height: 130px; }
+            .especiais-cta a { padding: 14px 28px; font-size: 0.85rem; }
+        }
+        @media(max-width:480px){
+            .slide { min-width: 200px; height: 370px; }
+            .drink-img { height: 115px; }
+        }
+        /* Especiais — ajustes estruturais */
+        .slide { cursor: default; }
+        .slide-text { flex: 1; display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .slide h3 { font-family: 'DM Serif Display', serif; font-size: 1.05rem; text-align: center; line-height: 1.3; margin: 8px 0 4px; }
+        .slide-footer { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: auto; padding-top: 8px; }
+        .drink-img { width: 100%; height: 155px; object-fit: cover; border-radius: 16px; filter: brightness(0.92) saturate(1.1); transition: transform 0.6s cubic-bezier(0.34,1.56,0.64,1), filter 0.4s; margin-top: 24px; }
+        .slide.active .drink-img { transform: scale(1.04); filter: brightness(1) saturate(1.2); }
+        .drink-desc { font-size: 0.72rem; opacity: 0.62; text-align: center; line-height: 1.6; margin: 0; }
+        .drink-price { font-family: 'DM Serif Display', serif; font-size: 1.25rem; color: var(--soft-peach); }
+        @media(max-width:768px){
+            .drink-img { height: 120px; }
+            .slide h3 { font-size: 0.95rem; }
+        }
+        @media(max-width:480px){
+            .drink-img { height: 100px; }
+            .slide-footer { gap: 6px; }
+        }
+
+        .wave-container { position: relative; background: var(--dark-green); height: 100px; margin-top: -100px; transition: background 0.5s; }
+        .wave svg { width: 100%; height: 100px; fill: var(--light-grey); transition: fill 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        botoesCard.forEach(botao => {
-            // Guardar a função original se existir
-            const originalClick = botao.onclick;
-            
-            // Substituir pelo novo comportamento
-            botao.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const card = this.closest('.card');
-                const nomeProduto = card?.querySelector('h3')?.textContent || 'produto';
-                
-                // Criar folhas (função original)
-                if (typeof createLeaves === 'function') {
-                    createLeaves(this);
+        .main-footer { background: var(--dark-green); color: #FFFFFF; padding: 80px 5% 40px; text-align: center; }
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; max-width: 1100px; margin: 0 auto; text-align: left; }
+        .footer-logo-section h2 { font-family: 'DM Serif Display', serif; font-size: 2.5rem; }
+        .hours-list { list-style: none; font-size: 0.85rem; margin-top: 15px; }
+        .hours-list li { display: flex; justify-content: space-between; padding: 4px 0; opacity: 0.7; }
+        .hours-list li.today { opacity: 1; color: var(--soft-peach); font-weight: bold; }
+        .footer-column h4 { font-family: 'DM Serif Display', serif; margin-bottom: 20px; color: var(--soft-peach); }
+        .footer-column p, .footer-column a { font-size: 0.9rem; color: #FFFFFF; text-decoration: none; line-height: 1.8; display: block; opacity: 0.8; }
+        .ifood-full-btn { display: block; width: 100%; max-width: 400px; margin: 40px auto 20px; padding: 20px; border-radius: 15px; text-align: center; background: var(--terracotta); color: white; text-decoration: none; font-weight: bold; }
+
+        .whatsapp-float { position: fixed; width: 60px; height: 60px; bottom: 20px; right: 20px; background-color: var(--whatsapp-green); color: #FFF; border-radius: 50%; z-index: 1000; display: flex; align-items: center; justify-content: center; font-size: 35px; text-decoration: none; transition: transform 0.3s, box-shadow 0.3s; box-shadow: 0 4px 20px rgba(37,211,102,0.4); }
+        .whatsapp-float:hover { transform: scale(1.12) rotate(-8deg); box-shadow: 0 8px 30px rgba(37,211,102,0.6); }
+        .back-to-top { position: fixed; bottom: 90px; right: 25px; width: 40px; height: 40px; background: var(--dark-green); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; opacity: 0; transition: 0.3s; z-index: 1000;}
+        .back-to-top.visible { opacity: 1; }
+        .back-to-top:hover { background: var(--terracotta); transform: translateY(-3px); }
+
+        @media (max-width: 768px) {
+            /* Cursor desligado */
+            #custom-cursor, .cursor-trail { display: none; }
+            * { cursor: auto; }
+
+            /* Navbar layout */
+            .navbar { padding: 8px 4%; height: auto; min-height: 54px; flex-wrap: nowrap; gap: 6px; }
+            .logo { font-size: 1.2rem; }
+            .nav-status { font-size: 0.55rem; padding: 3px 7px; }
+            .nav-links { gap: 6px; }
+            #cart-btn { font-size: 1rem; }
+
+            /* Hero */
+            .hero { height: 50vh; background-attachment: scroll; }
+
+            /* Nossa história */
+            .historia-section { grid-template-columns: 1fr; padding: 50px 5%; gap: 30px; }
+            .historia-img { height: 220px; }
+            .historia-text h2 { font-size: 1.7rem; }
+
+            /* Values */
+            .values-bar { grid-template-columns: 1fr; padding: 40px 6%; gap: 24px; }
+
+            /* Depoimentos */
+            .depo-track { flex-direction: column; }
+            .depo-card { min-width: unset; }
+
+            /* Menu */
+            .menu-section { padding: 50px 4%; }
+            .menu-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .card-info h3 { font-size: 1rem; }
+            #surpresa-btn { width: 100%; justify-content: center; }
+
+            /* Galeria */
+            .galeria-section { padding: 50px 4%; }
+            .galeria-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+            /* Especiais slider */
+            .drink-slider-section { padding: 60px 0; }
+            .slider-container { padding: 10px 5%; gap: 14px; }
+            .slide { min-width: 240px; height: 400px; }
+
+            /* Desafio banner */
+            #desafio-banner { flex-direction: column; gap: 8px; padding: 12px 5%; text-align: center; }
+
+            /* Promo banner */
+            #promo-banner { padding: 8px 40px 8px 12px; font-size: 0.72rem; gap: 6px; }
+
+            /* Footer */
+            .footer-content { grid-template-columns: 1fr; gap: 24px; }
+            .main-footer { padding: 50px 5% 30px; }
+
+            /* Modais — sempre 95% da tela */
+            #detail-modal .modal-box,
+            #roleta-box,
+            #custom-box { width: 95%; padding: 20px; }
+            #modal-img { height: 180px; }
+        }
+
+        @media (max-width: 480px) {
+            .card-info { padding: 12px; }
+            .card-info h3 { font-size: 0.9rem; }
+            .card-info p { font-size: 0.75rem; height: 32px; }
+            .price-tag { font-size: 0.95rem; }
+            .btn-card { padding: 8px; font-size: 0.75rem; }
+
+            .slide { min-width: 200px; height: 360px; }
+            .drink-img { height: 150px; }
+
+            .historia-text h2 { font-size: 1.4rem; }
+
+            /* Promo banner esconde extras */
+            #promo-banner span:not(.promo-highlight) { display: none; }
+            #countdown { display: none; }
+        }
+
+        @media (min-width: 769px) {
+            /* Garante que no desktop o carrinho tem largura fixa */
+            #cart-panel { width: 360px; right: -380px; }
+            #cart-panel.open { right: 0; }
+        }
+
+        /* === ADIÇÕES === */
+
+        /* Banner promoção */
+        #promo-banner { background: linear-gradient(90deg,#b5451b,var(--terracotta),#e8925a,var(--terracotta),#b5451b); background-size:300% 100%; animation:bannerSlide 5s linear infinite; color:#fff; padding:9px 50px; font-size:0.82rem; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; position:relative; z-index:1001; }
+        @keyframes bannerSlide { 0%{background-position:0% 50%} 100%{background-position:300% 50%} }
+        .promo-highlight { background:rgba(255,255,255,0.25); border-radius:20px; padding:2px 12px; animation:hlPulse 2s ease-in-out infinite; }
+        @keyframes hlPulse { 0%,100%{background:rgba(255,255,255,0.2)} 50%{background:rgba(255,255,255,0.4)} }
+        .promo-close { position:absolute; right:14px; top:50%; transform:translateY(-50%); background:none; border:none; color:#fff; font-size:1rem; cursor:pointer; opacity:0.7; transition:0.2s; }
+        .promo-close:hover { opacity:1; }
+        #promo-banner.hidden { display:none; }
+
+        /* Rastro do cursor */
+        .cursor-trail { width:6px; height:6px; border-radius:50%; background:var(--terracotta); position:fixed; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); }
+
+        /* Partículas no hero */
+        #hero-particles { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+        .particle { position:absolute; border-radius:50%; background:rgba(233,196,166,0.35); animation:floatP linear infinite; }
+        @keyframes floatP { 0%{transform:translateY(100vh) rotate(0deg);opacity:0} 10%{opacity:1} 90%{opacity:0.4} 100%{transform:translateY(-20px) rotate(360deg);opacity:0} }
+
+        /* Shimmer no preço */
+        .price-tag { font-weight:bold; color:var(--terracotta); margin-top:auto; margin-bottom:12px; font-size:1.1rem; position:relative; display:inline-block; overflow:hidden; }
+        .price-tag::after { content:''; position:absolute; top:0; left:-70%; width:40%; height:100%; background:linear-gradient(90deg,transparent,rgba(217,125,84,0.4),transparent); animation:shimmer 3.5s ease-in-out infinite; }
+        @keyframes shimmer { 0%{left:-70%} 60%,100%{left:130%} }
+
+        /* Shine no botão iFood */
+        .ifood-full-btn { display:block; width:100%; max-width:400px; margin:40px auto 20px; padding:20px; border-radius:15px; text-align:center; background:var(--terracotta); color:white; text-decoration:none; font-weight:bold; position:relative; overflow:hidden; }
+        .ifood-full-btn::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.22),transparent); transform:translateX(-100%); transition:transform 0.6s; }
+        .ifood-full-btn:hover::after { transform:translateX(100%); }
+        /* Contador animado */
+        .counter { display: block; font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--terracotta); margin-top: 12px; font-weight: bold; }
+
+        /* Barra de progresso de scroll */
+        #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--terracotta); width: 0%; z-index: 9999; transition: width 0.1s linear; }
+
+        /* === CARRINHO LATERAL === */
+        #cart-badge { position:absolute; top:-6px; right:-6px; background:var(--terracotta); color:#fff; font-size:0.6rem; font-weight:bold; width:16px; height:16px; border-radius:50%; display:none; align-items:center; justify-content:center; }
+        #cart-btn { position:relative; cursor:pointer; font-size:1.1rem; color:rgba(255,255,255,0.85); transition:0.3s; }
+        #cart-btn:hover { color:#fff; }
+        #cart-panel { position:fixed; top:0; right:-110%; width:360px; height:100vh; background:var(--cream); z-index:9000; box-shadow:-10px 0 40px rgba(0,0,0,0.15); transition:right 0.4s cubic-bezier(0.4,0,0.2,1); display:flex; flex-direction:column; padding:30px 24px; overflow-y:auto; overflow-x:hidden; }
+        #cart-panel.open { right:0; }
+        #cart-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:8999; opacity:0; pointer-events:none; transition:opacity 0.4s; }
+        #cart-overlay.open { opacity:1; pointer-events:all; }
+        .cart-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+        .cart-header h3 { font-family:'DM Serif Display',serif; font-size:1.5rem; color:var(--dark-green); }
+        .cart-close { background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--text-main); opacity:0.6; transition:0.2s; }
+        .cart-close:hover { opacity:1; }
+        .cart-items { flex:1; display:flex; flex-direction:column; gap:14px; }
+        .cart-item { display:flex; justify-content:space-between; align-items:center; background:var(--white); border-radius:12px; padding:12px 16px; box-shadow:0 2px 10px var(--card-shadow); }
+        .cart-item-name { font-weight:bold; font-size:0.85rem; color:var(--text-main); }
+        .cart-item-qty { display:flex; align-items:center; gap:8px; }
+        .cart-qty-btn { background:var(--terracotta); color:#fff; border:none; width:22px; height:22px; border-radius:50%; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition: 0.2s; }
+        .cart-qty-btn:hover { background:#c0642e; transform: scale(1.15); }
+        .cart-item-price { font-weight:bold; color:var(--terracotta); font-size:0.85rem; }
+        .cart-empty { text-align:center; color:var(--text-main); opacity:0.4; margin-top:60px; font-size:0.9rem; }
+        .cart-total { border-top:2px solid rgba(0,0,0,0.08); margin-top:20px; padding-top:16px; display:flex; justify-content:space-between; font-family:'DM Serif Display',serif; font-size:1.2rem; color:var(--dark-green); }
+        .cart-checkout { margin-top:16px; background:var(--terracotta); color:#fff; border:none; width:100%; padding:14px; border-radius:12px; font-weight:bold; font-size:1rem; cursor:pointer; transition:0.25s; }
+        .cart-checkout:hover { background:#c0642e; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(217,125,84,0.4); }
+        .cart-checkout:active { transform: scale(0.97) !important; }
+
+        /* === NOSSA HISTÓRIA === */
+        .historia-section { background:var(--cream); padding:80px 8%; display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center; transition:background 0.5s; }
+        .historia-img { width:100%; height:380px; object-fit:cover; border-radius:20px; box-shadow:0 20px 50px rgba(0,0,0,0.12); transition: transform 0.5s ease, box-shadow 0.5s ease; }
+        .historia-img:hover { transform: scale(1.015); box-shadow: 0 30px 70px rgba(0,0,0,0.2); }
+        .historia-text h2 { font-family:'DM Serif Display',serif; font-size:2.2rem; color:var(--dark-green); margin-bottom:20px; }
+        .historia-text p { font-size:0.95rem; line-height:1.8; opacity:0.8; margin-bottom:14px; }
+
+        /* === DEPOIMENTOS === */
+        .depoimentos-section { background:var(--soft-peach); padding:80px 5%; text-align:center; transition:background 0.5s; }
+        .depoimentos-section h2 { font-family:'DM Serif Display',serif; font-size:2.2rem; color:var(--dark-green); margin-bottom:40px; }
+        .depo-track { display:flex; gap:24px; overflow:hidden; }
+        .depo-card { min-width:280px; background:var(--white); border-radius:20px; padding:28px; box-shadow:0 8px 30px var(--card-shadow); flex:1; transition:all 0.35s ease; }
+        .depo-card:hover { transform: translateY(-6px); box-shadow:0 20px 50px var(--card-shadow); }
+        .depo-stars { color:#f39c12; font-size:1rem; margin-bottom:12px; }
+        .depo-text { font-size:0.88rem; opacity:0.8; line-height:1.6; margin-bottom:16px; font-style:italic; }
+        .depo-author { font-weight:bold; font-size:0.85rem; color:var(--dark-green); }
+        .depo-nav { display:flex; justify-content:center; gap:10px; margin-top:28px; }
+        .depo-dot { width:8px; height:8px; border-radius:50%; background:rgba(0,0,0,0.2); cursor:pointer; transition:0.3s; }
+        .depo-dot.active { background:var(--terracotta); transform:scale(1.3); }
+
+        /* === GALERIA === */
+        .galeria-section { background:var(--light-grey); padding:80px 5%; text-align:center; transition:background 0.5s; }
+        .galeria-section h2 { font-family:'DM Serif Display',serif; font-size:2.2rem; color:var(--dark-green); margin-bottom:40px; }
+        .galeria-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; max-width:1000px; margin:0 auto; }
+        .galeria-item { border-radius:14px; overflow:hidden; cursor:zoom-in; aspect-ratio:1; position:relative; transition: transform 0.35s ease, box-shadow 0.35s ease; }
+        .galeria-item:hover { transform: scale(1.02); box-shadow: 0 16px 40px rgba(0,0,0,0.18); }
+        .galeria-item img { width:100%; height:100%; object-fit:cover; transition:transform 0.5s; display:block; }
+        .galeria-item:hover img { transform:scale(1.08); }
+        .galeria-item::after { content:'🔍'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:2rem; background:rgba(0,0,0,0.3); opacity:0; transition:0.3s; }
+        .galeria-item:hover::after { opacity:1; }
+
+        /* === MODAL DE DETALHE === */
+        #detail-modal { position:fixed; inset:0; z-index:9500; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+        #detail-modal.open { opacity:1; pointer-events:all; }
+        #detail-modal .modal-bg { position:absolute; inset:0; background:rgba(0,0,0,0.7); }
+        #detail-modal .modal-box { position:relative; background:var(--cream); border-radius:24px; overflow:hidden; max-width:480px; width:90%; box-shadow:0 30px 80px rgba(0,0,0,0.3); transform:scale(0.9); transition:transform 0.3s; }
+        #detail-modal.open .modal-box { transform:scale(1); }
+        #modal-img { width:100%; height:240px; object-fit:cover; }
+        .modal-body { padding:24px; }
+        .modal-body h3 { font-family:'DM Serif Display',serif; font-size:1.6rem; color:var(--dark-green); margin-bottom:8px; }
+        .modal-body p { font-size:0.9rem; opacity:0.75; line-height:1.6; margin-bottom:16px; }
+        .modal-body .modal-price { font-size:1.3rem; font-weight:bold; color:var(--terracotta); }
+        .modal-close { position:absolute; top:14px; right:16px; background:rgba(0,0,0,0.4); color:#fff; border:none; border-radius:50%; width:32px; height:32px; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+        /* === TOAST === */
+        #toast { position:fixed; bottom:100px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--dark-green); color:#fff; padding:12px 24px; border-radius:30px; font-size:0.85rem; font-weight:bold; z-index:9800; opacity:0; transition:opacity 0.3s, transform 0.3s; pointer-events:none; white-space:nowrap; }
+        #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+        /* === HORA DO ALMOÇO === */
+        body.almoco-mode .navbar { background: #1a3a2e; }
+        #almoco-banner { background:linear-gradient(90deg,#e67e22,#f39c12); color:#fff; text-align:center; padding:8px; font-size:0.82rem; font-weight:bold; display:none; }
+        #almoco-banner.show { display:block; }
+
+        /* === CORTINA DE TRANSIÇÃO === */
+        #page-wipe { position:fixed; inset:0; background:var(--dark-green); z-index:99999; transform:translateX(-100%); pointer-events:none; }
+        @keyframes wipeIn  { from{transform:translateX(-100%)} to{transform:translateX(0)} }
+        @keyframes wipeOut { from{transform:translateX(0)} to{transform:translateX(100%)} }
+        #page-wipe.wipe-in  { animation:wipeIn  0.35s ease-in  forwards; }
+        #page-wipe.wipe-out { animation:wipeOut 0.35s ease-out forwards; }
+        #page-wipe-leaf { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-size:4rem; z-index:100000; opacity:0; pointer-events:none; transition:opacity 0.2s; }
+        #page-wipe.wipe-in  #page-wipe-leaf, #page-wipe.wipe-out #page-wipe-leaf { opacity:1; }
+
+        /* === BADGE MOLA NO CARRINHO === */
+        @keyframes springBadge { 0%{transform:scale(1)} 30%{transform:scale(1.6)} 60%{transform:scale(0.85)} 80%{transform:scale(1.15)} 100%{transform:scale(1)} }
+        #cart-badge.spring { animation:springBadge 0.5s ease; }
+
+        /* === HERO CROSSFADE === */
+        .hero { transition: background-image 1.2s ease; }
+        .hero.fading { opacity:0.5; }
+
+        /* === CONTADOR REGRESSIVO === */
+        #countdown { font-family:'DM Serif Display',serif; font-size:1rem; background:rgba(0,0,0,0.25); padding:3px 14px; border-radius:20px; letter-spacing:1px; }
+
+        /* === BOLHA DE SUGESTÃO === */
+        #sugestao-bubble { position:fixed; bottom:170px; right:20px; background:var(--cream); color:var(--dark-green); border-radius:16px; padding:14px 18px; font-size:0.8rem; font-weight:bold; box-shadow:0 8px 30px rgba(0,0,0,0.15); z-index:8000; opacity:0; transform:translateY(10px); transition:opacity 0.4s,transform 0.4s; pointer-events:none; max-width:200px; line-height:1.4; border:2px solid var(--soft-peach); }
+        #sugestao-bubble::after { content:''; position:absolute; bottom:-10px; right:20px; width:0; height:0; border-left:10px solid transparent; border-right:10px solid transparent; border-top:10px solid var(--soft-peach); }
+        #sugestao-bubble.show { opacity:1; transform:translateY(0); pointer-events:all; }
+        #sugestao-bubble a { color:var(--terracotta); text-decoration:none; font-weight:bold; display:block; margin-top:6px; }
+
+        /* === VISUALIZAÇÕES NOS CARDS === */
+        .card-views { font-size:0.7rem; color:var(--terracotta); opacity:0.75; margin-bottom:6px; }
+
+        /* === AVALIAÇÃO POR ESTRELAS NOS CARDS === */
+        .card-stars { display:flex; gap:3px; margin-bottom:8px; }
+        .card-star { font-size:0.85rem; color:#ccc; cursor:pointer; transition:color 0.2s, transform 0.15s; }
+        .card-star.filled { color:#f39c12; }
+        .card-star:hover { transform:scale(1.3); }
+
+        /* === CARD ESGOTADO === */
+        .card.esgotado { position:relative; }
+        .card.esgotado .card-img { filter:grayscale(0.7) brightness(0.7); }
+        .card.esgotado::after { content:'Esgotado'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-15deg); background:rgba(200,50,50,0.85); color:#fff; font-weight:bold; font-size:1rem; padding:6px 20px; border-radius:8px; z-index:5; letter-spacing:1px; pointer-events:none; }
+        .card.esgotado .btn-card { opacity:0.4; pointer-events:none; }
+
+        /* === DESCONTO AUTOMÁTICO === */
+        #desconto-toast { position:fixed; top:80px; left:50%; transform:translateX(-50%) translateY(-20px); background:linear-gradient(90deg,#27ae60,#2ecc71); color:#fff; padding:12px 28px; border-radius:30px; font-size:0.85rem; font-weight:bold; z-index:9800; opacity:0; transition:opacity 0.4s,transform 0.4s; pointer-events:none; white-space:nowrap; }
+        #desconto-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+        /* === DIGITAÇÃO NAS DESCRIÇÕES === */
+        .card-info p.typing-desc { height:38px; overflow:hidden; }
+
+        /* === TAGS NOS CARDS === */
+        .card-tag { position:absolute; top:10px; left:10px; font-size:0.6rem; font-weight:bold; padding:3px 10px; border-radius:20px; z-index:15; letter-spacing:0.5px; pointer-events:none; }
+        .tag-mais-vendido { background:#e74c3c; color:#fff; }
+        .tag-novo { background:#3498db; color:#fff; }
+        .tag-chef { background:var(--dark-green); color:var(--soft-peach); }
+        .tag-vegano { background:#27ae60; color:#fff; }
+        .tag-sem-gluten { background:#8e44ad; color:#fff; }
+
+        /* === BUSCA + ORDENAÇÃO + RESTRIÇÕES === */
+        #menu-toolbar { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; align-items:center; margin-bottom:18px; }
+        #busca-input { padding:9px 18px; border-radius:25px; border:1.5px solid var(--terracotta); background:var(--white); color:var(--text-main); font-size:0.85rem; outline:none; width:220px; transition:width 0.35s ease, box-shadow 0.25s; }
+        #busca-input:focus { width:280px; box-shadow:0 0 0 3px rgba(217,125,84,0.2); }
+        .ordem-btn { padding:7px 16px; border-radius:20px; border:1.5px solid rgba(0,0,0,0.15); background:transparent; color:var(--text-main); font-size:0.75rem; font-weight:bold; cursor:pointer; transition:0.2s; }
+        .ordem-btn.active { background:var(--dark-green); color:#fff; border-color:var(--dark-green); }
+        .restricao-btn { padding:7px 14px; border-radius:20px; border:1.5px solid rgba(0,0,0,0.12); background:transparent; color:var(--text-main); font-size:0.75rem; font-weight:bold; cursor:pointer; transition:0.2s; }
+        .restricao-btn.active { background:var(--terracotta); color:#fff; border-color:var(--terracotta); }
+        #sem-resultado { display:none; text-align:center; padding:40px; opacity:0.5; font-size:0.9rem; grid-column:1/-1; }
+
+        /* === MODO CARDÁPIO FÍSICO === */
+        body.kraft-mode { --bg-body:#d4b896; --cream:#c9a87a; --light-grey:#b8956a; --text-main:#2c1a0e; --card-shadow:rgba(0,0,0,0.15); }
+        body.kraft-mode .navbar { background:#2c1a0e; }
+        body.kraft-mode .card { border-radius:4px; box-shadow:2px 3px 8px rgba(0,0,0,0.2); font-family:'DM Serif Display',serif; }
+        body.kraft-mode .menu-section { background:var(--light-grey); }
+        body.kraft-mode .values-bar { background:#c9a87a; }
+        #kraft-btn { cursor:pointer; font-size:1rem; color:rgba(255,255,255,0.75); transition:0.3s; }
+        body.kraft-mode #kraft-btn { color:#d4a84b; filter:drop-shadow(0 0 6px #d4a84b); }
+
+        /* === FUNDO POR HORÁRIO === */
+        body.hora-manha { --bg-body:#e8f4fd; --light-grey:#d1eaf8; }
+        body.hora-tarde { --bg-body:#fdf3e8; --light-grey:#f8e4cc; }
+        body.hora-noite { --bg-body:#1a1a2e; --light-grey:#16213e; --text-main:#e0e0e0; --cream:#0f3460; --card-shadow:rgba(255,255,255,0.06); }
+
+        /* === CONTADOR DE PEDIDOS === */
+        #pedidos-counter { background:rgba(0,0,0,0.18); backdrop-filter:blur(8px); color:#fff; font-size:0.75rem; font-weight:bold; padding:5px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px; margin-top:14px; }
+        #pedidos-num { font-family:'DM Serif Display',serif; font-size:1.1rem; color:var(--soft-peach); }
+
+        /* === INDIQUE UM AMIGO === */
+        #indica-btn { position:fixed; bottom:230px; left:20px; background:#8e44ad; color:#fff; border:none; border-radius:30px; padding:8px 14px; font-size:0.75rem; font-weight:bold; cursor:pointer; z-index:7998; box-shadow:0 4px 20px rgba(0,0,0,0.2); transition:transform 0.2s; display:flex; align-items:center; gap:6px; }
+        #indica-btn:hover { transform:scale(1.05); }
+        #indica-modal { position:fixed; inset:0; z-index:9600; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+        #indica-modal.open { opacity:1; pointer-events:all; }
+        #indica-modal .modal-bg { position:absolute; inset:0; background:rgba(0,0,0,0.7); }
+        #indica-box { position:relative; background:var(--cream); border-radius:24px; padding:32px; max-width:380px; width:90%; text-align:center; box-shadow:0 30px 80px rgba(0,0,0,0.3); transform:scale(0.9); transition:transform 0.3s; }
+        #indica-modal.open #indica-box { transform:scale(1); }
+        #indica-box h3 { font-family:'DM Serif Display',serif; font-size:1.5rem; color:var(--dark-green); margin-bottom:8px; }
+        #indica-box p { font-size:0.85rem; opacity:0.7; margin-bottom:20px; }
+        #indica-code { font-family:'DM Serif Display',serif; font-size:2rem; color:var(--terracotta); background:rgba(0,0,0,0.05); border-radius:12px; padding:12px 24px; letter-spacing:4px; margin-bottom:16px; display:block; }
+        #indica-copy { background:var(--terracotta); color:#fff; border:none; padding:11px 28px; border-radius:12px; font-weight:bold; cursor:pointer; font-size:0.9rem; transition:0.2s; }
+        #indica-close { position:absolute; top:12px; right:16px; background:none; border:none; font-size:1.3rem; cursor:pointer; opacity:0.5; color:var(--text-main); }
+
+        /* === UPSELL === */
+        #upsell-bubble { position:fixed; bottom:80px; right:90px; background:var(--dark-green); color:#fff; border-radius:16px; padding:12px 16px; font-size:0.75rem; font-weight:bold; box-shadow:0 8px 30px rgba(0,0,0,0.2); z-index:7997; opacity:0; transform:translateY(10px); transition:opacity 0.4s,transform 0.4s; pointer-events:none; max-width:220px; line-height:1.5; }
+        #upsell-bubble.show { opacity:1; transform:translateY(0); pointer-events:all; }
+        #upsell-bubble a { color:var(--soft-peach); cursor:pointer; display:block; margin-top:6px; text-decoration:none; }
+
+        /* === CALCULADORA DE COMBO === */
+        #combo-section { background:var(--cream); padding:60px 5%; text-align:center; transition:background 0.5s; }
+        #combo-section h2 { font-family:'DM Serif Display',serif; font-size:2rem; color:var(--dark-green); margin-bottom:8px; }
+        #combo-section p.sub { opacity:0.6; font-size:0.85rem; margin-bottom:30px; }
+        .combo-selects { display:flex; flex-wrap:wrap; gap:14px; justify-content:center; margin-bottom:24px; }
+        .combo-select { padding:10px 18px; border-radius:12px; border:1.5px solid var(--terracotta); background:var(--white); color:var(--text-main); font-size:0.85rem; cursor:pointer; outline:none; min-width:160px; transition: border-color 0.2s, box-shadow 0.2s; }
+        .combo-select:focus { box-shadow: 0 0 0 3px rgba(217,125,84,0.2); }
+        #combo-result { font-family:'DM Serif Display',serif; font-size:1.4rem; color:var(--dark-green); min-height:36px; transition:0.3s; }
+        #combo-add { margin-top:16px; background:var(--terracotta); color:#fff; border:none; padding:12px 30px; border-radius:12px; font-weight:bold; cursor:pointer; font-size:0.9rem; display:none; transition:0.2s; }
+        #combo-add:hover { background:#c0642e; }
+
+        /* === TIMER DE ENTREGA === */
+        #delivery-timer { background:rgba(0,0,0,0.06); border-radius:10px; padding:10px 14px; margin-top:12px; font-size:0.8rem; color:var(--dark-green); display:none; }
+        #delivery-timer strong { color:var(--terracotta); }
+
+        /* === MODO ACESSIBILIDADE === */
+        body.acess-mode * { animation-duration:0.01ms !important; transition-duration:0.1ms !important; }
+        body.acess-mode { font-size:110%; --bg-body:#fff; --text-main:#000; filter:contrast(1.1); }
+        body.acess-mode .card-info h3 { font-size:1.3rem; }
+        #acess-btn { cursor:pointer; font-size:1rem; color:rgba(255,255,255,0.75); transition:0.3s; }
+        body.acess-mode #acess-btn { color:#fff; filter:drop-shadow(0 0 6px #fff); }
+
+        /* === HISTÓRICO === */
+        #hist-btn { position:fixed; bottom:290px; left:20px; background:#2980b9; color:#fff; border:none; border-radius:30px; padding:8px 14px; font-size:0.75rem; font-weight:bold; cursor:pointer; z-index:7997; box-shadow:0 4px 20px rgba(0,0,0,0.2); transition:transform 0.2s; display:flex; align-items:center; gap:6px; }
+        #hist-btn:hover { transform:scale(1.05); }
+        #hist-modal { position:fixed; inset:0; z-index:9600; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+        #hist-modal.open { opacity:1; pointer-events:all; }
+        #hist-modal .modal-bg { position:absolute; inset:0; background:rgba(0,0,0,0.7); }
+        #hist-box { position:relative; background:var(--cream); border-radius:24px; padding:28px; max-width:420px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 30px 80px rgba(0,0,0,0.3); transform:scale(0.9); transition:transform 0.3s; }
+        #hist-modal.open #hist-box { transform:scale(1); }
+        #hist-box h3 { font-family:'DM Serif Display',serif; font-size:1.4rem; color:var(--dark-green); margin-bottom:18px; }
+        .hist-item { background:var(--white); border-radius:12px; padding:12px 16px; margin-bottom:10px; font-size:0.82rem; color:var(--text-main); }
+        .hist-item strong { display:block; color:var(--terracotta); margin-bottom:4px; }
+        #hist-close { position:absolute; top:12px; right:16px; background:none; border:none; font-size:1.3rem; cursor:pointer; opacity:0.5; color:var(--text-main); }
+
+        /* === RESERVA DE MESA === */
+        #reserva-btn { display:block; text-align:center; background:var(--dark-green); color:#fff; border:none; padding:13px 32px; border-radius:12px; font-weight:bold; font-size:0.95rem; cursor:pointer; margin:20px auto 0; transition:0.2s; }
+        #reserva-btn:hover { background:#1a3a2e; }
+        #reserva-modal { position:fixed; inset:0; z-index:9600; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+        #reserva-modal.open { opacity:1; pointer-events:all; }
+        #reserva-modal .modal-bg { position:absolute; inset:0; background:rgba(0,0,0,0.7); }
+        #reserva-box { position:relative; background:var(--cream); border-radius:24px; padding:30px; max-width:400px; width:90%; box-shadow:0 30px 80px rgba(0,0,0,0.3); transform:scale(0.9); transition:transform 0.3s; }
+        #reserva-modal.open #reserva-box { transform:scale(1); }
+        #reserva-box h3 { font-family:'DM Serif Display',serif; font-size:1.4rem; color:var(--dark-green); margin-bottom:18px; }
+        .reserva-field { width:100%; margin-bottom:12px; padding:10px 14px; border-radius:10px; border:1.5px solid rgba(0,0,0,0.12); background:var(--white); color:var(--text-main); font-size:0.85rem; outline:none; transition: border-color 0.2s, box-shadow 0.2s; }
+        .reserva-field:focus { border-color:var(--terracotta); box-shadow: 0 0 0 3px rgba(217,125,84,0.15); }
+        #reserva-confirm { width:100%; margin-top:8px; background:var(--terracotta); color:#fff; border:none; padding:13px; border-radius:12px; font-weight:bold; cursor:pointer; font-size:0.95rem; transition: 0.25s; }
+        #reserva-confirm:hover { background:#c0642e; transform: translateY(-1px); }
+        #reserva-close { position:absolute; top:12px; right:16px; background:none; border:none; font-size:1.3rem; cursor:pointer; opacity:0.5; color:var(--text-main); }
+        #reserva-ok { display:none; text-align:center; padding:20px 0; }
+        #reserva-ok span { font-size:3rem; display:block; margin-bottom:12px; }
+        #reserva-ok p { font-family:'DM Serif Display',serif; font-size:1.2rem; color:var(--dark-green); }
+
+        /* === CHAT DE ATENDIMENTO === */
+        #chat-btn { position:fixed; bottom:90px; left:20px; width:52px; height:52px; background:var(--dark-green); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; z-index:8000; cursor:pointer; box-shadow:0 4px 20px rgba(0,0,0,0.2); transition:transform 0.2s; }
+        #chat-btn:hover { transform:scale(1.1); }
+        #chat-panel { position:fixed; bottom:150px; left:20px; width:300px; background:var(--cream); border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.15); z-index:8001; display:none; flex-direction:column; overflow:hidden; border:1px solid rgba(0,0,0,0.07); }
+        #chat-panel.open { display:flex; }
+        .chat-head { background:var(--dark-green); color:#fff; padding:14px 18px; font-weight:bold; font-size:0.85rem; display:flex; justify-content:space-between; align-items:center; }
+        .chat-messages { padding:14px; display:flex; flex-direction:column; gap:10px; max-height:240px; overflow-y:auto; }
+        .chat-msg { padding:10px 14px; border-radius:14px; font-size:0.78rem; line-height:1.5; max-width:85%; }
+        .chat-msg.bot { background:rgba(0,0,0,0.06); align-self:flex-start; }
+        .chat-msg.user { background:var(--terracotta); color:#fff; align-self:flex-end; }
+        .chat-options { display:flex; flex-wrap:wrap; gap:6px; padding:0 14px 14px; }
+        .chat-opt { background:var(--soft-peach); color:var(--dark-green); border:none; border-radius:20px; padding:6px 14px; font-size:0.72rem; font-weight:bold; cursor:pointer; transition:0.2s; }
+        .chat-opt:hover { background:var(--terracotta); color:#fff; }
+
+        /* === WIDGET DE CLIMA === */
+        #clima-widget { background:rgba(255,255,255,0.12); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:0.7rem; padding:4px 12px; border-radius:20px; display:flex; align-items:center; gap:6px; margin-left:10px; white-space:nowrap; }
+
+        /* === FIDELIDADE NO CARRINHO === */
+        #fidelidade-bar { padding:14px 0 0; border-top:1px solid rgba(0,0,0,0.08); margin-top:14px; }
+        #fidelidade-bar p { font-size:0.75rem; color:var(--dark-green); margin-bottom:6px; }
+        #fidelidade-track { height:8px; background:rgba(0,0,0,0.08); border-radius:10px; overflow:hidden; }
+        #fidelidade-fill { height:100%; background:linear-gradient(90deg,var(--terracotta),#e8925a); border-radius:10px; width:0%; transition:width 0.6s ease; }
+
+        /* === ROLETA DA SORTE === */
+        #roleta-btn { position:fixed; bottom:160px; left:20px; background:var(--terracotta); color:#fff; border:none; border-radius:30px; padding:10px 18px; font-size:0.8rem; font-weight:bold; cursor:pointer; z-index:7999; box-shadow:0 4px 20px rgba(0,0,0,0.2); transition:transform 0.2s; display:flex; align-items:center; gap:6px; }
+        #roleta-btn:hover { transform:scale(1.05); }
+
+        /* === MENU HAMBURGUER MOBILE === */
+        #mob-menu-btn { display:none; background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer; padding:4px 8px; line-height:1; }
+        #mob-menu-panel { display:none; position:fixed; top:60px; right:0; left:0; background:var(--dark-green); z-index:9100; flex-direction:column; box-shadow:0 8px 30px rgba(0,0,0,0.4); transition: top 0.1s; }
+        #mob-menu-panel.open { display:flex; }
+        #mob-menu-header { display:flex; justify-content:space-between; align-items:center; padding:12px 20px; border-bottom:1px solid rgba(255,255,255,0.15); }
+        #mob-menu-header span { color:#fff; font-weight:bold; font-size:0.9rem; letter-spacing:1px; opacity:0.7; }
+        #mob-menu-close { background:none; border:none; color:#fff; font-size:1.3rem; cursor:pointer; padding:4px 8px; opacity:0.7; line-height:1; }
+        #mob-menu-close:hover { opacity:1; }
+        #mob-menu-panel button:not(#mob-menu-close) { background:none; border:none; color:#fff; font-size:0.95rem; padding:16px 24px; text-align:left; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.07); transition:background 0.2s; width:100%; }
+        #mob-menu-panel button:not(#mob-menu-close):last-child { border-bottom:none; }
+        #mob-menu-panel button:not(#mob-menu-close):hover { background:rgba(255,255,255,0.1); }
+
+        /* === RESPONSIVIDADE MOBILE — DEVE VIR APÓS TODO CSS DESKTOP === */
+        @media (max-width: 768px) {
+            /* Navbar: oculta tudo exceto logo + carrinho + lua + hamburguer */
+            #mesa-btn, #kraft-btn, #acess-btn, #hist-nav-btn,
+            #nivel-badge, #clima-widget,
+            .nav-links a:not(.btn-nav), .btn-nav { display: none; }
+            #mob-menu-btn { display: block; }
+
+            /* Menu toolbar: empilha em coluna */
+            #menu-toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
+            #busca-input { width: 100% !important; }
+            #menu-toolbar .ordem-btn,
+            #menu-toolbar .restricao-btn { font-size: 0.7rem; padding: 6px 10px; }
+
+            /* Seção combo: selects em coluna */
+            #combo-section { padding: 40px 5%; }
+            .combo-selects { flex-direction: column; align-items: stretch; }
+            .combo-select { min-width: unset; width: 100%; }
+
+            /* Depoimentos */
+            .depoimentos-section { padding: 50px 5%; }
+
+            /* Botões flutuantes: reposiciona sem sobreposição */
+            #chat-btn  { bottom: 80px; left: 16px; width: 48px; height: 48px; font-size: 1.2rem; }
+            #chat-panel { width: calc(100vw - 32px); left: 16px; bottom: 136px; }
+            #roleta-btn { display: none; }
+            #indica-btn { display: none; }
+            #hist-btn   { display: none; }
+
+            /* Upsell: lado esquerdo para não sobrepor back-to-top/whatsapp */
+            #upsell-bubble { left: 12px; right: auto; bottom: 140px; max-width: 200px; }
+
+            /* Painel de rank: full width no mobile */
+            #nivel-panel { width: 100%; border-radius: 0; border-left: none; border-bottom: 3px solid var(--terracotta); }
+
+            /* Sugestão bubble */
+            #sugestao-bubble { right: 12px; left: auto; bottom: 80px; max-width: 200px; }
+
+            /* Carrinho: tela cheia */
+            #cart-panel { width: 100%; right: -100%; }
+
+            /* Toast */
+            #toast, #desconto-toast { max-width: 90vw; white-space: normal; text-align: center; font-size: 0.78rem; }
+        }
+
+        @media (max-width: 480px) {
+            /* Cards: 2 colunas em telas pequenas */
+            .menu-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            /* Galeria: 2 colunas */
+            .galeria-grid { grid-template-columns: repeat(2, 1fr); }
+            /* Chat cobre mais espaço */
+            #chat-panel { width: calc(100vw - 24px); left: 12px; }
+        }
+        #roleta-modal { position:fixed; inset:0; z-index:9600; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+        #roleta-modal.open { opacity:1; pointer-events:all; }
+        #roleta-modal .modal-bg { position:absolute; inset:0; background:rgba(0,0,0,0.7); }
+        #roleta-box { position:relative; background:var(--cream); border-radius:24px; padding:36px 32px; max-width:360px; width:90%; text-align:center; box-shadow:0 30px 80px rgba(0,0,0,0.3); transform:scale(0.9); transition:transform 0.3s; }
+        #roleta-modal.open #roleta-box { transform:scale(1); }
+        #roleta-wheel { font-size:5rem; display:block; transition:transform 1.5s cubic-bezier(0.17,0.67,0.12,0.99); }
+        #roleta-result { margin-top:16px; font-family:'DM Serif Display',serif; font-size:1.3rem; color:var(--dark-green); min-height:40px; }
+        #roleta-spin-btn { margin-top:18px; background:var(--terracotta); color:#fff; border:none; padding:12px 30px; border-radius:12px; font-weight:bold; cursor:pointer; font-size:0.95rem; transition:0.25s; }
+        #roleta-spin-btn:hover { background:#c0642e; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(217,125,84,0.4); }
+        #roleta-spin-btn:active { transform: scale(0.96) !important; }
+        #roleta-close { position:absolute; top:12px; right:16px; background:none; border:none; font-size:1.3rem; cursor:pointer; opacity:0.5; }
+
+        /* === RANK DO VISITANTE === */
+
+        /* Badge na navbar */
+        #nivel-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.4px;
+            border-radius: 50px; padding: 5px 13px 5px 9px;
+            color: #fff; cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+            border: 1.5px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(8px);
+            white-space: nowrap; user-select: none;
+        }
+        #nivel-badge .badge-dot {
+            width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+            background: rgba(255,255,255,0.5);
+            transition: background 0.4s, box-shadow 0.4s;
+        }
+        #nivel-badge:hover { transform: scale(1.07); filter: brightness(1.15); }
+
+        /* Cores por nível */
+        #nivel-badge.nivel-0 { background: rgba(150,150,150,0.18); border-color: rgba(180,180,180,0.25); }
+        #nivel-badge.nivel-0 .badge-dot { background: #aaa; }
+
+        #nivel-badge.nivel-1 {
+            background: rgba(60,140,80,0.3); border-color: rgba(60,170,90,0.55);
+            box-shadow: 0 0 12px rgba(60,170,90,0.2);
+        }
+        #nivel-badge.nivel-1 .badge-dot { background: #4CAF50; box-shadow: 0 0 6px #4CAF50; }
+
+        #nivel-badge.nivel-2 {
+            background: rgba(30,110,60,0.4); border-color: rgba(46,139,87,0.7);
+            box-shadow: 0 0 16px rgba(46,139,87,0.35);
+        }
+        #nivel-badge.nivel-2 .badge-dot { background: #2ecc71; box-shadow: 0 0 8px #2ecc71; }
+
+        #nivel-badge.nivel-3 {
+            background: linear-gradient(120deg, rgba(180,140,30,0.5), rgba(220,185,50,0.3));
+            border-color: rgba(212,175,55,0.85);
+            box-shadow: 0 0 20px rgba(212,175,55,0.45);
+            animation: goldPulse 2.8s ease-in-out infinite;
+        }
+        #nivel-badge.nivel-3 .badge-dot {
+            background: linear-gradient(135deg,#f5d060,#d4ac0d);
+            box-shadow: 0 0 10px rgba(212,175,55,0.8);
+            animation: dotSpin 4s linear infinite;
+        }
+        @keyframes dotSpin { to { transform: rotate(360deg); } }
+        @keyframes goldPulse {
+            0%,100% { box-shadow: 0 0 14px rgba(212,175,55,0.35); }
+            50%      { box-shadow: 0 0 28px rgba(212,175,55,0.7), 0 0 50px rgba(212,175,55,0.2); }
+        }
+
+        /* ─── PAINEL DE RANK ─── */
+        #nivel-panel {
+            position: fixed; top: 60px; right: 0;
+            width: 340px;
+            background: #0e1a13;
+            border-radius: 0 0 0 24px;
+            box-shadow: -6px 12px 60px rgba(0,0,0,0.45);
+            z-index: 9050;
+            transform: translateX(110%);
+            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+            overflow: hidden;
+            border-left: 1px solid rgba(255,255,255,0.06);
+        }
+        #nivel-panel.open { transform: translateX(0); }
+
+        /* Header do painel */
+        #nivel-panel-header {
+            padding: 22px 22px 18px;
+            background: linear-gradient(135deg, #1a3226 0%, #0e2019 100%);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        #nivel-panel-header h4 {
+            color: #fff; font-family: 'DM Serif Display', serif;
+            font-size: 1.05rem; margin: 0;
+            display: flex; align-items: center; gap: 8px;
+        }
+        #nivel-panel-header h4::before {
+            content: '';
+            display: inline-block; width: 10px; height: 10px;
+            border-radius: 50%;
+            background: var(--terracotta);
+            box-shadow: 0 0 10px var(--terracotta);
+        }
+        #nivel-panel-close {
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.6); font-size: 1rem; cursor: pointer;
+            border-radius: 50%; width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.2s;
+        }
+        #nivel-panel-close:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+        /* Corpo */
+        #nivel-panel-body { padding: 20px; }
+
+        /* Card rank atual */
+        #nivel-card-atual {
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 18px;
+            background: linear-gradient(135deg, #1e3d2a 0%, #142a1c 100%);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #fff;
+            position: relative; overflow: hidden;
+        }
+        #nivel-card-atual::before {
+            content: '';
+            position: absolute; right: -30px; top: -30px;
+            width: 120px; height: 120px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(217,125,84,0.15) 0%, transparent 70%);
+        }
+        #nivel-card-top {
+            display: flex; align-items: center; gap: 14px; margin-bottom: 14px;
+        }
+        #nivel-icone-wrap {
+            width: 52px; height: 52px; border-radius: 14px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; flex-shrink: 0;
+        }
+        #nivel-icone { font-size: 1.8rem; line-height: 1; }
+        #nivel-card-info { flex: 1; }
+        #nivel-nome-atual {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.2rem; font-weight: bold; color: #fff;
+        }
+        #nivel-subtitulo { font-size: 0.7rem; opacity: 0.55; margin-top: 3px; }
+
+        /* Barra de progresso */
+        #nivel-progresso-wrap { }
+        #nivel-prog-label {
+            font-size: 0.7rem; color: rgba(255,255,255,0.5);
+            margin-bottom: 7px; display: flex; justify-content: space-between;
+        }
+        #nivel-prog-bar-bg {
+            background: rgba(255,255,255,0.1); border-radius: 20px; height: 6px; overflow: hidden;
+        }
+        #nivel-prog-bar {
+            height: 100%; border-radius: 20px;
+            background: linear-gradient(90deg, var(--terracotta), #e8925a);
+            transition: width 0.7s cubic-bezier(0.34,1.56,0.64,1);
+            box-shadow: 0 0 8px rgba(217,125,84,0.5);
+        }
+
+        /* Benefício iFood */
+        #nivel-ifood-cta {
+            margin-top: 14px;
+            background: rgba(217,125,84,0.12);
+            border: 1px solid rgba(217,125,84,0.3);
+            border-radius: 12px; padding: 10px 14px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        #nivel-ifood-cta span { font-size: 0.72rem; color: rgba(255,255,255,0.7); line-height: 1.4; }
+        #nivel-ifood-cta strong { color: var(--soft-peach); display: block; font-size: 0.78rem; }
+        .nivel-ifood-link {
+            flex-shrink: 0; background: var(--terracotta); color: #fff;
+            text-decoration: none; padding: 7px 13px; border-radius: 8px;
+            font-size: 0.68rem; font-weight: 700; transition: 0.2s; white-space: nowrap;
+        }
+        .nivel-ifood-link:hover { background: #c0642e; }
+
+        /* Lista de ranks */
+        #nivel-lista {
+            display: flex; flex-direction: column; gap: 7px;
+            margin-bottom: 16px;
+        }
+        .nivel-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 11px 13px; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.03);
+            transition: all 0.25s; color: rgba(255,255,255,0.55);
+            position: relative; overflow: hidden;
+        }
+        .nivel-item.conquistado { opacity: 0.4; }
+        .nivel-item.atual {
+            border-color: rgba(217,125,84,0.4);
+            background: rgba(217,125,84,0.08);
+            color: #fff;
+            box-shadow: inset 0 0 20px rgba(217,125,84,0.05);
+        }
+        .nivel-item.atual::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+            width: 3px; background: var(--terracotta); border-radius: 0 2px 2px 0;
+        }
+        .nivel-item-icon {
+            font-size: 1.2rem; width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 8px; background: rgba(255,255,255,0.06);
+            flex-shrink: 0;
+        }
+        .nivel-item-info { flex: 1; }
+        .nivel-item-nome { font-weight: 700; font-size: 0.79rem; }
+        .nivel-item-req  { font-size: 0.66rem; opacity: 0.5; margin-top: 2px; }
+        .nivel-item-check { color: #4CAF50; font-size: 0.85rem; font-weight: bold; }
+
+        /* Rodapé do painel */
+        #nivel-panel-footer {
+            padding: 14px 20px 18px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            text-align: center;
+        }
+        #nivel-panel-footer p {
+            font-size: 0.68rem; color: rgba(255,255,255,0.3); line-height: 1.6;
+        }
+
+        /* Mobile: full-width */
+        @media(max-width:768px){
+            #nivel-panel {
+                width: 100%; border-radius: 0 0 20px 20px;
+                border-left: none; border-bottom: 1px solid rgba(255,255,255,0.08);
+                max-height: 85vh; overflow-y: auto;
+            }
+        }
+
+        /* ─── RANK-UP OVERLAY ─── */
+        #rankup-overlay {
+            position: fixed; inset: 0; z-index: 99998; pointer-events: none;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.35s;
+            background: rgba(0,0,0,0.35); backdrop-filter: blur(4px);
+        }
+        #rankup-overlay.show { opacity: 1; }
+        #rankup-card {
+            background: linear-gradient(160deg, #1a3226 0%, #0e1f17 100%);
+            color: #fff; border-radius: 28px;
+            padding: 44px 52px; text-align: center;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
+            transform: scale(0.4) translateY(60px);
+            transition: transform 0.55s cubic-bezier(0.34,1.56,0.64,1);
+            max-width: 340px; width: 90%;
+        }
+        #rankup-overlay.show #rankup-card { transform: scale(1) translateY(0); }
+        #rankup-emoji {
+            font-size: 4rem; display: block; margin-bottom: 6px;
+            animation: rankBounce 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.25s both;
+        }
+        @keyframes rankBounce {
+            0%   { transform: scale(0) rotate(-25deg); opacity: 0; }
+            60%  { transform: scale(1.25) rotate(8deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0); }
+        }
+        #rankup-linha { width: 40px; height: 2px; background: var(--terracotta); margin: 14px auto; border-radius: 2px; }
+        #rankup-titulo {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.7rem; margin-bottom: 6px; letter-spacing: -0.3px;
+        }
+        #rankup-sub { font-size: 0.82rem; opacity: 0.55; margin-bottom: 20px; }
+        #rankup-cta {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--terracotta); color: #fff; text-decoration: none;
+            padding: 10px 22px; border-radius: 50px; font-size: 0.8rem; font-weight: 700;
+            transition: 0.2s;
+        }
+        #rankup-cta:hover { background: #c0642e; }
+
+        /* ─── RANK NO MENU MOBILE ─── */
+        #mob-rank-display {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 20px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+            cursor: pointer;
+        }
+        #mob-rank-icon-wrap {
+            width: 38px; height: 38px; border-radius: 10px;
+            background: rgba(255,255,255,0.07);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; flex-shrink: 0;
+        }
+        #mob-rank-icon { font-size: 1.3rem; }
+        #mob-rank-info { flex: 1; }
+        #mob-rank-nome { color: #fff; font-weight: 700; font-size: 0.84rem; }
+        #mob-rank-prog { font-size: 0.66rem; color: rgba(255,255,255,0.45); margin-top: 2px; }
+        #mob-rank-bar-bg { height: 3px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 7px; overflow: hidden; }
+        #mob-rank-bar { height: 100%; background: linear-gradient(90deg, var(--terracotta), #e8925a); border-radius: 4px; transition: width 0.6s ease; width: 0%; }
+        #mob-rank-arrow { color: rgba(255,255,255,0.25); font-size: 0.75rem; }
+
+        /* === DESAFIO DIÁRIO === */
+        #desafio-banner { background:linear-gradient(90deg,var(--dark-green),#3d6b5a); color:#fff; padding:10px 5%; display:flex; align-items:center; justify-content:center; gap:14px; font-size:0.82rem; flex-wrap:wrap; }
+        #desafio-banner strong { color:var(--soft-peach); }
+        #desafio-btn { background:var(--soft-peach); color:var(--dark-green); border:none; border-radius:20px; padding:5px 16px; font-weight:bold; font-size:0.75rem; cursor:pointer; transition:0.2s; }
+        #desafio-btn:hover { background:#fff; }
+
+        /* === MODO MESA DO RESTAURANTE === */
+        body.mesa-mode { --bg-body:#2a1a0e; --cream:#3d2a1a; --light-grey:#2a1a0e; --text-main:#f5e6d3; --card-shadow:rgba(0,0,0,0.4); }
+        body.mesa-mode .navbar { background:#1a0f08; }
+        body.mesa-mode .values-bar { background:#3d2a1a; }
+        #mesa-btn { cursor:pointer; font-size:1rem; color:rgba(255,255,255,0.75); transition:0.3s; }
+        #mesa-btn:hover { color:#fff; }
+        body.mesa-mode #mesa-btn { color:#f39c12; filter:drop-shadow(0 0 6px #f39c12); }
+
+        /* === ANIMAÇÃO DE PREPARO === */
+        #preparo-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:99000; display:none; align-items:center; justify-content:center; flex-direction:column; gap:20px; color:#fff; text-align:center; }
+        #preparo-overlay.show { display:flex; }
+        #preparo-pan { font-size:5rem; animation:panShake 0.4s ease-in-out infinite; display:block; }
+        @keyframes panShake { 0%,100%{transform:rotate(-8deg)} 50%{transform:rotate(8deg)} }
+        #preparo-msg { font-family:'DM Serif Display',serif; font-size:1.8rem; }
+        #preparo-sub { font-size:0.9rem; opacity:0.7; }
+
+        /* === PERSONALIZAÇÃO DO PEDIDO === */
+        #custom-modal { position:fixed; inset:0; z-index:9700; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+        #custom-modal.open { opacity:1; pointer-events:all; }
+        #custom-modal .modal-bg { position:absolute; inset:0; background:rgba(0,0,0,0.7); }
+        #custom-box { position:relative; background:var(--cream); border-radius:24px; padding:30px; max-width:400px; width:90%; box-shadow:0 30px 80px rgba(0,0,0,0.3); transform:scale(0.9); transition:transform 0.3s; }
+        #custom-modal.open #custom-box { transform:scale(1); }
+        #custom-box h3 { font-family:'DM Serif Display',serif; font-size:1.4rem; color:var(--dark-green); margin-bottom:18px; }
+        .custom-opt { display:flex; align-items:center; gap:10px; margin-bottom:12px; font-size:0.85rem; color:var(--text-main); }
+        .custom-opt input[type=checkbox] { width:16px; height:16px; cursor:pointer; accent-color:var(--terracotta); }
+        .custom-opt input[type=text] { flex:1; border:1px solid rgba(0,0,0,0.15); border-radius:8px; padding:6px 10px; font-size:0.8rem; background:var(--white); color:var(--text-main); }
+        #custom-confirm { width:100%; margin-top:18px; background:var(--terracotta); color:#fff; border:none; padding:12px; border-radius:12px; font-weight:bold; cursor:pointer; font-size:0.95rem; }
+        #custom-close { position:absolute; top:12px; right:16px; background:none; border:none; font-size:1.3rem; cursor:pointer; opacity:0.5; color:var(--text-main); }
+
+        /* === COMPARTILHAR PEDIDO === */
+        #share-btn { margin-top:10px; width:100%; background:rgba(0,0,0,0.06); color:var(--dark-green); border:none; padding:10px; border-radius:12px; font-weight:bold; cursor:pointer; font-size:0.82rem; transition:0.2s; display:none; }
+        #share-btn:hover { background:rgba(0,0,0,0.1); }
+
+        /* === SURPRESA DO CHEF === */
+        #surpresa-btn { background:linear-gradient(135deg,var(--dark-green),#3d6b5a); color:#fff; border:none; padding:10px 24px; border-radius:25px; font-weight:bold; font-size:0.85rem; cursor:pointer; margin-bottom:20px; transition:0.3s; display:flex; align-items:center; gap:8px; margin:0 auto 24px; }
+        #surpresa-btn:hover { transform:scale(1.05); }
+    </style>
+</head>
+<body>
+
+    <div id="upsell-bubble"></div>
+
+    <!-- Modal Indique um Amigo -->
+    <div id="indica-modal">
+        <div class="modal-bg" onclick="closeIndica()"></div>
+        <div id="indica-box">
+            <button id="indica-close" onclick="closeIndica()">✕</button>
+            <h3>🎁 Indique um Amigo</h3>
+            <p>Compartilhe seu código. Quando ele fizer o primeiro pedido, vocês dois ganham 15% de desconto!</p>
+            <span id="indica-code">RAIZ--</span>
+            <button id="indica-copy" onclick="copiarCodigo()">📋 Copiar código</button>
+        </div>
+    </div>
+
+    <!-- Modal Histórico -->
+    <div id="hist-modal">
+        <div class="modal-bg" onclick="closeHist()"></div>
+        <div id="hist-box">
+            <button id="hist-close" onclick="closeHist()">✕</button>
+            <h3>📋 Histórico de Pedidos</h3>
+            <div id="hist-content"></div>
+        </div>
+    </div>
+
+    <!-- Modal Reserva de Mesa -->
+    <div id="reserva-modal">
+        <div class="modal-bg" onclick="closeReserva()"></div>
+        <div id="reserva-box">
+            <button id="reserva-close" onclick="closeReserva()">✕</button>
+            <h3>🪑 Reservar Mesa</h3>
+            <div id="reserva-form">
+                <input class="reserva-field" id="res-nome" placeholder="Seu nome" type="text">
+                <input class="reserva-field" id="res-tel" placeholder="Telefone" type="tel">
+                <input class="reserva-field" id="res-data" type="date">
+                <input class="reserva-field" id="res-hora" type="time" min="11:00" max="22:30">
+                <select class="reserva-field" id="res-pessoas">
+                    <option value="">Número de pessoas</option>
+                    <option>1 pessoa</option><option>2 pessoas</option><option>3 pessoas</option>
+                    <option>4 pessoas</option><option>5 pessoas</option><option>6+ pessoas</option>
+                </select>
+                <button id="reserva-confirm" onclick="confirmarReserva()">✅ Confirmar Reserva</button>
+            </div>
+            <div id="reserva-ok">
+                <span>🎉</span>
+                <p id="reserva-ok-msg">Reserva confirmada!</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="scroll-progress"></div>
+    <div id="custom-cursor"></div>
+    <div id="page-wipe"><span id="page-wipe-leaf">🌿</span></div>
+    <div id="desconto-toast">🎉 3 itens! Desconto de 10% aplicado automaticamente</div>
+    <div id="sugestao-bubble">🥤 Que tal uma bebida?<a href="#especiais" onclick="document.getElementById('sugestao-bubble').classList.remove('show')">Ver Especiais →</a></div>
+    <audio id="natureSound" loop src="https://assets.mixkit.co/active_storage/sfx/2458/2458-preview.mp3"></audio>
+
+    <!-- Chat de Atendimento -->
+    <div id="chat-btn" onclick="toggleChat()" title="Atendimento">💬</div>
+    <div id="chat-panel">
+        <div class="chat-head">
+            <span>🌿 Atendimento Raiz</span>
+            <span onclick="toggleChat()" style="cursor:pointer;opacity:0.7">✕</span>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-msg bot">Olá! 👋 Seja bem-vindo ao Raiz. Como posso ajudar?</div>
+        </div>
+        <div class="chat-options" id="chatOptions">
+            <button class="chat-opt" onclick="chatReply('entrega')">⏱ Tempo de entrega</button>
+            <button class="chat-opt" onclick="chatReply('vegano')">🌱 Opções veganas</button>
+            <button class="chat-opt" onclick="chatReply('horario')">🕐 Horário</button>
+            <button class="chat-opt" onclick="chatReply('desconto')">🎁 Promoções</button>
+        </div>
+    </div>
+
+    <!-- Roleta da Sorte -->
+    <button id="roleta-btn" onclick="openRoleta()">🎰 Roleta da Sorte</button>
+    <button id="indica-btn" onclick="openIndica()">🎁 Indicar amigo</button>
+    <button id="hist-btn" onclick="openHist()">📋 Histórico</button>
+    <div id="roleta-modal">
+        <div class="modal-bg" onclick="closeRoleta()"></div>
+        <div id="roleta-box">
+            <button id="roleta-close" onclick="closeRoleta()">✕</button>
+            <h3 style="font-family:'DM Serif Display',serif;color:var(--dark-green);margin-bottom:4px">🎰 Roleta da Sorte</h3>
+            <p id="roleta-status" style="font-size:0.78rem;margin-bottom:16px;">carregando...</p>
+            <span id="roleta-wheel">🎰</span>
+            <div id="roleta-result"></div>
+            <button id="roleta-spin-btn" onclick="spinRoleta()">Girar!</button>
+            <p style="font-size:0.68rem;opacity:0.45;margin-top:14px">💡 Ganhe giros extras completando a fidelidade ou subindo de nível</p>
+        </div>
+    </div>
+
+    <!-- Animação de Preparo -->
+    <div id="preparo-overlay">
+        <span id="preparo-pan">🍳</span>
+        <div id="preparo-msg">Preparando seu pedido...</div>
+        <div id="preparo-sub">Nossos chefs já estão na cozinha 👨‍🍳</div>
+    </div>
+
+    <!-- Personalização do Pedido -->
+    <div id="custom-modal">
+        <div class="modal-bg" onclick="closeCustom()"></div>
+        <div id="custom-box">
+            <button id="custom-close" onclick="closeCustom()">✕</button>
+            <h3 id="custom-title">Personalizar pedido</h3>
+            <div class="custom-opt"><input type="checkbox" id="sem-cebola"><label for="sem-cebola">Sem cebola</label></div>
+            <div class="custom-opt"><input type="checkbox" id="sem-gluten"><label for="sem-gluten">Sem glúten</label></div>
+            <div class="custom-opt"><input type="checkbox" id="extra-molho"><label for="extra-molho">Molho extra</label></div>
+            <div class="custom-opt"><input type="checkbox" id="ponto-bem"><label for="ponto-bem">Bem passado</label></div>
+            <div class="custom-opt"><label>📝 Observação:</label><input type="text" id="obs-text" placeholder="ex: sem pimenta..."></div>
+            <button id="custom-confirm" onclick="confirmCustom()">✅ Adicionar ao pedido</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast"></div>
+
+    <!-- Modal de detalhe -->
+    <div id="detail-modal" role="dialog" aria-modal="true" aria-label="Detalhe do produto">
+        <div class="modal-bg" onclick="closeModal()"></div>
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <img loading="lazy" id="modal-img" src="" alt="">
+            <div class="modal-body">
+                <h3 id="modal-title"></h3>
+                <p id="modal-desc"></p>
+                <span class="modal-price" id="modal-price"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carrinho lateral -->
+    <div id="cart-overlay" onclick="toggleCart()"></div>
+    <div id="cart-panel" role="dialog" aria-modal="true" aria-label="Seu carrinho">
+        <div class="cart-header">
+            <h3>🛒 Seu Pedido</h3>
+            <button class="cart-close" onclick="toggleCart()">✕</button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <p class="cart-empty">Nenhum item ainda.<br>Adicione algo do cardápio!</p>
+        </div>
+        <div class="cart-total" id="cartTotal" style="display:none">
+            <span>Total</span><span id="cartTotalValue">R$ 0,00</span>
+        </div>
+        <button class="cart-checkout" id="cartCheckout" style="display:none" onclick="finalizarPedido()">Finalizar Pedido 🌿</button>
+        <button id="share-btn" onclick="compartilharPedido()">📤 Compartilhar pedido</button>
+        <div id="delivery-timer">🛵 Pedindo agora, chega às <strong id="delivery-time">--:--</strong></div>
+        <div id="fidelidade-bar">
+            <p id="fidelidade-msg">⭐ Faltam <strong id="fidelidade-faltam">5</strong> itens para um Bowl grátis!</p>
+            <div id="fidelidade-track"><div id="fidelidade-fill"></div></div>
+        </div>
+    </div>
+    
+    <a href="https://wa.me/556981133218" class="whatsapp-float" target="_blank" aria-label="Falar pelo WhatsApp" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
+    <a href="#" class="back-to-top" id="backToTop">🚀</a>
+
+    <div id="almoco-banner">🍽️ Hora do Almoço! Peça agora e ganhe uma sobremesa grátis — válido até 14h</div>
+
+    <div id="promo-banner">
+        <span>🎉 Promoção do dia:</span>
+        <span class="promo-highlight">2° Bowl com 50% OFF — Só hoje!</span>
+        <span>Use o código <strong>RAIZ50</strong> no iFood</span>
+        <span id="countdown">--:--:--</span>
+        <button class="promo-close" onclick="this.parentElement.classList.add('hidden')">✕</button>
+    </div>
+
+    <nav class="navbar">
+        <div style="display: flex; align-items: center;">
+            <div class="logo">
+                RAIZ
+                <i class="fas fa-leaf sound-switch" id="soundToggle" title="Som da Natureza"></i>
+            </div>
+            <div class="nav-status">
+                <div class="nav-dot" id="nav-dot"></div>
+                <span id="nav-text">---</span>
+            </div>
+            <div id="clima-widget">🌤 --°C</div>
+        </div>
+        <div class="nav-links">
+            <i class="fas fa-moon theme-switch" id="themeToggle"></i>
+            <i class="fas fa-utensils" id="mesa-btn" onclick="toggleMesa()" title="Modo Mesa"></i>
+            <i class="fas fa-book-open" id="kraft-btn" onclick="toggleKraft()" title="Cardápio Físico"></i>
+            <i class="fas fa-universal-access" id="acess-btn" onclick="toggleAcess()" title="Acessibilidade"></i>
+            <i class="fas fa-history" id="hist-nav-btn" onclick="openHist()" title="Histórico" style="cursor:pointer;font-size:1rem;color:rgba(255,255,255,0.75);transition:0.3s;"></i>
+            <div id="cart-btn" onclick="toggleCart()" title="Carrinho" aria-label="Abrir carrinho" role="button">
+                <i class="fas fa-shopping-bag"></i>
+                <span id="cart-badge"></span>
+            </div>
+            <span id="nivel-badge" class="nivel-0" onclick="toggleNivelPanel()" aria-label="Seu rank" role="button" tabindex="0"><span class="badge-dot"></span> Visitante</span>
+            <a href="#menu">Cardápio</a>
+            <a href="#" class="btn-nav">iFood</a>
+            <!-- Menu mobile -->
+            <button id="mob-menu-btn" onclick="toggleMobMenu()" aria-label="Abrir menu de navegação" aria-expanded="false">☰</button>
+        </div>
+    </nav>
+
+    <!-- Painel mobile (fora da nav para não se sobrepor) -->
+    <div id="mob-menu-panel">
+        <div id="mob-menu-header">
+            <span>Menu</span>
+            <button id="mob-menu-close" onclick="toggleMobMenu()">✕</button>
+        </div>
+        <!-- Rank display no mobile -->
+        <div id="mob-rank-display" onclick="toggleMobMenu();toggleNivelPanel()">
+            <div id="mob-rank-icon-wrap"><span id="mob-rank-icon">👤</span></div>
+            <div id="mob-rank-info">
+                <div id="mob-rank-nome">Visitante</div>
+                <div id="mob-rank-prog">Explore o site para subir de nível</div>
+                <div id="mob-rank-bar-bg"><div id="mob-rank-bar"></div></div>
+            </div>
+            <span id="mob-rank-arrow">›</span>
+        </div>
+        <button onclick="toggleMobMenu();toggleMesa()">🍴 Modo Mesa</button>
+        <button onclick="toggleMobMenu();toggleKraft()">📖 Cardápio Físico</button>
+        <button onclick="toggleMobMenu();toggleAcess()">♿ Acessibilidade</button>
+        <button onclick="toggleMobMenu();openHist()">📋 Histórico de Pedidos</button>
+        <button onclick="toggleMobMenu();openIndica()">🎁 Indicar Amigo</button>
+        <button onclick="toggleMobMenu();openRoleta()">🎰 Roleta da Sorte</button>
+    </div>
+
+    <!-- Painel de Rank -->
+    <div id="nivel-panel" role="dialog" aria-modal="true" aria-label="Seu rank">
+        <div id="nivel-panel-header">
+            <h4>Rank do Visitante</h4>
+            <button id="nivel-panel-close" onclick="toggleNivelPanel()" aria-label="Fechar">✕</button>
+        </div>
+        <div id="nivel-panel-body">
+            <!-- Card rank atual -->
+            <div id="nivel-card-atual">
+                <div id="nivel-card-top">
+                    <div id="nivel-icone-wrap"><span id="nivel-icone">👤</span></div>
+                    <div id="nivel-card-info">
+                        <div id="nivel-nome-atual">Visitante</div>
+                        <div id="nivel-subtitulo">Explore o cardápio para subir de nível</div>
+                    </div>
+                </div>
+                <!-- Barra de progresso -->
+                <div id="nivel-progresso-wrap">
+                    <div id="nivel-prog-label">
+                        <span id="nivel-prog-texto">Próximo nível</span>
+                        <span id="nivel-prog-num">0%</span>
+                    </div>
+                    <div id="nivel-prog-bar-bg"><div id="nivel-prog-bar" style="width:0%"></div></div>
+                </div>
+                <!-- CTA iFood -->
+                <div id="nivel-ifood-cta">
+                    <span><strong id="nivel-beneficio">Continue explorando</strong>Explore mais seções para desbloquear benefícios</span>
+                    <a href="https://www.ifood.com.br" target="_blank" rel="noopener" class="nivel-ifood-link">iFood →</a>
+                </div>
+            </div>
+
+            <!-- Lista de níveis -->
+            <div id="nivel-lista">
+                <div class="nivel-item atual" id="nivel-item-0">
+                    <div class="nivel-item-icon">👤</div>
+                    <div class="nivel-item-info">
+                        <div class="nivel-item-nome">Visitante</div>
+                        <div class="nivel-item-req">Chegou — obrigado pela visita!</div>
+                    </div>
+                </div>
+                <div class="nivel-item" id="nivel-item-1">
+                    <div class="nivel-item-icon">🌿</div>
+                    <div class="nivel-item-info">
+                        <div class="nivel-item-nome">Apreciador</div>
+                        <div class="nivel-item-req">Explore 2 seções do site · +1 giro na roleta</div>
+                    </div>
+                </div>
+                <div class="nivel-item" id="nivel-item-2">
+                    <div class="nivel-item-icon">🌱</div>
+                    <div class="nivel-item-info">
+                        <div class="nivel-item-nome">Raizeiro</div>
+                        <div class="nivel-item-req">Explore 4 seções · Cupom RAIZ10 desbloqueado</div>
+                    </div>
+                </div>
+                <div class="nivel-item" id="nivel-item-3">
+                    <div class="nivel-item-icon">🌳</div>
+                    <div class="nivel-item-info">
+                        <div class="nivel-item-nome">Mestre Raiz</div>
+                        <div class="nivel-item-req">Explorou tudo · Frete grátis no iFood</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="nivel-panel-footer">
+            <p>Rank baseado na sua exploração da vitrine.<br>Quanto mais você conhece o Raiz, mais benefícios no iFood.</p>
+        </div>
+    </div>
+
+    <!-- Rank-up overlay -->
+    <div id="rankup-overlay">
+        <div id="rankup-card">
+            <span id="rankup-emoji">🌿</span>
+            <div id="rankup-linha"></div>
+            <div id="rankup-titulo">Novo rank!</div>
+            <div id="rankup-sub">Apreciador desbloqueado</div>
+            <a href="https://www.ifood.com.br" target="_blank" rel="noopener" id="rankup-cta">
+                Ver benefícios no iFood →
+            </a>
+        </div>
+    </div>
+
+    <header class="hero">
+        <div id="hero-particles"></div>
+        <div style="text-align:center">
+            <h1><span class="typing-effect">Sabor que vem da terra.</span></h1>
+            <div id="pedidos-counter">🔥 <span id="pedidos-num">23</span> pedidos feitos hoje</div>
+        </div>
+    </header>
+
+    <section class="historia-section reveal">
+        <img loading="lazy" class="historia-img" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80" alt="Nossa História">
+        <div class="historia-text">
+            <h2>Nossa História</h2>
+            <p>O Raiz nasceu de uma ideia simples: trazer o campo para a cidade sem perder nenhum sabor no caminho. Fundado em 2021, começamos com uma barraca numa feira e hoje somos um restaurante inteiro movido pelo mesmo propósito.</p>
+            <p>Cada ingrediente tem nome, endereço e história. Nossos produtores são vizinhos que cultivam com cuidado e entregam com orgulho. A cozinha transforma, mas respeita — porque o melhor tempero já vem da terra.</p>
+        </div>
+    </section>
+
+    <section class="values-bar reveal">
+        <div class="value-item">
+            <i class="fas fa-seedling"></i>
+            <h3>Puro</h3>
+            <p>Ingredientes 100% orgânicos e colhidos de produtores locais.</p>
+            <span class="counter" data-target="100" data-suffix="%">0%</span>
+        </div>
+        <div class="value-item">
+            <i class="fas fa-mortar-pestle"></i>
+            <h3>Artesanal</h3>
+            <p>Processos manuais que preservam o sabor e a textura real.</p>
+            <span class="counter" data-target="500" data-suffix="+ pratos/dia">0</span>
+        </div>
+        <div class="value-item">
+            <i class="fas fa-bicycle"></i>
+            <h3>Consciente</h3>
+            <p>Logística de baixo impacto e embalagens biodegradáveis.</p>
+            <span class="counter" data-target="3" data-suffix=" anos">0</span>
+        </div>
+    </section>
+
+    <section class="depoimentos-section reveal">
+        <h2>O que dizem de nós</h2>
+        <div class="depo-track" id="depoTrack">
+            <div class="depo-card">
+                <div class="depo-stars">★★★★★</div>
+                <p class="depo-text">"Melhor bowl que já comi na vida. Os ingredientes são visivelmente frescos e o sabor é incrível. Virei cliente fixo!"</p>
+                <span class="depo-author">— Ana Lima</span>
+            </div>
+            <div class="depo-card">
+                <div class="depo-stars">★★★★★</div>
+                <p class="depo-text">"O Burger Raiz é absurdo. Blend perfeito, pão fofinho, e ainda vem com aquele suco natural. Muito além do esperado."</p>
+                <span class="depo-author">— Carlos Mendes</span>
+            </div>
+            <div class="depo-card">
+                <div class="depo-stars">★★★★☆</div>
+                <p class="depo-text">"Ambiente aconchegante, atendimento impecável e comida que respeita o produto. Um lugar que faz diferença na cidade."</p>
+                <span class="depo-author">— Fernanda Costa</span>
+            </div>
+        </div>
+        <div class="depo-nav" id="depoNav">
+            <div class="depo-dot active" onclick="goToDepo(0)"></div>
+            <div class="depo-dot" onclick="goToDepo(1)"></div>
+            <div class="depo-dot" onclick="goToDepo(2)"></div>
+        </div>
+    </section>
+
+    <div id="desafio-banner">
+        🎯 <strong>Desafio do dia:</strong> Experimente o <strong id="desafio-prato">Mousse Frutas</strong> e ganhe 2x pontos de fidelidade!
+        <button id="desafio-btn" onclick="aceitarDesafio()">Aceitar desafio!</button>
+    </div>
+
+    <section id="menu" class="menu-section reveal">
+        <h2>Cardápio Completo</h2>
+        <button id="surpresa-btn" onclick="surpresaChef()">🎲 Surpresa do Chef</button>
+
+        <div id="menu-toolbar">
+            <input id="busca-input" type="text" placeholder="🔍 Buscar prato..." oninput="debounceBusca()" autocomplete="off" aria-label="Buscar no cardápio">
+            <button class="ordem-btn active" id="ordem-none" onclick="ordenar('none',this)">Padrão</button>
+            <button class="ordem-btn" id="ordem-asc" onclick="ordenar('asc',this)">💰 Menor preço</button>
+            <button class="ordem-btn" id="ordem-desc" onclick="ordenar('desc',this)">💰 Maior preço</button>
+            <button class="restricao-btn" data-r="vegano" onclick="toggleRestricao(this)">🌱 Vegano</button>
+            <button class="restricao-btn" data-r="sem-gluten" onclick="toggleRestricao(this)">🌾 Sem Glúten</button>
+            <button class="restricao-btn" data-r="sem-lactose" onclick="toggleRestricao(this)">🥛 Sem Lactose</button>
+        </div>
+
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="filterMenu('all', this)">Todos</button>
+            <button class="filter-btn" onclick="filterMenu('burger', this)">Burgers</button>
+            <button class="filter-btn" onclick="filterMenu('bowl', this)">Bowls</button>
+            <button class="filter-btn" onclick="filterMenu('dessert', this)">Sobremesas</button>
+        </div>
+
+        <div class="menu-grid" id="menuGrid">
+            <div class="card burger steam-effect" data-price="32" data-vegano="false" data-sem-gluten="false" data-sem-lactose="false">
+                <span class="card-tag tag-mais-vendido">🔥 Mais Vendido</span>
+                <div class="card-img-container"><div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500');"></div></div>
+                <div class="card-info"><h3>Burger Raiz</h3><div class="card-stars"><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star filled">★</span></div><p class="typing-desc">Blend bovino 180g.</p><span class="card-views">👁 247 pessoas viram hoje</span><span class="price-tag">R$ 32,00</span><button class="btn-card" onclick="openCustom('Burger Raiz', 32)">🎨 Personalizar</button></div>
+            </div>
+            <div class="card bowl" data-price="28" data-vegano="true" data-sem-gluten="true" data-sem-lactose="true">
+                <span class="card-tag tag-vegano">🌱 Vegano</span>
+                <div class="card-img-container"><div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500');"></div></div>
+                <div class="card-info"><h3>Bowl da Estação</h3><div class="card-stars"><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star">★</span></div><p class="typing-desc">Grãos e folhas.</p><span class="card-views">👁 183 pessoas viram hoje</span><span class="price-tag">R$ 28,00</span><button class="btn-card" onclick="createLeaves(this)">Adicionar</button></div>
+            </div>
+            <div class="card burger" data-price="30" data-vegano="false" data-sem-gluten="false" data-sem-lactose="false">
+                <span class="card-tag tag-chef">👨‍🍳 Chef Indica</span>
+                <div class="card-img-container"><div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=500');"></div></div>
+                <div class="card-info"><h3>Cheese Raiz</h3><div class="card-stars"><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star filled">★</span></div><p class="typing-desc">Queijo meia cura.</p><span class="card-views">👁 312 pessoas viram hoje</span><span class="price-tag">R$ 30,00</span><button class="btn-card" onclick="createLeaves(this)">Adicionar</button></div>
+            </div>
+            <div class="card bowl esgotado" data-price="25" data-vegano="true" data-sem-gluten="true" data-sem-lactose="true">
+                <div class="card-img-container"><div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=500');"></div></div>
+                <div class="card-info"><h3>Salada Mix</h3><div class="card-stars"><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star">★</span></div><p class="typing-desc">Frescor do campo.</p><span class="card-views">👁 98 pessoas viram hoje</span><span class="price-tag">R$ 25,00</span><button class="btn-card" onclick="createLeaves(this)">Adicionar</button></div>
+            </div>
+            <div class="card dessert" data-price="18" data-vegano="true" data-sem-gluten="false" data-sem-lactose="false">
+                <span class="card-tag tag-novo">✨ Novo</span>
+                <div class="card-img-container"><div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1564355808539-22fda35bed7e?auto=format&fit=crop&w=500');"></div></div>
+                <div class="card-info"><h3>Brownie Terra</h3><div class="card-stars"><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star filled">★</span></div><p class="typing-desc">Chocolate 70% e nozes.</p><span class="card-views">👁 156 pessoas viram hoje</span><span class="price-tag">R$ 18,00</span><button class="btn-card" onclick="createLeaves(this)">Adicionar</button></div>
+            </div>
+            <div class="card dessert" data-price="16" data-vegano="true" data-sem-gluten="true" data-sem-lactose="true">
+                <div class="card-img-container"><div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=500');"></div></div>
+                <div class="card-info"><h3>Mousse Frutas</h3><div class="card-stars"><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star filled">★</span><span class="card-star">★</span></div><p class="typing-desc">Cacau e frutas vermelhas.</p><span class="card-views">👁 74 pessoas viram hoje</span><span class="price-tag">R$ 16,00</span><button class="btn-card" onclick="createLeaves(this)">Adicionar</button></div>
+            </div>
+            <div id="sem-resultado">😕 Nenhum prato encontrado com esses filtros.</div>
+        </div>
+    </section>
+
+    <section class="galeria-section reveal">
+        <h2>Nossa Cozinha</h2>
+        <div class="galeria-grid">
+            <div class="galeria-item" onclick="openGaleria('https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80')">
+                <img loading="lazy" src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=400&q=80" alt="Cozinha">
+            </div>
+            <div class="galeria-item" onclick="openGaleria('https://images.unsplash.com/photo-1466637574441-749b8f19452f?auto=format&fit=crop&w=800&q=80')">
+                <img loading="lazy" src="https://images.unsplash.com/photo-1466637574441-749b8f19452f?auto=format&fit=crop&w=400&q=80" alt="Ambiente">
+            </div>
+            <div class="galeria-item" onclick="openGaleria('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80')">
+                <img loading="lazy" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=400&q=80" alt="Prato">
+            </div>
+            <div class="galeria-item" onclick="openGaleria('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80')">
+                <img loading="lazy" src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" alt="Comida">
+            </div>
+            <div class="galeria-item" onclick="openGaleria('https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80')">
+                <img loading="lazy" src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=400&q=80" alt="Bowl">
+            </div>
+            <div class="galeria-item" onclick="openGaleria('https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=800&q=80')">
+                <img loading="lazy" src="https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=400&q=80" alt="Sobremesa">
+            </div>
+        </div>
+    </section>
+
+    <section id="especiais" class="drink-slider-section reveal">
+        <div id="drink-bubbles"></div>
+
+        <!-- setas de navegação -->
+        <button class="slider-arrow left"  id="arrow-left"  aria-label="Anterior" onclick="sliderMove(-1)">‹</button>
+        <button class="slider-arrow right" id="arrow-right" aria-label="Próximo"  onclick="sliderMove(1)">›</button>
+
+        <div class="especiais-header">
+            <h2>Especiais da Casa</h2>
+            <p>Criações exclusivas do nosso chef — disponíveis no iFood</p>
+        </div>
+
+        <div class="slider-container" id="sliderContainer">
+
+            <div class="slide active" data-idx="0">
+                <span class="slide-badge">🔥 Mais Pedido</span>
+                <img loading="lazy" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80" class="drink-img" alt="Bowl da Estação">
+                <div class="slide-text">
+                    <h3>Bowl da Estação</h3>
+                    <p class="drink-desc">Quinoa, legumes orgânicos grelhados, molho tahine artesanal e sementes tostadas.</p>
+                    <div class="slide-pills">
+                        <span class="slide-pill">Vegano</span>
+                        <span class="slide-pill">Sem glúten</span>
+                        <span class="slide-pill">580 kcal</span>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span class="drink-price">R$ 32,00</span>
+                    <a href="https://www.ifood.com.br" target="_blank" rel="noopener" class="slide-ifood-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+                        Ver no iFood
+                    </a>
+                </div>
+            </div>
+
+            <div class="slide" data-idx="1">
+                <span class="slide-badge">⭐ Chef Recomenda</span>
+                <img loading="lazy" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80" class="drink-img" alt="Burger Raiz">
+                <div class="slide-text">
+                    <h3>Burger Raiz</h3>
+                    <p class="drink-desc">Blend de costela e fraldinha, queijo coalho, rúcula selvagem e maionese de alho negro.</p>
+                    <div class="slide-pills">
+                        <span class="slide-pill">Artesanal</span>
+                        <span class="slide-pill">820 kcal</span>
+                        <span class="slide-pill">Exclusivo</span>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span class="drink-price">R$ 38,00</span>
+                    <a href="https://www.ifood.com.br" target="_blank" rel="noopener" class="slide-ifood-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+                        Ver no iFood
+                    </a>
+                </div>
+            </div>
+
+            <div class="slide" data-idx="2">
+                <span class="slide-badge">🌿 Natural</span>
+                <img loading="lazy" src="https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?auto=format&fit=crop&w=400&q=80" class="drink-img" alt="Suco Cold Press Raiz">
+                <div class="slide-text">
+                    <h3>Cold Press Verde</h3>
+                    <p class="drink-desc">Couve, pepino, maçã verde, gengibre e limão siciliano. Extração fria preserva cada nutriente.</p>
+                    <div class="slide-pills">
+                        <span class="slide-pill">500ml</span>
+                        <span class="slide-pill">Detox</span>
+                        <span class="slide-pill">92 kcal</span>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span class="drink-price">R$ 18,00</span>
+                    <a href="https://www.ifood.com.br" target="_blank" rel="noopener" class="slide-ifood-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+                        Ver no iFood
+                    </a>
+                </div>
+            </div>
+
+            <div class="slide" data-idx="3">
+                <span class="slide-badge">🍮 Destaque</span>
+                <img loading="lazy" src="https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=400&q=80" class="drink-img" alt="Mousse de Frutas">
+                <div class="slide-text">
+                    <h3>Mousse de Frutas da Estação</h3>
+                    <p class="drink-desc">Cremoso, feito com frutas frescas do produtor local. Sem conservantes, sem lactose.</p>
+                    <div class="slide-pills">
+                        <span class="slide-pill">Sem lactose</span>
+                        <span class="slide-pill">Vegano</span>
+                        <span class="slide-pill">280 kcal</span>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span class="drink-price">R$ 19,00</span>
+                    <a href="https://www.ifood.com.br" target="_blank" rel="noopener" class="slide-ifood-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+                        Ver no iFood
+                    </a>
+                </div>
+            </div>
+
+            <div class="slide" data-idx="4">
+                <span class="slide-badge">🔆 Novo</span>
+                <img loading="lazy" src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" class="drink-img" alt="Prato do Chef">
+                <div class="slide-text">
+                    <h3>Prato do Chef</h3>
+                    <p class="drink-desc">Receita exclusiva que muda toda semana. Ingredientes sazonais direto do produtor local.</p>
+                    <div class="slide-pills">
+                        <span class="slide-pill">Sazonal</span>
+                        <span class="slide-pill">Limitado</span>
+                        <span class="slide-pill">Exclusivo</span>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span class="drink-price">Sob consulta</span>
+                    <a href="https://www.ifood.com.br" target="_blank" rel="noopener" class="slide-ifood-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+                        Ver no iFood
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="slider-dots" id="sliderDots" role="tablist">
+            <button class="slider-dot active" onclick="goToSlide(0)" aria-label="Slide 1" role="tab"></button>
+            <button class="slider-dot" onclick="goToSlide(1)" aria-label="Slide 2" role="tab"></button>
+            <button class="slider-dot" onclick="goToSlide(2)" aria-label="Slide 3" role="tab"></button>
+            <button class="slider-dot" onclick="goToSlide(3)" aria-label="Slide 4" role="tab"></button>
+            <button class="slider-dot" onclick="goToSlide(4)" aria-label="Slide 5" role="tab"></button>
+        </div>
+
+        <div class="especiais-cta">
+            <a href="https://www.ifood.com.br" target="_blank" rel="noopener">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
+                Ver cardápio completo no iFood
+            </a>
+            <small>Entrega rápida · Pagamento seguro · Rastrear pedido em tempo real</small>
+        </div>
+
+    </section>
+
+    <section id="combo-section" class="reveal">
+        <h2>🧮 Monte seu Combo</h2>
+        <p class="sub">Escolha prato + bebida + sobremesa e veja o desconto em tempo real</p>
+        <div class="combo-selects">
+            <select class="combo-select" id="combo-prato" onchange="calcularCombo()">
+                <option value="">🍽️ Escolha o prato</option>
+                <option value="32">Burger Raiz — R$ 32</option>
+                <option value="28">Bowl da Estação — R$ 28</option>
+                <option value="30">Cheese Raiz — R$ 30</option>
+            </select>
+            <select class="combo-select" id="combo-bebida" onchange="calcularCombo()">
+                <option value="">🥤 Escolha a bebida</option>
+                <option value="8">Coca-Cola — R$ 8</option>
+                <option value="12">Suco do Pomar — R$ 12</option>
+                <option value="7.50">Guaraná Raiz — R$ 7,50</option>
+            </select>
+            <select class="combo-select" id="combo-sobre" onchange="calcularCombo()">
+                <option value="">🍰 Escolha a sobremesa</option>
+                <option value="18">Brownie Terra — R$ 18</option>
+                <option value="16">Mousse Frutas — R$ 16</option>
+            </select>
+        </div>
+        <div id="combo-result"></div>
+        <button id="combo-add" onclick="adicionarCombo()">🛒 Adicionar combo ao carrinho</button>
+    </section>
+
+    <div class="wave-container"><div class="wave"><svg viewBox="0 0 1200 120" preserveAspectRatio="none"><path id="wavePath" d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"></path></svg></div></div>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-logo-section"><h2>RAIZ</h2><p style="margin-top: 10px;">Sabor que vem da terra.</p></div>
+            <div class="footer-column">
+                <h4>Funcionamento</h4>
+                <ul class="hours-list">
+                    <li data-day="1">Segunda <span>11h - 23h</span></li>
+                    <li data-day="2">Terça <span>11h - 23h</span></li>
+                    <li data-day="3">Quarta <span>11h - 23h</span></li>
+                    <li data-day="4">Quinta <span>11h - 23h</span></li>
+                    <li data-day="5">Sexta <span>11h - 00h</span></li>
+                    <li data-day="6">Sábado <span>11h - 00h</span></li>
+                    <li data-day="0">Domingo <span>18h - 23h</span></li>
+                </ul>
+            </div>
+            <div class="footer-column"><h4>Contato</h4><p>Rua da Terra, 123</p><p>(11) 99999-9999</p>
+                <button id="reserva-btn" onclick="openReserva()">🪑 Reservar Mesa</button>
+            </div>
+        </div>
+        <a href="#" class="ifood-full-btn" onclick="createLeaves(this)">Peça no iFood</a>
+        <div class="copyright">&copy; 2026 Restaurante Raiz.</div>
+    </footer>
+
+    <script>
+        const cursor = document.getElementById('custom-cursor');
+        const themeToggle = document.getElementById('themeToggle');
+        const soundToggle = document.getElementById('soundToggle');
+        const natureSound = document.getElementById('natureSound');
+
+        // --- CORREÇÃO: MEMÓRIA DO MODO DARK ---
+        if (localStorage.getItem('dark-mode') === 'true') {
+            document.body.classList.add('dark-mode');
+            themeToggle.classList.add('fa-sun');
+            themeToggle.classList.remove('fa-moon');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('dark-mode', isDark);
+            themeToggle.classList.toggle('fa-sun');
+            themeToggle.classList.toggle('fa-moon');
+        });
+        // --------------------------------------
+
+        document.addEventListener('mousemove', e => {
+            cursor.style.top = e.clientY + 'px';
+            cursor.style.left = e.clientX + 'px';
+        });
+
+        // Rastro do cursor
+        const trails = [];
+        for (let i = 0; i < 8; i++) {
+            const t = document.createElement('div');
+            t.className = 'cursor-trail';
+            t.style.opacity = (1 - i / 8) * 0.45;
+            t.style.width = t.style.height = Math.max(2, 6 - i * 0.5) + 'px';
+            document.body.appendChild(t);
+            trails.push({ el: t, x: 0, y: 0 });
+        }
+        let mx = 0, my = 0;
+        document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+        (function loop() {
+            trails.forEach((tr, i) => {
+                const src = i === 0 ? { x: mx, y: my } : trails[i - 1];
+                tr.x += (src.x - tr.x) * 0.35;
+                tr.y += (src.y - tr.y) * 0.35;
+                tr.el.style.left = tr.x + 'px';
+                tr.el.style.top  = tr.y + 'px';
+            });
+            requestAnimationFrame(loop);
+        })();
+
+        // Partículas no hero
+        const heroP = document.getElementById('hero-particles');
+        for (let i = 0; i < 18; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const s = Math.random() * 12 + 4;
+            p.style.cssText = `width:${s}px;height:${s}px;left:${Math.random()*100}%;bottom:0;animation-duration:${Math.random()*8+6}s;animation-delay:${Math.random()*6}s;`;
+            heroP.appendChild(p);
+        }
+
+        // Tilt 3D nos cards
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const r = card.getBoundingClientRect();
+                const rx = ((e.clientY - r.top  - r.height / 2) / (r.height / 2)) * -7;
+                const ry = ((e.clientX - r.left - r.width  / 2) / (r.width  / 2)) *  7;
+                card.style.transform = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) scale(1.03)`;
+            });
+            card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+        });
+
+        soundToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (natureSound.paused) { natureSound.play(); soundToggle.classList.add('active'); }
+            else { natureSound.pause(); soundToggle.classList.remove('active'); }
+        });
+
+        // filterMenu definido abaixo com aplicarFiltros integrado
+
+        function createLeaves(btn) {
+            const originalText = btn.innerText;
+            btn.innerText = "✓";
+            btn.classList.add('checked');
+            setTimeout(() => { btn.innerText = originalText; btn.classList.remove('checked'); }, 2000);
+
+            // Adiciona ao carrinho se for btn-card dentro de um card
+            const card = btn.closest('.card');
+            if (card) {
+                const name  = card.querySelector('h3')?.textContent || '';
+                const priceStr = card.querySelector('.price-tag')?.textContent || 'R$ 0,00';
+                const price = parseFloat(priceStr.replace('R$','').replace(',','.').trim());
+                if (name) addToCart(name, price);
+                checkUpsell(card);
+            }
+
+            const leafCount = btn.classList.contains('ifood-full-btn') ? 400 : 30;
+            const leaves = ['🌿', '🍃', '🌱', '☘️', '🍀'];
+            for(let i=0; i < leafCount; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'leaf';
+                leaf.innerText = leaves[Math.floor(Math.random() * leaves.length)];
+                leaf.style.left = Math.random() * 100 + 'vw';
+                leaf.style.animationDuration = (Math.random() * 2.5 + 2) + 's';
+                document.body.appendChild(leaf);
+                setTimeout(() => leaf.remove(), 6000);
+            }
+        }
+
+        function updateSlider(idx) {
+            const slides = Array.from(document.querySelectorAll('.slide'));
+            if (idx < 0) idx = slides.length - 1;
+            if (idx >= slides.length) idx = 0;
+            slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+            document.querySelectorAll('.slider-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+            // Scroll suave para centralizar
+            const container = document.getElementById('sliderContainer');
+            const target = slides[idx];
+            if (container && target) {
+                const offset = target.offsetLeft - container.offsetLeft - (container.offsetWidth - target.offsetWidth) / 2;
+                container.scrollTo({ left: offset, behavior: 'smooth' });
+            }
+            sliderCurrentIdx = idx;
+            // Anima preço
+            const price = target && target.querySelector('.drink-price');
+            if (price) { price.classList.remove('pop'); void price.offsetWidth; price.classList.add('pop'); }
+        }
+
+        let sliderCurrentIdx = 0;
+        let sliderAutoplay = null;
+
+        function sliderMove(dir) {
+            updateSlider(sliderCurrentIdx + dir);
+        }
+
+        function goToSlide(idx) {
+            updateSlider(idx);
+        }
+
+        function sliderStartAutoplay() {
+            sliderAutoplay = setInterval(() => updateSlider(sliderCurrentIdx + 1), 4200);
+        }
+        function sliderStopAutoplay() {
+            clearInterval(sliderAutoplay);
+        }
+
+        // Autoplay + pause on hover
+        const _sliderCont = document.getElementById('sliderContainer');
+        if (_sliderCont) {
+            _sliderCont.addEventListener('mouseenter', sliderStopAutoplay);
+            _sliderCont.addEventListener('mouseleave', sliderStartAutoplay);
+            // Touch swipe
+            let _txStart = 0;
+            _sliderCont.addEventListener('touchstart', e => { _txStart = e.touches[0].clientX; }, { passive: true });
+            _sliderCont.addEventListener('touchend',   e => {
+                const dx = e.changedTouches[0].clientX - _txStart;
+                if (Math.abs(dx) > 40) sliderMove(dx < 0 ? 1 : -1);
+            });
+        }
+        // Teclado: setas quando slider está em view
+        document.addEventListener('keydown', e => {
+            const sp = document.getElementById('especiais');
+            if (!sp) return;
+            const r = sp.getBoundingClientRect();
+            if (r.top > window.innerHeight || r.bottom < 0) return;
+            if (e.key === 'ArrowRight') { e.preventDefault(); sliderMove(1); }
+            if (e.key === 'ArrowLeft')  { e.preventDefault(); sliderMove(-1); }
+        });
+        sliderStartAutoplay();
+        updateSlider(0);
+        }
+
+        // Navegação por teclado
+        document.addEventListener('keydown', e => {
+            const slides = Array.from(document.querySelectorAll('.slide'));
+            const activeIdx = slides.findIndex(s => s.classList.contains('active'));
+            if (e.key === 'ArrowRight' && activeIdx < slides.length - 1) goToSlide(activeIdx + 1);
+            if (e.key === 'ArrowLeft'  && activeIdx > 0)               goToSlide(activeIdx - 1);
+        });
+
+        // Drag to scroll no slider
+        const sliderEl = document.getElementById('sliderContainer');
+        let isDragging = false, startX, scrollLeft;
+        sliderEl.addEventListener('mousedown',  e => { isDragging = true; startX = e.pageX - sliderEl.offsetLeft; scrollLeft = sliderEl.scrollLeft; sliderEl.style.cursor = 'grabbing'; });
+        sliderEl.addEventListener('mouseleave', () => { isDragging = false; sliderEl.style.cursor = ''; });
+        sliderEl.addEventListener('mouseup',    () => { isDragging = false; sliderEl.style.cursor = ''; });
+        sliderEl.addEventListener('mousemove',  e => { if (!isDragging) return; e.preventDefault(); sliderEl.scrollLeft = scrollLeft - (e.pageX - sliderEl.offsetLeft - startX); });
+
+        // Bolhas na seção especiais
+        const bubblesEl = document.getElementById('drink-bubbles');
+        for (let i = 0; i < 20; i++) {
+            const b = document.createElement('div');
+            b.className = 'bubble';
+            const s = Math.random() * 20 + 6;
+            b.style.cssText = `width:${s}px;height:${s}px;left:${Math.random()*100}%;animation-duration:${Math.random()*10+8}s;animation-delay:${Math.random()*8}s;`;
+            bubblesEl.appendChild(b);
+        }
+
+        function updateStatus() {
+            const hour = new Date().getHours();
+            const day = new Date().getDay();
+            const isOpen = hour >= 11 && hour < 23;
+            document.getElementById('nav-dot').className = 'nav-dot ' + (isOpen ? 'dot-online' : 'dot-offline');
+            document.getElementById('nav-text').innerText = isOpen ? 'ABERTO' : 'FECHADO';
+            const hoursItems = document.querySelectorAll('.hours-list li');
+            hoursItems.forEach(li => {
+                if(parseInt(li.getAttribute('data-day')) === day) li.classList.add('today');
+            });
+        }
+
+        window.addEventListener('scroll', () => {
+            // IntersectionObserver para reveals (performance >> scroll events)
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('active'); revealObserver.unobserve(e.target); } });
+        }, { threshold: 0.12 });
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+            const btt = document.getElementById('backToTop');
+            if (window.scrollY > 400) btt.classList.add('visible');
+            else btt.classList.remove('visible');
+            document.querySelector('.navbar').classList.toggle('shrunk', window.scrollY > 80);
+
+            // Paralaxe no hero
+            document.querySelector('.hero').style.backgroundPositionY = (window.scrollY * 0.4) + 'px';
+
+            // Barra de progresso de scroll
+            const total = document.body.scrollHeight - window.innerHeight;
+            document.getElementById('scroll-progress').style.width = (window.scrollY / total * 100) + '%';
+
+            // Dispara contadores quando a seção de valores fica visível
+            document.querySelectorAll('.counter:not(.counted)').forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight - 50) {
+                    el.classList.add('counted');
+                    const target = +el.dataset.target;
+                    const suffix = el.dataset.suffix;
+                    let current = 0;
+                    const step = target / 60;
+                    const timer = setInterval(() => {
+                        current = Math.min(current + step, target);
+                        el.textContent = Math.floor(current) + suffix;
+                        if (current >= target) clearInterval(timer);
+                    }, 16);
                 }
-                
-                // Mostrar toast
-                showToast(`🛵 Pedir ${nomeProduto} no iFood...`);
-                
-                // Redirecionar
-                setTimeout(() => {
-                    window.open('SEU-LINK-DO-IFOOD-AQUI', '_blank');
-                }, 800);
             });
         });
-        
-        // Modificar botão "Surpresa do Chef"
-        const surpresaBtn = document.getElementById('surpresa-btn');
-        if (surpresaBtn) {
-            surpresaBtn.addEventListener('click', function(e) {
+
+        // === CARRINHO ===
+        let cart = [];
+        function toggleCart() {
+            document.getElementById('cart-panel').classList.toggle('open');
+            document.getElementById('cart-overlay').classList.toggle('open');
+            if (cart.length > 0) atualizarDeliveryTimer();
+        }
+        function addToCart(name, price) {
+            const existing = cart.find(i => i.name === name);
+            if (existing) { existing.qty++; }
+            else { cart.push({ name, price, qty: 1 }); }
+            renderCart();
+            showToast(name + ' adicionado ✓');
+            springBadge();
+            checkDesconto();
+            checkSugestao(name);
+        }
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            const badge = document.getElementById('cart-badge');
+            const totalEl = document.getElementById('cartTotal');
+            const checkoutEl = document.getElementById('cartCheckout');
+            const totalVal = document.getElementById('cartTotalValue');
+            if (cart.length === 0) {
+                container.innerHTML = '<p class="cart-empty">Nenhum item ainda.<br>Adicione algo do cardápio!</p>';
+                badge.style.display = 'none'; totalEl.style.display = 'none'; checkoutEl.style.display = 'none';
+                const shareBtn = document.getElementById('share-btn');
+                if (shareBtn) shareBtn.style.display = 'none';
+                atualizarNivel(); atualizarFidelidade(); return;
+            }
+            const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+            const totalQty = cart.reduce((s, i) => s + i.qty, 0);
+            badge.textContent = totalQty; badge.style.display = 'flex';
+            totalEl.style.display = 'flex'; checkoutEl.style.display = 'block';
+            totalVal.textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+            container.innerHTML = cart.map((item, idx) => `
+                <div class="cart-item">
+                    <span class="cart-item-name">${item.name}</span>
+                    <div class="cart-item-qty">
+                        <button class="cart-qty-btn" onclick="changeQty(${idx},-1)">−</button>
+                        <span>${item.qty}</span>
+                        <button class="cart-qty-btn" onclick="changeQty(${idx},1)">+</button>
+                    </div>
+                    <span class="cart-item-price">R$ ${(item.price * item.qty).toFixed(2).replace('.', ',')}</span>
+                </div>`).join('');
+            atualizarNivel();
+            atualizarFidelidade();
+            resetCartTimer();
+            const shareBtn = document.getElementById('share-btn');
+            if (shareBtn) shareBtn.style.display = 'block';
+        }
+        function changeQty(idx, delta) {
+            cart[idx].qty += delta;
+            if (cart[idx].qty <= 0) cart.splice(idx, 1);
+            renderCart();
+        }
+
+        // === TOAST ===
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+
+        // === MODAL DE DETALHE (abre ao clicar na imagem do card) ===
+        function openModal(imgUrl, title, desc, price) {
+            document.getElementById('modal-img').src = imgUrl;
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-desc').textContent = desc;
+            document.getElementById('modal-price').textContent = price;
+            document.getElementById('detail-modal').classList.add('open');
+        }
+        function closeModal() { document.getElementById('detail-modal').classList.remove('open'); }
+
+        // Adiciona click nas imagens dos cards
+        document.querySelectorAll('.card').forEach(card => {
+            const imgEl = card.querySelector('.card-img');
+            const title = card.querySelector('h3')?.textContent || '';
+            const desc  = card.querySelector('p')?.textContent || '';
+            const price = card.querySelector('.price-tag')?.textContent || '';
+            const bgUrl = imgEl?.style.backgroundImage.replace(/url\(['"]?(.*?)['"]?\)/, '$1') || '';
+            if (imgEl) {
+                imgEl.style.cursor = 'pointer';
+                imgEl.parentElement.addEventListener('click', () => openModal(bgUrl, title, desc, price));
+            }
+        });
+
+        // === GALERIA ===
+        function openGaleria(url) {
+            document.getElementById('modal-img').src = url;
+            document.getElementById('modal-title').textContent = 'Nossa Cozinha';
+            document.getElementById('modal-desc').textContent = '';
+            document.getElementById('modal-price').textContent = '';
+            document.getElementById('detail-modal').classList.add('open');
+        }
+
+        // === DEPOIMENTOS ===
+        let depoIdx = 0;
+        function goToDepo(idx) {
+            depoIdx = idx;
+            const track = document.getElementById('depoTrack');
+            const cards = track.querySelectorAll('.depo-card');
+            track.scrollTo({ left: cards[idx].offsetLeft - track.offsetLeft, behavior: 'smooth' });
+            document.querySelectorAll('.depo-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+        }
+        setInterval(() => goToDepo((depoIdx + 1) % 3), 4000);
+
+        // === HORA DO ALMOÇO ===
+        const h = new Date().getHours();
+        if (h >= 11 && h < 14) {
+            document.getElementById('almoco-banner').classList.add('show');
+            document.body.classList.add('almoco-mode');
+        }
+
+        // === CONFETE NA PRIMEIRA VISITA ===
+        if (!sessionStorage.getItem('visited')) {
+            sessionStorage.setItem('visited', '1');
+            const emojis = ['🎉','✨','🌿','🍃','🎊'];
+            for (let i = 0; i < 60; i++) {
+                setTimeout(() => {
+                    const c = document.createElement('div');
+                    c.className = 'leaf';
+                    c.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                    c.style.left = Math.random() * 100 + 'vw';
+                    c.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    c.style.fontSize = (Math.random() * 16 + 10) + 'px';
+                    document.body.appendChild(c);
+                    setTimeout(() => c.remove(), 5000);
+                }, i * 40);
+            }
+        }
+
+        // === EASTER EGG: 5x clique no logo ===
+        let logoClicks = 0;
+        document.querySelector('.logo').addEventListener('click', () => {
+            logoClicks++;
+            if (logoClicks >= 5) {
+                logoClicks = 0;
+                const foods = ['🍔','🥗','🍰','🥑','🌮','🍕','🥘','🍜'];
+                for (let i = 0; i < 120; i++) {
+                    setTimeout(() => {
+                        const f = document.createElement('div');
+                        f.className = 'leaf';
+                        f.innerText = foods[Math.floor(Math.random() * foods.length)];
+                        f.style.left = Math.random() * 100 + 'vw';
+                        f.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+                        f.style.fontSize = (Math.random() * 20 + 14) + 'px';
+                        document.body.appendChild(f);
+                        setTimeout(() => f.remove(), 5000);
+                    }, i * 25);
+                }
+                showToast('🎉 Easter egg encontrado!');
+            }
+        });
+
+        // === CORTINA DE TRANSIÇÃO ===
+        const wipe = document.getElementById('page-wipe');
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener('click', e => {
+                const target = document.querySelector(link.getAttribute('href'));
+                if (!target) return;
                 e.preventDefault();
-                showToast('🎲 Descubra sua surpresa no iFood!');
-                createLeaves(this);
-                setTimeout(() => window.open('SEU-LINK-DO-IFOOD-AQUI', '_blank'), 1000);
+                wipe.className = 'wipe-in';
+                setTimeout(() => {
+                    target.scrollIntoView({ behavior: 'instant' });
+                    wipe.className = 'wipe-out';
+                    setTimeout(() => { wipe.className = ''; }, 380);
+                }, 360);
+            });
+        });
+
+        // === COUNTDOWN REGRESSIVO (meia-noite) ===
+        function updateCountdown() {
+            const now = new Date();
+            const end = new Date(); end.setHours(23,59,59,0);
+            const diff = end - now;
+            const h = String(Math.floor(diff / 3600000)).padStart(2,'0');
+            const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2,'0');
+            const s = String(Math.floor((diff % 60000) / 1000)).padStart(2,'0');
+            const el = document.getElementById('countdown');
+            if (el) el.textContent = `⏱ ${h}:${m}:${s}`;
+        }
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+
+        // === HERO CROSSFADE A CADA 8s ===
+        const heroImgs = [
+            'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1350&q=80',
+            'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1350&q=80',
+            'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1350&q=80',
+        ];
+        let heroIdx = 0;
+        const heroEl = document.querySelector('.hero');
+        setInterval(() => {
+            heroEl.classList.add('fading');
+            setTimeout(() => {
+                heroIdx = (heroIdx + 1) % heroImgs.length;
+                heroEl.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)), url('${heroImgs[heroIdx]}')`;
+                heroEl.classList.remove('fading');
+            }, 600);
+        }, 8000);
+
+        // === BADGE MOLA NO CARRINHO ===
+        function springBadge() {
+            const b = document.getElementById('cart-badge');
+            b.classList.remove('spring');
+            void b.offsetWidth;
+            b.classList.add('spring');
+        }
+
+        // === DESCONTO AUTOMÁTICO (3+ itens) ===
+        let descontoAtivo = false;
+        function checkDesconto() {
+            const total = cart.reduce((s,i) => s + i.qty, 0);
+            if (total >= 3 && !descontoAtivo) {
+                descontoAtivo = true;
+                const dt = document.getElementById('desconto-toast');
+                dt.classList.add('show');
+                setTimeout(() => dt.classList.remove('show'), 4000);
+            } else if (total < 3) {
+                descontoAtivo = false;
+            }
+        }
+
+        // === SUGESTÃO DE BEBIDA AO ADICIONAR BURGER ===
+        function checkSugestao(name) {
+            const isBurger = document.querySelector(`.card.burger .card-info h3`)
+                ? [...document.querySelectorAll('.card.burger .card-info h3')].some(h => h.textContent === name)
+                : false;
+            if (isBurger) {
+                const b = document.getElementById('sugestao-bubble');
+                b.classList.add('show');
+                setTimeout(() => b.classList.remove('show'), 5000);
+            }
+        }
+
+        // === CARDÁPIO INTELIGENTE POR HORÁRIO ===
+        function filtrarPorHorario() {
+            const hora = new Date().getHours();
+            let categoria = null;
+            let msg = null;
+            if (hora >= 7 && hora < 11)  { categoria = 'bowl';    msg = '🌅 Bom dia! Mostrando bowls e saladas para começar bem o dia.'; }
+            else if (hora >= 14 && hora < 17) { categoria = 'dessert'; msg = '☕ Hora do café! Que tal uma sobremesa?'; }
+            else if (hora >= 22 || hora < 7)  { categoria = 'burger';  msg = '🌙 Noite! Nossas melhores pedidas para a madrugada.'; }
+            if (categoria) {
+                const btn = [...document.querySelectorAll('.filter-btn')].find(b => b.textContent.toLowerCase().includes(categoria === 'bowl' ? 'bowl' : categoria === 'dessert' ? 'sobre' : 'burger'));
+                if (btn) { filterMenu(categoria, btn); showToast(msg); }
+            }
+        }
+        filtrarPorHorario();
+
+        // === ESTRELAS CLICÁVEIS NOS CARDS ===
+        document.querySelectorAll('.card-stars').forEach(starsEl => {
+            const stars = starsEl.querySelectorAll('.card-star');
+            stars.forEach((star, idx) => {
+                star.addEventListener('click', () => {
+                    stars.forEach((s, i) => s.classList.toggle('filled', i <= idx));
+                    showToast('Obrigado pela avaliação! ⭐');
+                });
+                star.addEventListener('mouseenter', () => {
+                    stars.forEach((s, i) => s.style.color = i <= idx ? '#f39c12' : '#ccc');
+                });
+                starsEl.addEventListener('mouseleave', () => {
+                    stars.forEach(s => s.style.color = '');
+                });
+            });
+        });
+
+        // === VISUALIZAÇÕES: incrementa lentamente ===
+        document.querySelectorAll('.card-views').forEach(el => {
+            const base = parseInt(el.textContent.match(/\d+/)?.[0] || '100');
+            setInterval(() => {
+                if (Math.random() < 0.15) {
+                    const cur = parseInt(el.textContent.match(/\d+/)?.[0]);
+                    el.textContent = `👁 ${cur + 1} pessoas viram hoje`;
+                }
+            }, 8000);
+        });
+
+        // === DIGITAÇÃO NAS DESCRIÇÕES AO HOVER ===
+        document.querySelectorAll('.typing-desc').forEach(p => {
+            const full = p.textContent.trim();
+            p.dataset.full = full;
+            p.addEventListener('mouseenter', () => {
+                p.textContent = '';
+                let i = 0;
+                const iv = setInterval(() => {
+                    p.textContent += full[i++];
+                    if (i >= full.length) clearInterval(iv);
+                }, 40);
+                p._iv = iv;
+            });
+            p.addEventListener('mouseleave', () => {
+                clearInterval(p._iv);
+                p.textContent = full;
+            });
+        });
+
+        // === FILTRO COM ANIMAÇÃO (integrado em filterMenu abaixo) ===
+
+        // === MODO NOTURNO AUTOMÁTICO (após 20h) — só se hora-noite não já aplicou tema escuro ===
+        const hAtual = new Date().getHours();
+        if ((hAtual >= 20 || hAtual < 6) && !document.body.classList.contains('dark-mode') && !document.body.classList.contains('hora-noite')) {
+            setTimeout(() => {
+                document.body.classList.add('dark-mode');
+                themeToggle.classList.add('fa-sun');
+                themeToggle.classList.remove('fa-moon');
+                localStorage.setItem('dark-mode', 'true');
+                showToast('🌙 Modo noturno ativado automaticamente');
+            }, 1200);
+        }
+
+        // === CHAT DE ATENDIMENTO ===
+        const chatRespostas = {
+            entrega: ['⏱ Tempo de entrega', 'Nosso tempo médio é de 35 a 50 minutos. Em horários de pico pode chegar a 1h. Acompanhe pelo iFood!'],
+            vegano: ['🌱 Opções veganas', 'Sim! O Bowl da Estação e a Salada Mix são 100% veganos. Também temos sucos naturais sem adição de açúcar.'],
+            horario: ['🕐 Horário', 'Funcionamos de Segunda a Quinta das 11h às 23h, Sexta e Sábado das 11h à meia-noite, e Domingo das 18h às 23h.'],
+            desconto: ['🎁 Promoções', 'Use o código RAIZ50 para 50% no 2° Bowl! Gire nossa Roleta da Sorte para mais surpresas. Adicione 5+ itens e ganhe pontos de fidelidade!'],
+        };
+        function toggleChat() {
+            document.getElementById('chat-panel').classList.toggle('open');
+        }
+        function chatReply(key) {
+            const [label, resp] = chatRespostas[key];
+            const msgs = document.getElementById('chatMessages');
+            const uMsg = document.createElement('div');
+            uMsg.className = 'chat-msg user'; uMsg.textContent = label;
+            msgs.appendChild(uMsg);
+            setTimeout(() => {
+                const bMsg = document.createElement('div');
+                bMsg.className = 'chat-msg bot'; bMsg.textContent = resp;
+                msgs.appendChild(bMsg);
+                msgs.scrollTop = msgs.scrollHeight;
+            }, 600);
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        // === NOTIFICAÇÃO AO SAIR DA ABA ===
+        const titleOrig = document.title;
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                let blink = true;
+                window._titleBlink = setInterval(() => {
+                    document.title = blink ? '🍃 Volte! Seu pedido te espera...' : titleOrig;
+                    blink = !blink;
+                }, 1200);
+            } else {
+                clearInterval(window._titleBlink);
+                document.title = titleOrig;
+            }
+        });
+
+        // === LEMBRETE DE CARRINHO ABANDONADO ===
+        let cartTimer = null;
+        function resetCartTimer() {
+            clearTimeout(cartTimer);
+            if (cart.length > 0) {
+                cartTimer = setTimeout(() => {
+                    showToast('🛒 Ei! Seu pedido ainda está aqui. Finalize antes que acabe!');
+                }, 120000); // 2 minutos
+            }
+        }
+
+        // === WIDGET DE CLIMA (simulado realisticamente) ===
+        (function() {
+            const temps = [24,26,28,30,32,34,22,20];
+            const icons = ['☀️','🌤','⛅','🌥','🌦'];
+            const temp = temps[Math.floor(Math.random() * temps.length)];
+            const icon = icons[Math.floor(Math.random() * icons.length)];
+            const w = document.getElementById('clima-widget');
+            w.textContent = `${icon} ${temp}°C`;
+            // mensagem contextual no hero
+            if (temp >= 28) {
+                setTimeout(() => showToast(`${icon} Está ${temp}°C lá fora — perfeito para um Bowl gelado! 🥗`), 3000);
+            }
+        })();
+
+        // === RANK DO VISITANTE (baseado em engajamento com o site) ===
+        const niveis = ['Visitante','Apreciador 🌿','Raizeiro 🌱','Mestre Raiz 🌳'];
+        const niveisInfo = [
+            {
+                icon:'👤', nome:'Visitante', cor:'nivel-0',
+                req:'Bem-vindo ao Raiz!',
+                beneficio:'Explore o cardápio',
+                ctaTexto:'Continue explorando',
+                ctaDetail:'Explore mais seções para desbloquear benefícios'
+            },
+            {
+                icon:'🌿', nome:'Apreciador', cor:'nivel-1',
+                req:'2 seções exploradas · +1 giro na roleta',
+                beneficio:'+1 giro na roleta 🎰',
+                ctaTexto:'Giro desbloqueado!',
+                ctaDetail:'Continue explorando para ganhar cupom no iFood'
+            },
+            {
+                icon:'🌱', nome:'Raizeiro', cor:'nivel-2',
+                req:'4 seções exploradas · Cupom RAIZ10',
+                beneficio:'Cupom RAIZ10 — 10% off no iFood',
+                ctaTexto:'Use RAIZ10 no iFood',
+                ctaDetail:'10% de desconto no seu próximo pedido no iFood'
+            },
+            {
+                icon:'🌳', nome:'Mestre Raiz', cor:'nivel-3',
+                req:'Explorou o site completo · Frete grátis',
+                beneficio:'Frete grátis no iFood 🚀',
+                ctaTexto:'Usar benefício no iFood',
+                ctaDetail:'Você conhece o Raiz por completo — frete grátis no próximo pedido'
+            },
+        ];
+        let nivelAnterior = 0;
+        const secoesVisitadas = new Set();
+
+        // Rastreia seções visíveis com IntersectionObserver
+        const SECOES_RANK = ['historia','values-bar','menu','especiais','galeria','combo-section','depoimentos'];
+        const rankObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (!e.isIntersecting) return;
+                const id = e.target.id || e.target.className.split(' ')[0];
+                secoesVisitadas.add(id);
+                atualizarNivel();
+            });
+        }, { threshold: 0.25 });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            SECOES_RANK.forEach(id => {
+                const el = document.getElementById(id) || document.querySelector('.' + id);
+                if (el) rankObserver.observe(el);
+            });
+        });
+        // Fallback: se DOM já carregou (script no final do body)
+        SECOES_RANK.forEach(id => {
+            const el = document.getElementById(id) || document.querySelector('.' + id);
+            if (el) rankObserver.observe(el);
+        });
+
+        function calcNivel() {
+            const n = secoesVisitadas.size;
+            return n === 0 ? 0 : n < 3 ? 1 : n < 5 ? 2 : 3;
+        }
+
+        function atualizarNivel() {
+            const nivel = calcNivel();
+            const info  = niveisInfo[nivel];
+
+            // Badge
+            const badge = document.getElementById('nivel-badge');
+            if (badge) {
+                const dot = badge.querySelector('.badge-dot') || (() => {
+                    const d = document.createElement('span');
+                    d.className = 'badge-dot';
+                    badge.prepend(d);
+                    return d;
+                })();
+                badge.lastChild.textContent = ' ' + info.nome.split(' ')[0] + (nivel > 0 ? ' ' + info.icon.split(' ')[0] : '');
+                badge.className = info.cor;
+                badge.prepend(dot); // garantir ordem
+            }
+
+            // Rank-up
+            if (nivel > nivelAnterior) {
+                if (nivel >= 2) setTimeout(() => ganharGiroExtra(`${niveis[nivel]} desbloqueado`), 700);
+                mostrarRankUp(nivel);
+            }
+            nivelAnterior = nivel;
+
+            atualizarPainelNivel(nivel);
+            atualizarRankMobile(nivel);
+        }
+
+        function atualizarPainelNivel(nivel) {
+            const info = niveisInfo[nivel];
+            const total = secoesVisitadas.size;
+
+            // Ícone e nome
+            const iconeEl = document.getElementById('nivel-icone');
+            const nomeEl  = document.getElementById('nivel-nome-atual');
+            const subEl   = document.getElementById('nivel-subtitulo');
+            if (iconeEl) iconeEl.textContent = info.icon;
+            if (nomeEl)  nomeEl.textContent  = niveis[nivel];
+
+            // Progresso
+            let pct = 0, textoProx = '', numLabel = '';
+            if (nivel < 3) {
+                const nextMin = [0, 2, 4, 7][nivel + 1];
+                const curMin  = [0, 2, 4, 7][nivel];
+                pct       = Math.min(100, Math.round(((total - curMin) / (nextMin - curMin)) * 100));
+                textoProx = `Próximo: ${niveisInfo[nivel+1].nome.split(' ')[0]}`;
+                numLabel  = `${total}/${nextMin} seções`;
+                if (subEl) subEl.textContent = `Explore ${Math.max(0, nextMin - total)} seção(ões) para subir`;
+            } else {
+                pct = 100; textoProx = 'Rank máximo! 🏆'; numLabel = '✓';
+                if (subEl) subEl.textContent = 'Você conhece o Raiz por completo!';
+            }
+            const barEl   = document.getElementById('nivel-prog-bar');
+            const textoEl = document.getElementById('nivel-prog-texto');
+            const numEl   = document.getElementById('nivel-prog-num');
+            if (barEl)   barEl.style.width       = pct + '%';
+            if (textoEl) textoEl.textContent      = textoProx;
+            if (numEl)   numEl.textContent        = numLabel;
+
+            // CTA iFood
+            const benefEl  = document.getElementById('nivel-beneficio');
+            const detailEl = document.querySelector('#nivel-ifood-cta span');
+            if (benefEl)  benefEl.textContent  = info.ctaTexto;
+            if (detailEl) {
+                detailEl.innerHTML = `<strong id="nivel-beneficio">${info.ctaTexto}</strong>${info.ctaDetail}`;
+            }
+
+            // Lista de itens
+            niveisInfo.forEach((n, i) => {
+                const el = document.getElementById(`nivel-item-${i}`);
+                if (!el) return;
+                el.className = 'nivel-item' + (i === nivel ? ' atual' : i < nivel ? ' conquistado' : '');
+                const check = el.querySelector('.nivel-item-check');
+                if (i < nivel) {
+                    if (!check) {
+                        const c = document.createElement('span');
+                        c.className = 'nivel-item-check'; c.textContent = '✓';
+                        el.appendChild(c);
+                    }
+                } else if (check) check.remove();
             });
         }
-        
-        // Modificar botão "Adicionar combo"
-        const comboBtn = document.getElementById('combo-add');
-        if (comboBtn) {
-            comboBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                showToast('🎉 Monte seu combo no iFood!');
-                createLeaves(this);
-                setTimeout(() => window.open('SEU-LINK-DO-IFOOD-AQUI', '_blank'), 1000);
+
+        function atualizarRankMobile(nivel) {
+            const info  = niveisInfo[nivel];
+            const total = secoesVisitadas.size;
+            const iconEl = document.getElementById('mob-rank-icon');
+            const nomeEl = document.getElementById('mob-rank-nome');
+            const progEl = document.getElementById('mob-rank-prog');
+            const barEl  = document.getElementById('mob-rank-bar');
+            if (!nomeEl) return;
+            if (iconEl) iconEl.textContent = info.icon;
+            nomeEl.textContent = niveis[nivel];
+
+            let pct = 0;
+            if (nivel < 3) {
+                const nextMin = [0,2,4,7][nivel+1];
+                const curMin  = [0,2,4,7][nivel];
+                pct = Math.min(100, Math.round(((total-curMin)/(nextMin-curMin))*100));
+                progEl.textContent = `${Math.max(0,nextMin-total)} seção(ões) para ${niveisInfo[nivel+1].nome.split(' ')[0]}`;
+            } else {
+                pct = 100; progEl.textContent = '🏆 Rank máximo atingido!';
+            }
+            if (barEl) barEl.style.width = pct + '%';
+        }
+
+        function toggleNivelPanel() {
+            const panel = document.getElementById('nivel-panel');
+            if (panel) panel.classList.toggle('open');
+        }
+
+        // Fecha ao clicar fora
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('nivel-panel');
+            const badge = document.getElementById('nivel-badge');
+            if (panel && panel.classList.contains('open')
+                && !panel.contains(e.target)
+                && !badge.contains(e.target)) {
+                panel.classList.remove('open');
+            }
+        });
+
+        function mostrarRankUp(nivel) {
+            const info = niveisInfo[nivel];
+            const ov   = document.getElementById('rankup-overlay');
+            const emoji = document.getElementById('rankup-emoji');
+            const titulo = document.getElementById('rankup-titulo');
+            const sub    = document.getElementById('rankup-sub');
+            if (!ov) return;
+            if (emoji)  emoji.textContent  = info.icon;
+            if (titulo) titulo.textContent = `${niveis[nivel].split(' ')[0]} desbloqueado!`;
+            if (sub)    sub.textContent    = info.beneficio;
+            ov.classList.add('show');
+            // Chuva de folhas
+            for (let i = 0; i < 28; i++) {
+                setTimeout(() => {
+                    const leaf = document.createElement('div');
+                    leaf.className = 'leaf';
+                    leaf.textContent = ['🌿','🍃','🌱','⭐','✨'][Math.floor(Math.random()*5)];
+                    leaf.style.left = Math.random()*100 + 'vw';
+                    leaf.style.animationDuration = (Math.random()*2 + 1.2) + 's';
+                    document.body.appendChild(leaf);
+                    setTimeout(() => leaf.remove(), 4000);
+                }, i * 70);
+            }
+            setTimeout(() => ov.classList.remove('show'), 3200);
+        }
+
+        // Badge: garante estrutura correta no HTML estático
+        (function initBadge() {
+            const badge = document.getElementById('nivel-badge');
+            if (!badge) return;
+            badge.innerHTML = '<span class="badge-dot"></span> Visitante';
+            badge.className = 'nivel-0';
+        })();
+
+        // === FIDELIDADE ===
+        const FIDELIDADE_META = 5;
+        let fidelidadeTotal = parseInt(localStorage.getItem('fidelidade') || '0');
+        function atualizarFidelidade() {
+            const total = cart.reduce((s,i) => s + i.qty, 0);
+            const prog = Math.min((fidelidadeTotal + total) / FIDELIDADE_META * 100, 100);
+            const faltam = Math.max(FIDELIDADE_META - fidelidadeTotal - total, 0);
+            document.getElementById('fidelidade-fill').style.width = prog + '%';
+            document.getElementById('fidelidade-faltam').textContent = faltam;
+            if (faltam === 0) {
+                document.getElementById('fidelidade-msg').innerHTML = '🎉 <strong>Parabéns! Você ganhou um Bowl grátis!</strong>';
+                // Giro extra ao completar fidelidade (1x por ciclo)
+                const chave = 'fidelidade-giro-' + Math.floor(fidelidadeTotal / FIDELIDADE_META);
+                if (!localStorage.getItem(chave)) {
+                    localStorage.setItem(chave, '1');
+                    setTimeout(() => ganharGiroExtra('🏆 Fidelidade completa!'), 800);
+                }
+            }
+        }
+
+        // === ROLETA DA SORTE ===
+        const roletaPremios = [
+            { emoji:'🎁', label:'5% de desconto no pedido' },
+            { emoji:'🍰', label:'Sobremesa grátis!' },
+            { emoji:'💚', label:'10% de desconto!' },
+            { emoji:'🥤', label:'Bebida grátis!' },
+            { emoji:'⭐', label:'Frete grátis!' },
+            { emoji:'🌿', label:'Bowl grátis no próximo pedido!' },
+        ];
+
+        // Persistência real: 1 giro grátis por dia + extras ganhos
+        function getGiros() {
+            const hoje = new Date().toDateString();
+            const saved = JSON.parse(localStorage.getItem('raiz-roleta') || '{}');
+            // Reseta giro diário se mudou o dia
+            if (saved.dia !== hoje) {
+                saved.dia = hoje;
+                saved.girado = false;   // giro diário disponível
+                saved.extras = saved.extras || 0;
+                localStorage.setItem('raiz-roleta', JSON.stringify(saved));
+            }
+            return saved;
+        }
+        function salvarGiros(dados) {
+            localStorage.setItem('raiz-roleta', JSON.stringify(dados));
+        }
+        function girosDisponiveis() {
+            const g = getGiros();
+            return (!g.girado ? 1 : 0) + (g.extras || 0);
+        }
+        function ganharGiroExtra(motivo) {
+            const g = getGiros();
+            g.extras = (g.extras || 0) + 1;
+            salvarGiros(g);
+            showToast(`🎰 ${motivo} — Você ganhou 1 giro extra na Roleta!`);
+            atualizarBotaoRoleta();
+        }
+        function atualizarBotaoRoleta() {
+            const disponiveis = girosDisponiveis();
+            const btn = document.getElementById('roleta-btn');
+            const spinBtn = document.getElementById('roleta-spin-btn');
+            const statusEl = document.getElementById('roleta-status');
+            if (btn) btn.textContent = disponiveis > 0
+                ? `🎰 Roleta da Sorte (${disponiveis})`
+                : `🎰 Roleta da Sorte`;
+            if (statusEl) {
+                if (disponiveis > 0) {
+                    statusEl.textContent = `✨ Você tem ${disponiveis} giro${disponiveis > 1 ? 's' : ''} disponível!`;
+                    statusEl.style.color = 'var(--terracotta)';
+                } else {
+                    statusEl.textContent = 'Sem giros hoje. Volte amanhã ou ganhe extras!';
+                    statusEl.style.color = 'rgba(0,0,0,0.4)';
+                }
+            }
+            if (spinBtn) spinBtn.disabled = disponiveis === 0;
+        }
+
+        function openRoleta() {
+            document.getElementById('roleta-modal').classList.add('open');
+            atualizarBotaoRoleta();
+        }
+        function closeRoleta() { document.getElementById('roleta-modal').classList.remove('open'); }
+        function spinRoleta() {
+            const disponiveis = girosDisponiveis();
+            if (disponiveis === 0) {
+                showToast('Sem giros disponíveis hoje. Volte amanhã! 😊');
+                return;
+            }
+            // Consome o giro
+            const g = getGiros();
+            if (!g.girado) { g.girado = true; }
+            else { g.extras = Math.max(0, (g.extras || 0) - 1); }
+            salvarGiros(g);
+
+            const wheel = document.getElementById('roleta-wheel');
+            const result = document.getElementById('roleta-result');
+            const spinBtn = document.getElementById('roleta-spin-btn');
+            spinBtn.disabled = true;
+            result.innerHTML = '';
+            const premio = roletaPremios[Math.floor(Math.random() * roletaPremios.length)];
+            const emojis = roletaPremios.map(p => p.emoji);
+            let i = 0;
+            const spin = setInterval(() => { wheel.textContent = emojis[i++ % emojis.length]; }, 80);
+            setTimeout(() => {
+                clearInterval(spin);
+                wheel.textContent = premio.emoji;
+                result.innerHTML = `<strong>${premio.label}</strong><br><small style="opacity:0.6;font-size:0.8rem">Código aplicado automaticamente!</small>`;
+                showToast(`🎉 ${premio.label}`);
+                atualizarBotaoRoleta();
+            }, 1500);
+        }
+
+        // === SURPRESA DO CHEF ===
+        function surpresaChef() {
+            const cards = [...document.querySelectorAll('.card:not(.hidden):not(.esgotado)')];
+            if (!cards.length) return;
+            const card = cards[Math.floor(Math.random() * cards.length)];
+            const name = card.querySelector('h3')?.textContent || '';
+            const priceStr = card.querySelector('.price-tag')?.textContent || 'R$ 0,00';
+            const price = parseFloat(priceStr.replace('R$','').replace(',','.').trim());
+            card.style.transition = 'transform 0.3s, box-shadow 0.3s';
+            card.style.transform = 'scale(1.08)';
+            card.style.boxShadow = '0 0 30px rgba(217,125,84,0.6)';
+            setTimeout(() => { card.style.transform = ''; card.style.boxShadow = ''; }, 800);
+            addToCart(name, price);
+            showToast(`🎲 Chef escolheu: ${name}!`);
+        }
+
+        // === DESAFIO DIÁRIO ===
+        const pratosDesafio = ['Mousse Frutas','Bowl da Estação','Brownie Terra','Salada Mix'];
+        const pratoDesafioHoje = pratosDesafio[new Date().getDay() % pratosDesafio.length];
+        document.getElementById('desafio-prato').textContent = pratoDesafioHoje;
+        function aceitarDesafio() {
+            const card = [...document.querySelectorAll('.card')].find(c => c.querySelector('h3')?.textContent === pratoDesafioHoje);
+            if (card) {
+                card.scrollIntoView({ behavior:'smooth', block:'center' });
+                card.style.outline = '3px solid var(--terracotta)';
+                setTimeout(() => card.style.outline = '', 2000);
+            }
+            showToast(`🎯 Desafio aceito! Adicione ${pratoDesafioHoje} ao pedido`);
+            document.getElementById('desafio-banner').style.background = 'linear-gradient(90deg,#27ae60,#2ecc71)';
+        }
+
+        // === MODO MESA DO RESTAURANTE ===
+        function toggleMesa() {
+            document.body.classList.toggle('mesa-mode');
+            const on = document.body.classList.contains('mesa-mode');
+            showToast(on ? '🪵 Modo Mesa ativado — bem-vindo ao Raiz!' : '☀️ Modo normal restaurado');
+        }
+
+        // === ANIMAÇÃO DE PREPARO ===
+        function finalizarPedido() {
+            salvarHistorico();
+            toggleCart();
+            const overlay = document.getElementById('preparo-overlay');
+            overlay.classList.add('show');
+            const pans = ['🍳','🥘','🍲','👨‍🍳','🌿'];
+            let pi = 0;
+            const panAnim = setInterval(() => {
+                document.getElementById('preparo-pan').textContent = pans[pi++ % pans.length];
+            }, 400);
+            createLeaves(document.getElementById('cartCheckout'));
+            fidelidadeTotal = Math.min(fidelidadeTotal + cart.reduce((s,i) => s+i.qty,0), FIDELIDADE_META * 3);
+            localStorage.setItem('fidelidade', fidelidadeTotal);
+            setTimeout(() => {
+                clearInterval(panAnim);
+                overlay.classList.remove('show');
+                cart = [];
+                renderCart();
+                atualizarNivel();
+                atualizarFidelidade();
+                showToast('✅ Pedido enviado! Obrigado 🌿');
+            }, 3500);
+        }
+
+        // === PERSONALIZAÇÃO DO PEDIDO ===
+        let customPendente = null;
+        function openCustom(name, price) {
+            customPendente = { name, price };
+            document.getElementById('custom-title').textContent = `🎨 Personalizar: ${name}`;
+            document.getElementById('custom-modal').classList.add('open');
+        }
+        function closeCustom() { document.getElementById('custom-modal').classList.remove('open'); }
+        function confirmCustom() {
+            if (!customPendente) return;
+            const opts = [];
+            if (document.getElementById('sem-cebola').checked) opts.push('sem cebola');
+            if (document.getElementById('sem-gluten').checked) opts.push('sem glúten');
+            if (document.getElementById('extra-molho').checked) opts.push('molho extra');
+            if (document.getElementById('ponto-bem').checked) opts.push('bem passado');
+            const obs = document.getElementById('obs-text').value.trim();
+            if (obs) opts.push(obs);
+            const label = opts.length ? ` (${opts.join(', ')})` : '';
+            addToCart(customPendente.name + label, customPendente.price);
+            closeCustom();
+            [document.getElementById('sem-cebola'),document.getElementById('sem-gluten'),document.getElementById('extra-molho'),document.getElementById('ponto-bem')].forEach(el => el.checked = false);
+            document.getElementById('obs-text').value = '';
+        }
+
+        // === COMPARTILHAR PEDIDO ===
+        function compartilharPedido() {
+            const itens = cart.map(i => `${i.qty}x ${i.name}`).join(', ');
+            const total = cart.reduce((s,i) => s+i.price*i.qty,0);
+            const texto = `🌿 Meu pedido no Raiz:\n${itens}\nTotal: R$ ${total.toFixed(2).replace('.',',')}`;
+            if (navigator.share) {
+                navigator.share({ title:'Meu pedido no Raiz', text:texto, url:window.location.href });
+            } else {
+                navigator.clipboard.writeText(texto);
+                showToast('📋 Pedido copiado! Cole no WhatsApp');
+            }
+        }
+
+        // === BUSCA + ORDENAÇÃO + RESTRIÇÕES ===
+        let ordemAtual = 'none';
+        let restricoesAtivas = new Set();
+        let categoriaAtiva = 'all';
+
+        // Mapa: valor do data-r → chave camelCase do dataset
+        const restricaoDataset = { 'vegano': 'vegano', 'sem-gluten': 'semGluten', 'sem-lactose': 'semLactose' };
+
+        function aplicarFiltros() {
+            const busca = document.getElementById('busca-input').value.toLowerCase().trim();
+            const cards = [...document.querySelectorAll('.menu-grid .card')];
+            let visiveis = 0;
+            cards.forEach(card => {
+                const nome = card.querySelector('h3')?.textContent.toLowerCase() || '';
+                const desc = card.querySelector('p')?.textContent.toLowerCase() || '';
+                const passaBusca = !busca || nome.includes(busca) || desc.includes(busca);
+                const passaCategoria = categoriaAtiva === 'all' || card.classList.contains(categoriaAtiva);
+                const passaRestricao = [...restricoesAtivas].every(r => card.dataset[restricaoDataset[r]] === 'true');
+                const mostrar = passaBusca && passaCategoria && passaRestricao;
+                card.classList.toggle('hidden', !mostrar);
+                card.style.opacity = mostrar ? '1' : '0';
+                card.style.transform = mostrar ? '' : 'scale(0.85)';
+                if (mostrar) visiveis++;
             });
+            document.getElementById('sem-resultado').style.display = visiveis === 0 ? 'block' : 'none';
         }
-        
-        // Modificar botão grande iFood no footer
-        const ifoodFooterBtn = document.querySelector('.ifood-full-btn');
-        if (ifoodFooterBtn) {
-            ifoodFooterBtn.href = 'SEU-LINK-DO-IFOOD-AQUI';
-            ifoodFooterBtn.target = '_blank';
+
+        function ordenar(tipo, btn) {
+            ordemAtual = tipo;
+            document.querySelectorAll('.ordem-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const grid = document.getElementById('menuGrid');
+            const cards = [...grid.querySelectorAll('.card')];
+            if (tipo === 'none') { cards.sort((a,b) => (a.dataset.origIdx||0) - (b.dataset.origIdx||0)); }
+            else {
+                cards.forEach((c,i) => c.dataset.origIdx = c.dataset.origIdx || i);
+                cards.sort((a,b) => tipo === 'asc'
+                    ? parseFloat(a.dataset.price) - parseFloat(b.dataset.price)
+                    : parseFloat(b.dataset.price) - parseFloat(a.dataset.price));
+            }
+            cards.forEach(c => { c.style.transition = 'opacity 0.2s'; c.style.opacity = '0'; });
+            setTimeout(() => {
+                cards.forEach(c => { grid.appendChild(c); c.style.opacity = '1'; });
+                grid.appendChild(document.getElementById('sem-resultado'));
+            }, 220);
         }
-        
-        // Modificar botão "iFood" na navbar
-        const ifoodNavBtn = document.querySelector('.btn-nav');
-        if (ifoodNavBtn) {
-            ifoodNavBtn.href = 'SEU-LINK-DO-IFOOD-AQUI';
-            ifoodNavBtn.target = '_blank';
+
+        function toggleRestricao(btn) {
+            const r = btn.dataset.r;
+            btn.classList.toggle('active');
+            if (restricoesAtivas.has(r)) restricoesAtivas.delete(r);
+            else restricoesAtivas.add(r);
+            aplicarFiltros();
         }
-    });
-    
-    // MANTER TODAS AS SUAS FUNÇÕES ORIGINAIS AQUI
-    // (createLeaves, showToast, dark mode, slider, partículas, etc.)
-    // Elas já existem no seu código - NÃO REMOVA NADA
-    
-    // APENAS ADICIONAR ESTA FUNÇÃO para sobrescrever addToCart se existir
-    function addToCart(name, price) {
-        // Ao invés de adicionar ao carrinho, redireciona
-        showToast(`🛵 Pedir ${name} no iFood...`);
-        setTimeout(() => {
-            window.open('SEU-LINK-DO-IFOOD-AQUI', '_blank');
-        }, 800);
-        return; // Não faz nada do carrinho original
-    }
-    
-    // SEU CÓDIGO ORIGINAL CONTINUA ABAIXO...
-    // (Tudo que você já tinha no script permanece igual)
-    // Apenas cole todo o seu script original aqui e faça as modificações acima
-</script>
+
+        // Sobrescreve filterMenu para integrar com aplicarFiltros
+        function filterMenu(category, btn) {
+            categoriaAtiva = category;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            aplicarFiltros();
+        }
+
+        // === MODO CARDÁPIO FÍSICO ===
+        function toggleKraft() {
+            document.body.classList.toggle('kraft-mode');
+            const on = document.body.classList.contains('kraft-mode');
+            showToast(on ? '📜 Modo Cardápio Físico ativado!' : '💻 Modo digital restaurado');
+        }
+
+        // === FUNDO POR HORÁRIO ===
+        (function() {
+            const h = new Date().getHours();
+            if (h >= 6 && h < 12)       document.body.classList.add('hora-manha');
+            else if (h >= 12 && h < 19)  document.body.classList.add('hora-tarde');
+            else                         document.body.classList.add('hora-noite');
+        })();
+
+        // === CONTADOR DE PEDIDOS ===
+        let pedidosBase = 18 + Math.floor(Math.random() * 10);
+        document.getElementById('pedidos-num').textContent = pedidosBase;
+        setInterval(() => {
+            if (Math.random() < 0.3) {
+                pedidosBase++;
+                const el = document.getElementById('pedidos-num');
+                el.textContent = pedidosBase;
+                el.style.transform = 'scale(1.4)';
+                setTimeout(() => el.style.transform = '', 300);
+            }
+        }, 12000);
+
+        // === MODO ACESSIBILIDADE ===
+        function toggleAcess() {
+            document.body.classList.toggle('acess-mode');
+            const on = document.body.classList.contains('acess-mode');
+            localStorage.setItem('acess-mode', on);
+            showToast(on ? '♿ Acessibilidade ativada — animações reduzidas, contraste aumentado' : '♿ Acessibilidade desativada');
+        }
+        if (localStorage.getItem('acess-mode') === 'true') document.body.classList.add('acess-mode');
+
+        // === TIMER DE ENTREGA ===
+        function atualizarDeliveryTimer() {
+            const agora = new Date();
+            const mins = 35 + Math.floor(Math.random() * 15);
+            agora.setMinutes(agora.getMinutes() + mins);
+            const h = String(agora.getHours()).padStart(2,'0');
+            const m = String(agora.getMinutes()).padStart(2,'0');
+            document.getElementById('delivery-time').textContent = `${h}:${m}`;
+            document.getElementById('delivery-timer').style.display = 'block';
+        }
+
+        // === UPSELL INTELIGENTE ===
+        const upsellMap = {
+            'burger': { msg:'🍫 Quem pediu burger também levou:', item:'Brownie Terra', price:18 },
+            'bowl':   { msg:'🥤 Combinação perfeita com bowl:', item:'Suco do Pomar', price:12 },
+            'dessert':{ msg:'☕ Sobremesa + bebida é clássico:', item:'Coca-Cola Classic', price:8 },
+        };
+        function checkUpsell(cardEl) {
+            const cats = ['burger','bowl','dessert'];
+            const cat = cats.find(c => cardEl?.classList.contains(c));
+            if (!cat) return;
+            const u = upsellMap[cat];
+            const bubble = document.getElementById('upsell-bubble');
+            bubble.innerHTML = `${u.msg}<br><strong>${u.item}</strong> — R$ ${u.price.toFixed(2).replace('.',',')}<a onclick="addToCart('${u.item}',${u.price});document.getElementById('upsell-bubble').classList.remove('show')">+ Adicionar →</a>`;
+            bubble.classList.add('show');
+            setTimeout(() => bubble.classList.remove('show'), 6000);
+        }
+
+        // === CALCULADORA DE COMBO ===
+        function calcularCombo() {
+            const p = parseFloat(document.getElementById('combo-prato').value) || 0;
+            const b = parseFloat(document.getElementById('combo-bebida').value) || 0;
+            const s = parseFloat(document.getElementById('combo-sobre').value) || 0;
+            const resultEl = document.getElementById('combo-result');
+            const addBtn = document.getElementById('combo-add');
+            if (!p || !b || !s) { resultEl.textContent = ''; addBtn.style.display='none'; return; }
+            const total = p + b + s;
+            const desconto = total * 0.12;
+            const final = total - desconto;
+            resultEl.innerHTML = `De <s style="opacity:0.5">R$ ${total.toFixed(2).replace('.',',')}</s> por <strong style="color:var(--terracotta);font-size:1.8rem"> R$ ${final.toFixed(2).replace('.',',')}</strong> — 12% de desconto!`;
+            addBtn.style.display = 'inline-block';
+        }
+        function adicionarCombo() {
+            const pSel = document.getElementById('combo-prato');
+            const bSel = document.getElementById('combo-bebida');
+            const sSel = document.getElementById('combo-sobre');
+            const pNome = pSel.options[pSel.selectedIndex]?.text.split('—')[0].trim();
+            const bNome = bSel.options[bSel.selectedIndex]?.text.split('—')[0].trim();
+            const sNome = sSel.options[sSel.selectedIndex]?.text.split('—')[0].trim();
+            const p = parseFloat(pSel.value), b = parseFloat(bSel.value), s = parseFloat(sSel.value);
+            if (!p||!b||!s) return;
+            const total = (p+b+s)*0.88;
+            addToCart(`Combo: ${pNome}+${bNome}+${sNome}`, parseFloat(total.toFixed(2)));
+            showToast('🎉 Combo adicionado com 12% de desconto!');
+        }
+
+        // === INDIQUE UM AMIGO ===
+        function gerarCodigo() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = 'RAIZ';
+            for (let i=0;i<4;i++) code += chars[Math.floor(Math.random()*chars.length)];
+            return localStorage.getItem('indica-code') || (localStorage.setItem('indica-code', code), code);
+        }
+        function openIndica() {
+            document.getElementById('indica-code').textContent = gerarCodigo();
+            document.getElementById('indica-modal').classList.add('open');
+        }
+        function closeIndica() { document.getElementById('indica-modal').classList.remove('open'); }
+        function copiarCodigo() {
+            navigator.clipboard.writeText(gerarCodigo()).catch(()=>{});
+            showToast('📋 Código copiado! Compartilhe com seus amigos');
+        }
+
+        // === HISTÓRICO DE PEDIDOS ===
+        let historico = JSON.parse(localStorage.getItem('raiz-historico') || '[]');
+        function salvarHistorico() {
+            if (cart.length === 0) return;
+            const entrada = {
+                data: new Date().toLocaleDateString('pt-BR'),
+                hora: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}),
+                itens: cart.map(i => `${i.qty}x ${i.name}`).join(', '),
+                total: 'R$ ' + cart.reduce((s,i)=>s+i.price*i.qty,0).toFixed(2).replace('.',',')
+            };
+            historico.unshift(entrada);
+            if (historico.length > 10) historico.pop();
+            localStorage.setItem('raiz-historico', JSON.stringify(historico));
+        }
+        function openHist() {
+            const content = document.getElementById('hist-content');
+            if (historico.length === 0) {
+                content.innerHTML = '<p style="opacity:0.5;text-align:center;padding:20px">Nenhum pedido ainda.</p>';
+            } else {
+                content.innerHTML = historico.map(h => `
+                    <div class="hist-item">
+                        <strong>${h.data} às ${h.hora} — ${h.total}</strong>
+                        ${h.itens}
+                    </div>`).join('');
+            }
+            document.getElementById('hist-modal').classList.add('open');
+        }
+        function closeHist() { document.getElementById('hist-modal').classList.remove('open'); }
+
+        // === RESERVA DE MESA ===
+        function openReserva() { document.getElementById('reserva-modal').classList.add('open'); }
+        function closeReserva() {
+            document.getElementById('reserva-modal').classList.remove('open');
+            document.getElementById('reserva-form').style.display='block';
+            document.getElementById('reserva-ok').style.display='none';
+        }
+        function confirmarReserva() {
+            const nome = document.getElementById('res-nome').value.trim();
+            const data = document.getElementById('res-data').value;
+            const hora = document.getElementById('res-hora').value;
+            const pessoas = document.getElementById('res-pessoas').value;
+            if (!nome || !data || !hora || !pessoas) { showToast('⚠️ Preencha todos os campos'); return; }
+            document.getElementById('reserva-form').style.display = 'none';
+            document.getElementById('reserva-ok-msg').textContent = `Reserva confirmada para ${nome}! ${pessoas} em ${new Date(data+'T12:00').toLocaleDateString('pt-BR')} às ${hora}. Até lá! 🌿`;
+            document.getElementById('reserva-ok').style.display = 'block';
+            showToast('🪑 Reserva confirmada! Até lá 🌿');
+        }
+
+        // === MENU HAMBURGUER MOBILE ===
+        function toggleMobMenu() {
+            const panel = document.getElementById('mob-menu-panel');
+            const navbar = document.querySelector('.navbar');
+            // Posiciona sempre abaixo da navbar (funciona com promo-banner visível ou não)
+            const navBottom = navbar.getBoundingClientRect().bottom;
+            panel.style.top = navBottom + 'px';
+            panel.classList.toggle('open');
+            // Atualiza aria-expanded para acessibilidade
+            const btn = document.getElementById('mob-menu-btn');
+            if (btn) btn.setAttribute('aria-expanded', panel.classList.contains('open'));
+        }
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('mob-menu-panel');
+            const btn = document.getElementById('mob-menu-btn');
+            if (panel && panel.classList.contains('open') && !panel.contains(e.target) && e.target !== btn) {
+                panel.classList.remove('open');
+            }
+        });
+        // Fecha mob-menu ao fazer scroll (evita posição desatualizada)
+        window.addEventListener('scroll', () => {
+            const panel = document.getElementById('mob-menu-panel');
+            if (panel && panel.classList.contains('open')) panel.classList.remove('open');
+            const np = document.getElementById('nivel-panel');
+            if (np && np.classList.contains('open')) np.classList.remove('open');
+        }, { passive: true });
+
+        updateStatus();
+        atualizarBotaoRoleta();
+
+        // === DEBOUNCE NA BUSCA ===
+        let _buscaTimer = null;
+        function debounceBusca() {
+            clearTimeout(_buscaTimer);
+            _buscaTimer = setTimeout(aplicarFiltros, 180);
+        }
+
+        // === ESCAPE FECHA QUALQUER MODAL ABERTO ===
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape') return;
+            const modals = [
+                { test: () => document.getElementById('cart-panel').classList.contains('open'), close: toggleCart },
+                { test: () => document.getElementById('detail-modal').classList.contains('open'), close: closeModal },
+                { test: () => document.getElementById('custom-modal').classList.contains('open'), close: closeCustom },
+                { test: () => document.getElementById('roleta-modal').classList.contains('open'), close: closeRoleta },
+                { test: () => document.getElementById('indica-modal').classList.contains('open'), close: closeIndica },
+                { test: () => document.getElementById('hist-modal').classList.contains('open'), close: closeHist },
+                { test: () => document.getElementById('reserva-modal').classList.contains('open'), close: closeReserva },
+                { test: () => document.getElementById('nivel-panel').classList.contains('open'), close: toggleNivelPanel },
+                { test: () => document.getElementById('mob-menu-panel').classList.contains('open'), close: toggleMobMenu },
+            ];
+            modals.forEach(m => { try { if (m.test()) m.close(); } catch(_){} });
+        });
+
+        // aria-expanded já integrado no toggleMobMenu original acima
+
+        // === PEDIDOS: INCREMENTO ORGÂNICO EM TEMPO REAL ===
+        (function() {
+            const el = document.getElementById('pedidos-num');
+            if (!el) return;
+            let current = parseInt(el.textContent) || 23;
+            // Incrementa 1 a cada 40-120 segundos (realista)
+            function scheduleNext() {
+                const delay = (40 + Math.random() * 80) * 1000;
+                setTimeout(() => {
+                    current++;
+                    el.style.transform = 'scale(1.4)';
+                    el.style.transition = 'transform 0.2s';
+                    el.textContent = current;
+                    setTimeout(() => { el.style.transform = 'scale(1)'; }, 220);
+                    scheduleNext();
+                }, delay);
+            }
+            scheduleNext();
+        })();
+    </script>
+</body>
+</html>
