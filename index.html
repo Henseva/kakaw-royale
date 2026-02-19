@@ -3,92 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kakaw Royale - A Nobreza do Cacau</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <title>Raiz — Peça no iFood</title>
+    <!-- Seus estilos e metatags permanecem IGUAIS até a linha 1293 -->
+    <!-- ... (todo o seu CSS atual) ... -->
+    
+    <!-- NOVO CSS para esconder elementos do carrinho -->
+    <style>
+        /* Esconder elementos do carrinho que não serão usados */
+        #cart-panel, #cart-overlay, #cart-btn, .cart-checkout, 
+        .cart-total, .cart-items, .cart-header, #fidelidade-bar,
+        #delivery-timer, #share-btn, #custom-modal, #preparo-overlay {
+            display: none !important;
+        }
+        
+        /* Transformar botões "Adicionar" em "Pedir no iFood" */
+        .btn-card {
+            background: #ea1d2c !important; /* Vermelho iFood */
+            color: white !important;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        
+        .btn-card:hover {
+            background: #c41724 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(234, 29, 44, 0.4) !important;
+        }
+        
+        .btn-card::before {
+            content: "🛵 ";
+            font-size: 1em;
+        }
+        
+        /* Link direto para iFood no logo */
+        .logo a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logo a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Botão flutuante iFood mais visível */
+        .ifood-float {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: #ea1d2c;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            text-decoration: none;
+            box-shadow: 0 4px 20px rgba(234, 29, 44, 0.4);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            animation: pulse-ifood 2s infinite;
+        }
+        
+        @keyframes pulse-ifood {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .ifood-float:hover {
+            background: #c41724;
+            transform: scale(1.05);
+        }
+        
+        /* Badge "Disponível no iFood" nos cards */
+        .card::after {
+            content: "🛵 iFood";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(234, 29, 44, 0.9);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            z-index: 10;
+        }
+        
+        /* Ajuste no botão iFood do footer */
+        .ifood-full-btn {
+            background: #ea1d2c !important;
+            font-size: 1.2rem !important;
+            padding: 25px !important;
+        }
+        
+        .ifood-full-btn::after {
+            content: " 🍔🍟🥤";
+            font-size: 1.2rem;
+        }
+    </style>
 </head>
 <body>
-    <header class="hero" data-aos="fade-up">
-        <div class="hero-content">
-            <h1>A Nobreza do Cacau em cada Mordida</h1>
-            <p>Descubra a experiência sublime dos nossos chocolates artesanais, inspirados na tradição suíça.</p>
-            <a href="#" class="btn-ifood">Pedir no iFood</a>
-        </div>
-    </header>
-
-    <section class="experience" data-aos="fade-up" data-aos-delay="200">
-        <div class="container">
-            <h2>Nossa Experiência Kakaw Royale</h2>
-            <div class="experience-grid">
-                <div class="experience-item">
-                    <span class="icon">&#10024;</span> <h3>Cacau Selecionado</h3>
-                    <p>Grãos raros e de origem controlada para um sabor inigualável.</p>
-                </div>
-                <div class="experience-item">
-                    <span class="icon">&#9813;</span> <h3>Receita Suíça</h3>
-                    <p>Tradição e inovação se encontram em cada formulação.</p>
-                </div>
-                <div class="experience-item">
-                    <span class="icon">&#9200;</span> <h3>Entrega Premium</h3>
-                    <p>Seus chocolates chegam frescos e impecáveis, no conforto do seu lar.</p>
-                </div>
+    <!-- SEU CONTEÚDO ATUAL permanece IGUAL até a linha 1988 -->
+    <!-- ... (todo o seu HTML atual) ... -->
+    
+    <!-- NOVO: Substituir o botão de carrinho por link iFood -->
+    <nav class="navbar">
+        <div style="display: flex; align-items: center;">
+            <div class="logo">
+                <a href="SEU-LINK-DO-IFOOD" target="_blank">
+                    RAIZ
+                    <i class="fas fa-leaf sound-switch" id="soundToggle" title="Som da Natureza"></i>
+                </a>
             </div>
+            <!-- resto igual -->
         </div>
-    </section>
-
-    <section class="best-sellers" data-aos="fade-up" data-aos-delay="300">
-        <div class="container">
-            <h2>Nossos Best Sellers</h2>
-            <div class="product-grid">
-                <div class="product-card">
-                    <img src="https://via.placeholder.com/300x200/0A0A0A/D4AF37?text=Trufa+de+Ouro" alt="Trufa de Ouro">
-                    <h3>Trufa de Ouro</h3>
-                    <p>Recheio cremoso com flocos de ouro comestíveis.</p>
-                    <a href="#" class="btn-view">Ver Detalhes</a>
-                </div>
-                <div class="product-card">
-                    <img src="https://via.placeholder.com/300x200/0A0A0A/D4AF37?text=Dark+Royale" alt="Dark Royale">
-                    <h3>Dark Royale</h3>
-                    <p>Chocolate amargo intenso 70% cacau, para paladares refinados.</p>
-                    <a href="#" class="btn-view">Ver Detalhes</a>
-                </div>
-                <div class="product-card">
-                    <img src="https://via.placeholder.com/300x200/0A0A0A/D4AF37?text=Pralinê+Exótico" alt="Pralinê Exótico">
-                    <h3>Pralinê Exótico</h3>
-                    <p>Combinação perfeita de nozes caramelizadas e chocolate ao leite.</p>
-                    <a href="#" class="btn-view">Ver Detalhes</a>
-                </div>
-            </div>
+        <div class="nav-links">
+            <i class="fas fa-moon theme-switch" id="themeToggle"></i>
+            <!-- Removido cart-btn, adicionado link iFood -->
+            <a href="SEU-LINK-DO-IFOOD" target="_blank" style="color: white; background: #ea1d2c; padding: 8px 15px; border-radius: 20px; font-weight: bold;">
+                <i class="fas fa-shopping-bag"></i> iFood
+            </a>
+            <!-- resto igual -->
         </div>
-    </section>
-
-    <section class="cta-ifood" data-aos="zoom-in" data-aos-delay="400">
-        <div class="container">
-            <h2>O Luxo Que Chega À Sua Porta.</h2>
-            <p>Peça Kakaw Royale e transforme seu dia em uma experiência majestosa.</p>
-            <a href="#" class="btn-ifood large">Pedir Agora no iFood</a>
-        </div>
-    </section>
-
-    <footer data-aos="fade-up" data-aos-delay="500">
-        <div class="container">
-            <p>&copy; 2023 Kakaw Royale. Todos os direitos reservados.</p>
-            <div class="social-links">
-                <a href="#">Instagram</a> | <a href="#">Facebook</a>
-            </div>
-        </div>
-    </footer>
-
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    </nav>
+    
+    <!-- NOVO botão flutuante iFood -->
+    <a href="SEU-LINK-DO-IFOOD" target="_blank" class="ifood-float">
+        <i class="fas fa-shopping-bag"></i>
+        Peça no iFood
+        <i class="fas fa-arrow-right"></i>
+    </a>
+    
+    <!-- SEU SCRIPT ATUAL permanece, mas com modificações -->
     <script>
-        AOS.init({
-            duration: 1000, // duração das animações
-            once: true,    // anima apenas uma vez
+        // SOBRESCREVER funções do carrinho para redirecionar ao iFood
+        
+        // Redirecionar todos os cliques em "Adicionar" para o iFood
+        document.querySelectorAll('.btn-card').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Pega nome do produto para feedback
+                const card = this.closest('.card');
+                const nome = card?.querySelector('h3')?.textContent || 'produto';
+                
+                // Mostra toast dizendo que vai para o iFood
+                showToast(`🍔 Pedir ${nome} no iFood...`);
+                
+                // Redireciona após 1 segundo
+                setTimeout(() => {
+                    window.open('SEU-LINK-DO-IFOOD', '_blank');
+                }, 800);
+                
+                // Efeito visual
+                createLeaves(this);
+            });
         });
+        
+        // Redirecionar botão "Surpresa do Chef"
+        const surpresaBtn = document.getElementById('surpresa-btn');
+        if (surpresaBtn) {
+            surpresaBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                showToast('🎲 Descubra sua surpresa no iFood!');
+                setTimeout(() => window.open('SEU-LINK-DO-IFOOD', '_blank'), 800);
+            });
+        }
+        
+        // Redirecionar botão "Adicionar combo"
+        const comboBtn = document.getElementById('combo-add');
+        if (comboBtn) {
+            comboBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                showToast('🎉 Monte seu combo no iFood!');
+                setTimeout(() => window.open('SEU-LINK-DO-IFOOD', '_blank'), 800);
+            });
+        }
+        
+        // Botão "Roleta da Sorte" - redirecionar também
+        const roletaBtn = document.getElementById('roleta-btn');
+        if (roletaBtn) {
+            const originalClick = roletaBtn.onclick;
+            roletaBtn.onclick = function(e) {
+                e.preventDefault();
+                showToast('🎰 Gire a roleta e ganhe no iFood!');
+                setTimeout(() => window.open('SEU-LINK-DO-IFOOD', '_blank'), 800);
+            };
+        }
+        
+        // FUNÇÕES REMOVIDAS (não são mais necessárias)
+        // - addToCart
+        // - renderCart
+        // - toggleCart
+        // - finalizarPedido
+        // - changeQty
+        // - etc.
+        
+        // Mantemos apenas funções visuais e de entretenimento
+        // (createLeaves, showToast, dark mode, etc.)
+        
+        // Toast personalizado para iFood
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg + ' 🔄';
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+        
+        // Links dos produtos (se quiser links específicos)
+        // Você pode criar um mapa de produtos -> link do iFood
+        const linksIfood = {
+            'Burger Raiz': 'SEU-LINK-BURGER',
+            'Bowl da Estação': 'SEU-LINK-BOWL',
+            'Cheese Raiz': 'SEU-LINK-CHEESE',
+            'Brownie Terra': 'SEU-LINK-BROWNIE',
+            'Mousse Frutas': 'SEU-LINK-MOUSSE',
+            'Coca-Cola Classic': 'SEU-LINK-COCA',
+            'Suco do Pomar': 'SEU-LINK-SUCO',
+            'Guaraná Raiz': 'SEU-LINK-GUARANA'
+        };
+        
+        // Redirecionamento específico por produto (opcional)
+        document.querySelectorAll('.btn-card').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const card = this.closest('.card');
+                const nome = card?.querySelector('h3')?.textContent?.trim() || '';
+                const link = linksIfood[nome] || 'SEU-LINK-DO-IFOOD';
+                
+                showToast(`🍔 Pedir ${nome} no iFood...`);
+                setTimeout(() => window.open(link, '_blank'), 800);
+            });
+        });
+        
+        console.log('🚀 Site otimizado para iFood!');
     </script>
 </body>
 </html>
-
