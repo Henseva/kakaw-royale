@@ -3,647 +3,482 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sabores \u2014 Vitrine Gourmet</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Sabores — Vitrine iFood</title>
 <style>
-  :root {
-    --bg: #0d0a07;
-    --bg2: #130f0a;
-    --cream: #f5ead8;
-    --orange: #ff4d00;
-    --orange2: #ff7b3a;
-    --gold: #d4a843;
-    --text: #e8dcc8;
-    --muted: #6b5c48;
-    --card: #1a1410;
-    --card2: #221c15;
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    overflow-x: hidden;
-    cursor: none;
-  }
-
-  /* Custom cursor */
-  .cursor {
-    position: fixed;
-    width: 12px; height: 12px;
-    background: var(--orange);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
-    transition: width 0.2s, height 0.2s, background 0.2s;
-    mix-blend-mode: screen;
-  }
-  .cursor-ring {
-    position: fixed;
-    width: 40px; height: 40px;
-    border: 1px solid rgba(255,77,0,0.4);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9998;
-    transform: translate(-50%, -50%);
-    transition: transform 0.12s ease, width 0.3s, height 0.3s;
-  }
-  body:has(.card:hover) .cursor { width: 20px; height: 20px; background: var(--gold); }
-  body:has(.card:hover) .cursor-ring { width: 60px; height: 60px; border-color: rgba(212,168,67,0.5); }
-
-  /* Grain overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    opacity: 0.35;
-    pointer-events: none;
-    z-index: 1000;
-  }
-
-  /* HERO */
-  .hero {
-    min-height: 100vh;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hero-bg {
-    position: absolute;
-    inset: 0;
-    background: 
-      radial-gradient(ellipse 60% 80% at 70% 50%, rgba(255,77,0,0.12) 0%, transparent 60%),
-      radial-gradient(ellipse 40% 60% at 20% 80%, rgba(212,168,67,0.08) 0%, transparent 50%);
-  }
-
-  .hero-left {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 80px 60px 80px 80px;
-    position: relative;
-    z-index: 2;
-  }
-
-  .hero-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(255,77,0,0.1);
-    border: 1px solid rgba(255,77,0,0.25);
-    color: var(--orange2);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    padding: 8px 16px;
-    border-radius: 100px;
-    width: fit-content;
-    margin-bottom: 40px;
-    animation: fadeUp 0.8s ease both;
-  }
-
-  .hero-tag::before {
-    content: '';
-    width: 6px; height: 6px;
-    background: var(--orange);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.5); }
-  }
-
-  .hero-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(52px, 6vw, 88px);
-    font-weight: 900;
-    line-height: 0.95;
-    color: var(--cream);
-    margin-bottom: 32px;
-    animation: fadeUp 0.8s 0.1s ease both;
-  }
-
-  .hero-title em {
-    font-style: italic;
-    color: var(--orange);
-    display: block;
-  }
-
-  .hero-title .gold {
-    color: var(--gold);
-  }
-
-  .hero-desc {
-    font-size: 16px;
-    line-height: 1.7;
-    color: var(--muted);
-    max-width: 400px;
-    margin-bottom: 48px;
-    animation: fadeUp 0.8s 0.2s ease both;
-    font-weight: 300;
-  }
-
-  .hero-cta {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    animation: fadeUp 0.8s 0.3s ease both;
-  }
-
-  .btn-primary {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--orange);
-    color: white;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 16px 32px;
-    border-radius: 100px;
-    text-decoration: none;
-    letter-spacing: 0.02em;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn-primary::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
-    transform: translateX(-100%);
-    transition: transform 0.4s ease;
-  }
-
-  .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 20px 40px rgba(255,77,0,0.4); }
-  .btn-primary:hover::before { transform: translateX(100%); }
-
-  .btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--muted);
-    font-size: 14px;
-    text-decoration: none;
-    transition: color 0.3s;
-  }
-  .btn-secondary:hover { color: var(--cream); }
-
-  .hero-right {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
-  }
-
-  .hero-visual {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .hero-plate {
-    width: 420px;
-    height: 420px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, var(--card2), var(--card));
-    border: 1px solid rgba(255,255,255,0.05);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 180px;
-    position: relative;
-    animation: float 6s ease-in-out infinite;
-    box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 80px rgba(255,77,0,0.15);
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(-2deg); }
-    50% { transform: translateY(-20px) rotate(2deg); }
-  }
-
-  .hero-plate::before {
-    content: '';
-    position: absolute;
-    bottom: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80%;
-    height: 40px;
-    background: radial-gradient(ellipse, rgba(255,77,0,0.3) 0%, transparent 70%);
-    filter: blur(15px);
-  }
-
-  .floating-badge {
-    position: absolute;
-    background: var(--card2);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px;
-    padding: 14px 20px;
-    backdrop-filter: blur(20px);
-    font-size: 13px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    animation: float 6s ease-in-out infinite;
-  }
-
-  .fb1 { top: 20%; left: 5%; animation-delay: -2s; }
-  .fb2 { bottom: 25%; right: 5%; animation-delay: -4s; }
-  .fb3 { top: 65%; left: 2%; animation-delay: -1s; }
-
-  .fb-icon { font-size: 22px; }
-  .fb-info { display: flex; flex-direction: column; }
-  .fb-label { font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
-  .fb-val { color: var(--cream); font-weight: 600; font-size: 14px; }
-
-  /* NAV */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 500;
-    padding: 24px 80px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: linear-gradient(to bottom, rgba(13,10,7,0.9) 0%, transparent 100%);
-    backdrop-filter: blur(10px);
-  }
-
-  .nav-logo {
-    font-family: 'Playfair Display', serif;
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--cream);
-    letter-spacing: -0.02em;
-  }
-
-  .nav-logo span { color: var(--orange); }
-
-  .nav-links { display: flex; gap: 40px; align-items: center; }
-
-  .nav-links a {
-    color: var(--muted);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 400;
-    transition: color 0.3s;
-    letter-spacing: 0.02em;
-  }
-  .nav-links a:hover { color: var(--cream); }
-
-  /* SECTIONS */
-  section { position: relative; }
-
-  .section-label {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 16px;
-  }
-
-  .section-label::before {
-    content: '';
-    width: 32px;
-    height: 1px;
-    background: var(--orange);
-  }
-
-  .section-label span {
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--orange2);
-    font-weight: 500;
-  }
-
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(36px, 4vw, 56px);
-    font-weight: 900;
-    line-height: 1.05;
-    color: var(--cream);
-    margin-bottom: 60px;
-  }
-
-  /* CATEGORIES */
-  .categories {
-    padding: 120px 80px;
-    background: var(--bg2);
-  }
-
-  .cats-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 16px;
-    margin-bottom: 80px;
-  }
-
-  .cat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    padding: 28px 16px;
-    background: var(--card);
-    border: 1px solid rgba(255,255,255,0.04);
-    border-radius: 20px;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .cat-item::before {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--orange), var(--gold));
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-  }
-
-  .cat-item:hover { border-color: rgba(255,77,0,0.2); transform: translateY(-6px); background: var(--card2); }
-  .cat-item:hover::before { transform: scaleX(1); }
-
-  .cat-emoji { font-size: 36px; transition: transform 0.3s ease; }
-  .cat-item:hover .cat-emoji { transform: scale(1.2) rotate(-5deg); }
-
-  .cat-name { font-size: 12px; font-weight: 500; color: var(--muted); letter-spacing: 0.05em; text-align: center; transition: color 0.3s; }
-  .cat-item:hover .cat-name { color: var(--cream); }
-
-  /* FEATURED GRID */
-  .featured {
-    padding: 120px 80px;
-  }
-
-  .featured-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 60px;
-  }
-
-  .featured-header .section-title { margin-bottom: 0; }
-
-  .filter-tabs {
-    display: flex;
-    gap: 8px;
-  }
-
-  .filter-tab {
-    padding: 8px 20px;
-    border-radius: 100px;
-    font-size: 13px;
-    cursor: pointer;
-    border: 1px solid rgba(255,255,255,0.08);
-    background: transparent;
-    color: var(--muted);
-    transition: all 0.3s;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .filter-tab.active { background: var(--orange); border-color: var(--orange); color: white; }
-  .filter-tab:hover:not(.active) { border-color: rgba(255,255,255,0.2); color: var(--cream); }
-
-  .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-  }
-
-  .card {
-    background: var(--card);
-    border: 1px solid rgba(255,255,255,0.04);
-    border-radius: 24px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    position: relative;
-    text-decoration: none;
-    display: block;
-  }
-
-  .card:hover { transform: translateY(-12px); border-color: rgba(255,77,0,0.15); box-shadow: 0 40px 80px rgba(0,0,0,0.4), 0 0 60px rgba(255,77,0,0.08); }
-
-  .card-img {
-    width: 100%;
-    height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 80px;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.4s ease;
-  }
-
-  .card:hover .card-img { transform: scale(1.05); }
-
-  .card-img::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 60px;
-    background: linear-gradient(to top, var(--card), transparent);
-  }
-
-  .card-badge {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    z-index: 2;
-    background: rgba(13,10,7,0.85);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 100px;
-    padding: 5px 12px;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--gold);
-    letter-spacing: 0.05em;
-  }
-
-  .card-fav {
-    position: absolute;
-    top: 14px;
-    right: 16px;
-    z-index: 2;
-    width: 36px; height: 36px;
-    background: rgba(13,10,7,0.85);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s;
-  }
-  .card-fav:hover { background: rgba(255,77,0,0.2); border-color: rgba(255,77,0,0.3); transform: scale(1.15); }
-
-  .card-body { padding: 20px 24px 24px; }
-
-  .card-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-
-  .card-restaurant {
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-weight: 500;
-  }
-
-  .card-rating {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 12px;
-    color: var(--gold);
-    font-weight: 500;
-  }
-
-  .card-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--cream);
-    margin-bottom: 8px;
-    line-height: 1.2;
-  }
-
-  .card-desc {
-    font-size: 13px;
-    color: var(--muted);
-    line-height: 1.6;
-    margin-bottom: 20px;
-    font-weight: 300;
-  }
-
-  .card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .card-price {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .price-from { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
-  .price-val { font-size: 24px; font-weight: 700; color: var(--cream); font-family: 'Playfair Display', serif; }
-  .price-val sup { font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 400; }
-
-  .card-info {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-  }
-
-  .info-chip {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  .card-btn {
-    width: 44px; height: 44px;
-    background: var(--orange);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    border: none;
-    text-decoration: none;
-  }
-  .card-btn:hover { transform: scale(1.15); box-shadow: 0 10px 30px rgba(255,77,0,0.5); }
-
-  /* Card colors */
-  .card-img.c1 { background: linear-gradient(135deg, #1a0f05, #2d1a0a); }
-  .card-img.c2 { background: linear-gradient(135deg, #0a1a12, #0d2818); }
-  .card-img.c3 { background: linear-gradient(135deg, #1a0d18, #271324); }
-  .card-img.c4 { background: linear-gradient(135deg, #1a1205, #2b1d08); }
-  .card-img.c5 { background: linear-gradient(135deg, #0d1520, #122030); }
-  .card-img.c6 { background: linear-gradient(135deg, #1a0a0a, #2b1010); }
-
-  /* BIG PROMO */
-  .promo {
-    padding: 0 80px 120px;
-  }
-
-  .promo-card {
-    background: linear-gradient(135deg, #1a0f05 0%, #0d0a07 50%, #150f05 100%);
-    border: 1px solid rgba(255,77,0,0.15);
-    border-radius: 32px;
-    padding: 80px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .promo-card::before {
-    content: '';
-    position: absolute;
-    top: -100px; right: -100px;
-    width: 400px; height: 400px;
-    background: radial-gradient(circle, rgba(255,77,0,0.15) 0%, transparent 60%);
-    pointer-events: none;
-  }
-
-  .promo-card::after {
-    content: '';
-    position: absolute;
-    bottom: -80px; left: -80px;
-    width: 300px; height: 300px;
-    background: radial-gradient(circle, rgba(212,168,67,0.08) 0%, transparent 60%);
-    pointer-events: none;
-  }
-
-  .promo-content { position: relative; z-index: 2; }
-
-  .promo-offer {
-    font-size: 80px;
-    font-weight: 900;
-    font-family: 'Playfair Display', serif;
-    color: var(--orange);
-    line-height: 1;
-    margin-bottom: 16px;
-  }
-
-  .promo-title {
-    font-family:
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #0d0a07;
+  --bg2: #111009;
+  --card: #181210;
+  --card2: #201a14;
+  --cream: #f0e6d3;
+  --orange: #ff4d00;
+  --orange-light: #ff7b3a;
+  --gold: #d4a843;
+  --muted: #6b5c48;
+  --text: #c8baa8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(13,10,7,0.97);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 16px 32px;
+  display: flex; justify-content: space-between; align-items: center; gap: 16px;
+}
+.logo { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--cream); text-decoration: none; flex-shrink: 0; }
+.logo span { color: var(--orange); }
+.nav-ifood {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--orange); color: white;
+  padding: 10px 20px; border-radius: 100px;
+  font-size: 13px; font-weight: 600; text-decoration: none;
+  transition: all 0.25s; white-space: nowrap;
+}
+.nav-ifood:hover { background: #e63d00; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,77,0,0.35); }
+
+/* HERO */
+.hero {
+  padding: 64px 32px 72px;
+  text-align: center; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,77,0,0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,77,0,0.08); border: 1px solid rgba(255,77,0,0.2);
+  color: var(--orange-light); font-size: 11px; letter-spacing: 0.15em;
+  text-transform: uppercase; padding: 7px 16px; border-radius: 100px; margin-bottom: 28px;
+}
+.dot { width: 6px; height: 6px; background: var(--orange); border-radius: 50%; display: inline-block; animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(40px, 8vw, 80px); font-weight: 900; line-height: 1;
+  color: var(--cream); margin-bottom: 20px;
+}
+.hero h1 em { font-style: italic; color: var(--orange); display: block; }
+.hero h1 .gold { color: var(--gold); }
+.hero p { font-size: 15px; line-height: 1.7; color: var(--muted); max-width: 480px; margin: 0 auto 36px; font-weight: 300; }
+.hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-main {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--orange); color: white; padding: 15px 32px; border-radius: 100px;
+  font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.25s;
+}
+.btn-main:hover { background: #e63d00; transform: translateY(-2px); box-shadow: 0 16px 40px rgba(255,77,0,0.4); }
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--muted); padding: 15px 24px; border-radius: 100px;
+  font-size: 14px; text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.08); transition: all 0.25s;
+}
+.btn-ghost:hover { color: var(--cream); border-color: rgba(255,255,255,0.2); }
+.hero-emojis { margin-top: 48px; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+.emoji-float {
+  width: 64px; height: 64px;
+  background: var(--card); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 28px; animation: float 4s ease-in-out infinite;
+}
+.emoji-float:nth-child(2){animation-delay:-1s}
+.emoji-float:nth-child(3){animation-delay:-2s}
+.emoji-float:nth-child(4){animation-delay:-0.5s}
+.emoji-float:nth-child(5){animation-delay:-1.5s}
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+/* SECTIONS */
+.sec { padding: 64px 32px; }
+.sec.dark { background: var(--bg2); }
+.sec-label { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.sec-label::before { content:''; width:24px; height:1px; background: var(--orange); }
+.sec-label span { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--orange-light); font-weight: 500; }
+.sec-title { font-family: 'Playfair Display', serif; font-size: clamp(28px,5vw,44px); font-weight: 900; color: var(--cream); line-height: 1.1; margin-bottom: 36px; }
+.sec-title em { font-style: italic; color: var(--orange); }
+.sec-title .gold { color: var(--gold); }
+
+/* CATEGORIES */
+.cats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.cat {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 22px 12px; border-radius: 16px;
+  background: var(--card); border: 1px solid rgba(255,255,255,0.04);
+  text-decoration: none; transition: all 0.25s; position: relative; overflow: hidden;
+}
+.cat::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: linear-gradient(90deg, var(--orange), var(--gold));
+  transform: scaleX(0); transition: transform 0.3s; transform-origin: left;
+}
+.cat:hover { transform: translateY(-5px); border-color: rgba(255,77,0,0.18); background: var(--card2); }
+.cat:hover::after { transform: scaleX(1); }
+.cat .ico { font-size: 32px; transition: transform 0.25s; }
+.cat:hover .ico { transform: scale(1.2) rotate(-5deg); }
+.cat .lbl { font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: 0.05em; transition: color 0.25s; text-align: center; }
+.cat:hover .lbl { color: var(--cream); }
+
+/* DISH CARDS */
+.cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.dish {
+  background: var(--card); border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 20px; overflow: hidden; text-decoration: none; display: block; transition: all 0.3s;
+}
+.dish:hover { transform: translateY(-8px); border-color: rgba(255,77,0,0.15); box-shadow: 0 30px 60px rgba(0,0,0,0.35); }
+.dish-img {
+  height: 160px; display: flex; align-items: center; justify-content: center;
+  font-size: 72px; position: relative; overflow: hidden; transition: transform 0.3s;
+}
+.dish:hover .dish-img { transform: scale(1.06); }
+.dish-img::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 50px; background: linear-gradient(to top, var(--card), transparent);
+}
+.badge {
+  position: absolute; top: 12px; left: 12px; z-index: 2;
+  background: rgba(13,10,7,0.85); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 100px; padding: 4px 10px; font-size: 10px; color: var(--gold); font-weight: 600;
+}
+.dish-body { padding: 16px 20px 20px; }
+.dish-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.dish-from { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.dish-stars { font-size: 11px; color: var(--gold); font-weight: 600; }
+.dish-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--cream); margin-bottom: 6px; line-height: 1.2; }
+.dish-desc { font-size: 12px; color: var(--muted); line-height: 1.55; margin-bottom: 16px; font-weight: 300; }
+.dish-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.dish-price .from { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; display: block; }
+.dish-price .val { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--cream); }
+.dish-price .val sup { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 400; }
+.dish-chips { display: flex; gap: 8px; }
+.chip { font-size: 11px; color: var(--muted); }
+.arrow {
+  width: 40px; height: 40px; background: var(--orange); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 16px; flex-shrink: 0; transition: all 0.25s;
+}
+.dish:hover .arrow { transform: scale(1.12); box-shadow: 0 8px 20px rgba(255,77,0,0.45); }
+
+.t1{background:linear-gradient(135deg,#1a0f05,#2a1809)}
+.t2{background:linear-gradient(135deg,#091a11,#0c2516)}
+.t3{background:linear-gradient(135deg,#1a0c04,#2b1508)}
+.t4{background:linear-gradient(135deg,#0a1018,#101a28)}
+.t5{background:linear-gradient(135deg,#1a0a0a,#2b1212)}
+.t6{background:linear-gradient(135deg,#120d1a,#1c1228)}
+
+/* PROMO */
+.promo-wrap { padding: 0 32px 64px; }
+.promo-card {
+  background: linear-gradient(135deg,#1a0f05,#0d0a07,#150e05);
+  border: 1px solid rgba(255,77,0,0.18); border-radius: 28px;
+  padding: 52px 48px;
+  display: flex; align-items: center; justify-content: space-between; gap: 40px;
+  position: relative; overflow: hidden;
+}
+.promo-card::before {
+  content:''; position:absolute; top:-80px; right:-80px;
+  width:300px; height:300px;
+  background: radial-gradient(circle,rgba(255,77,0,0.12) 0%,transparent 65%);
+  pointer-events:none;
+}
+.promo-pct { font-family:'Playfair Display',serif; font-size:clamp(56px,8vw,90px); font-weight:900; color:var(--orange); line-height:1; margin-bottom:10px; }
+.promo-title { font-family:'Playfair Display',serif; font-size:clamp(22px,3vw,32px); font-weight:700; color:var(--cream); margin-bottom:12px; line-height:1.15; }
+.promo-desc { font-size:14px; color:var(--muted); line-height:1.65; margin-bottom:32px; max-width:380px; }
+.promo-emoji { font-size:100px; flex-shrink:0; animation:float 5s ease-in-out infinite; }
+
+/* RESTAURANTS */
+.rest-scroll { display:flex; gap:16px; overflow-x:auto; padding-bottom:12px; scroll-snap-type:x mandatory; scrollbar-width:none; }
+.rest-scroll::-webkit-scrollbar{display:none}
+.rest-card {
+  flex:0 0 220px; scroll-snap-align:start;
+  background:var(--card); border:1px solid rgba(255,255,255,0.05);
+  border-radius:18px; padding:24px; text-decoration:none; transition:all 0.25s;
+}
+.rest-card:hover{border-color:rgba(255,77,0,0.2);transform:translateY(-5px)}
+.rest-icon{font-size:38px;margin-bottom:14px;display:block}
+.rest-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--cream);margin-bottom:4px}
+.rest-type{font-size:11px;color:var(--muted);margin-bottom:14px}
+.rest-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px}
+.rest-tag{padding:3px 9px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:100px;font-size:9px;color:var(--muted);letter-spacing:0.05em}
+.rest-meta{display:flex;gap:14px}
+.rmi{display:flex;flex-direction:column}
+.rmi strong{font-size:13px;color:var(--cream);font-weight:600}
+.rmi span{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:1px}
+
+/* FOOTER */
+footer {
+  padding:40px 32px;
+  border-top:1px solid rgba(255,255,255,0.05);
+  display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;
+}
+.footer-logo{font-family:'Playfair Display',serif;font-size:24px;color:var(--cream)}
+.footer-logo span{color:var(--orange)}
+.footer-note{font-size:12px;color:var(--muted);line-height:1.6}
+.footer-link{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--card);border:1px solid rgba(255,255,255,0.06);
+  border-radius:100px;padding:12px 28px;text-decoration:none;
+  font-size:13px;color:var(--cream);transition:all 0.25s;
+}
+.footer-link:hover{border-color:rgba(255,77,0,0.3);background:rgba(255,77,0,0.1)}
+.red{font-weight:700;color:#ea1d2c}
+
+/* DIVIDER */
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.05),transparent);margin:0 32px}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .cards-grid{grid-template-columns:repeat(2,1fr)}
+  .promo-emoji{display:none}
+  .promo-card{padding:40px 32px}
+}
+@media(max-width:600px){
+  nav{padding:14px 20px}
+  .sec{padding:48px 20px}
+  .hero{padding:48px 20px 56px}
+  .divider{margin:0 20px}
+  .promo-wrap{padding:0 20px 48px}
+  .cats-grid{grid-template-columns:repeat(3,1fr);gap:10px}
+  .cards-grid{grid-template-columns:1fr}
+  .promo-card{padding:32px 24px}
+  .hero-emojis{gap:10px}
+  .emoji-float{width:52px;height:52px;font-size:22px}
+  .nav-ifood{padding:9px 16px;font-size:12px}
+}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity 0.6s ease,transform 0.6s ease}
+.reveal.on{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="logo">Sabo<span>res</span></a>
+  <a href="https://www.ifood.com.br" target="_blank" class="nav-ifood">🛵 Abrir iFood</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge"><span class="dot"></span> Entrega em até 30 minutos</div>
+  <h1>
+    Cada prato,<br>
+    <em>uma obra</em>
+    <span class="gold">de arte.</span>
+  </h1>
+  <p>Descubra os melhores sabores da cidade, selecionados com carinho. Escolha o que te encanta e pedimos pelo iFood.</p>
+  <div class="hero-cta">
+    <a href="#pratos" class="btn-main">🍽 Explorar Pratos</a>
+    <a href="#categorias" class="btn-ghost">Ver Categorias →</a>
+  </div>
+  <div class="hero-emojis">
+    <div class="emoji-float">🍕</div>
+    <div class="emoji-float">🍔</div>
+    <div class="emoji-float">🍱</div>
+    <div class="emoji-float">🥩</div>
+    <div class="emoji-float">🍝</div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="sec dark reveal" id="categorias">
+  <div class="sec-label"><span>O que você quer hoje?</span></div>
+  <h2 class="sec-title">Escolha sua <em>categoria</em></h2>
+  <div class="cats-grid">
+    <a href="https://www.ifood.com.br/delivery/busca?q=pizza" target="_blank" class="cat"><span class="ico">🍕</span><span class="lbl">Pizza</span></a>
+    <a href="https://www.ifood.com.br/delivery/busca?q=burger" target="_blank" class="cat"><span class="ico">🍔</span><span class="lbl">Burger</span></a>
+    <a href="https://www.ifood.com.br/delivery/busca?q=sushi" target="_blank" class="cat"><span class="ico">🍣</span><span class="lbl">Japonês</span></a>
+    <a href="https://www.ifood.com.br/delivery/busca?q=churrasco" target="_blank" class="cat"><span class="ico">🥩</span><span class="lbl">Churrasco</span></a>
+    <a href="https://www.ifood.com.br/delivery/busca?q=massa+italiana" target="_blank" class="cat"><span class="ico">🍝</span><span class="lbl">Massas</span></a>
+    <a href="https://www.ifood.com.br/delivery/busca?q=tacos+mexicano" target="_blank" class="cat"><span class="ico">🌮</span><span class="lbl">Mexicano</span></a>
+    <a href="https://www.ifood.com.br/delivery/busca?q=acai" target="_blank" class="cat"><span class="ico">🍇</span><span class="lbl">Açaí</span></a>
+    <a href="https://www.ifood.com.br/delivery/busca?q=saudavel+salada" target="_blank" class="cat"><span class="ico">🥗</span><span class="lbl">Saudável</span></a>
+    <a href="https://www.ifood.com.br/delivery/busca?q=frango+frito" target="_blank" class="cat"><span class="ico">🍗</span><span class="lbl">Frango</span></a>
+    <a href="https://www.ifood.com.br/delivery/busca?q=sobremesa+doce" target="_blank" class="cat"><span class="ico">🍰</span><span class="lbl">Doces</span></a>
+    <a href="https://www.ifood.com.br/delivery/busca?q=vegano" target="_blank" class="cat"><span class="ico">🥦</span><span class="lbl">Vegano</span></a>
+    <a href="https://www.ifood.com.br/delivery/busca?q=bebida+suco" target="_blank" class="cat"><span class="ico">🧃</span><span class="lbl">Bebidas</span></a>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FEATURED DISHES -->
+<section class="sec reveal" id="pratos">
+  <div class="sec-label"><span>Seleção da casa</span></div>
+  <h2 class="sec-title">Pratos em <span class="gold">destaque</span></h2>
+  <div class="cards-grid">
+
+    <a href="https://www.ifood.com.br/delivery/busca?q=pizza+margherita+artesanal" target="_blank" class="dish">
+      <div class="dish-img t1">🍕<div class="badge">🔥 Mais pedido</div></div>
+      <div class="dish-body">
+        <div class="dish-top"><span class="dish-from">Bella Napoli</span><span class="dish-stars">⭐ 4.9</span></div>
+        <div class="dish-name">Pizza Margherita Trufada</div>
+        <div class="dish-desc">Massa artesanal fermentada, molho San Marzano, buffalo mozzarella e toque de trufa negra.</div>
+        <div class="dish-foot">
+          <div class="dish-price"><span class="from">A partir de</span><span class="val"><sup>R$</sup>54</span></div>
+          <div class="dish-chips"><span class="chip">🕐 25min</span><span class="chip">🏍 Grátis</span></div>
+          <div class="arrow">→</div>
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.ifood.com.br/delivery/busca?q=combinado+sushi+especial" target="_blank" class="dish">
+      <div class="dish-img t2">🍱<div class="badge">✦ Premium</div></div>
+      <div class="dish-body">
+        <div class="dish-top"><span class="dish-from">Sakura House</span><span class="dish-stars">⭐ 4.8</span></div>
+        <div class="dish-name">Combinado do Chef</div>
+        <div class="dish-desc">30 peças com salmão premium, atum, polvinho e temaki especial da casa.</div>
+        <div class="dish-foot">
+          <div class="dish-price"><span class="from">A partir de</span><span class="val"><sup>R$</sup>89</span></div>
+          <div class="dish-chips"><span class="chip">🕐 35min</span><span class="chip">🏍 R$5</span></div>
+          <div class="arrow">→</div>
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.ifood.com.br/delivery/busca?q=smash+burger+duplo" target="_blank" class="dish">
+      <div class="dish-img t3">🍔<div class="badge">⚡ Novo</div></div>
+      <div class="dish-body">
+        <div class="dish-top"><span class="dish-from">Crush Burger</span><span class="dish-stars">⭐ 4.7</span></div>
+        <div class="dish-name">Smash Double Crispy</div>
+        <div class="dish-desc">Dois smash patties de angus, queijo americano derretido, pickles e molho especial.</div>
+        <div class="dish-foot">
+          <div class="dish-price"><span class="from">A partir de</span><span class="val"><sup>R$</sup>38</span></div>
+          <div class="dish-chips"><span class="chip">🕐 20min</span><span class="chip">🏍 Grátis</span></div>
+          <div class="arrow">→</div>
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.ifood.com.br/delivery/busca?q=costela+bovina+churrasco" target="_blank" class="dish">
+      <div class="dish-img t4">🥩<div class="badge">🏆 Top avaliado</div></div>
+      <div class="dish-body">
+        <div class="dish-top"><span class="dish-from">Fogo e Brasa</span><span class="dish-stars">⭐ 4.9</span></div>
+        <div class="dish-name">Costela Bovina na Brasa</div>
+        <div class="dish-desc">Cozida por 12 horas, desfiando no garfo, com vinagrete especial e farofa crocante.</div>
+        <div class="dish-foot">
+          <div class="dish-price"><span class="from">A partir de</span><span class="val"><sup>R$</sup>67</span></div>
+          <div class="dish-chips"><span class="chip">🕐 40min</span><span class="chip">🏍 R$8</span></div>
+          <div class="arrow">→</div>
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.ifood.com.br/delivery/busca?q=bowl+acai+para" target="_blank" class="dish">
+      <div class="dish-img t5">🍇<div class="badge">🌿 Saudável</div></div>
+      <div class="dish-body">
+        <div class="dish-top"><span class="dish-from">Raízes do Norte</span><span class="dish-stars">⭐ 4.8</span></div>
+        <div class="dish-name">Bowl de Açaí Amazônico</div>
+        <div class="dish-desc">Açaí puro do Pará, granola artesanal, banana, morango e mel silvestre do cerrado.</div>
+        <div class="dish-foot">
+          <div class="dish-price"><span class="from">A partir de</span><span class="val"><sup>R$</sup>26</span></div>
+          <div class="dish-chips"><span class="chip">🕐 15min</span><span class="chip">🏍 Grátis</span></div>
+          <div class="arrow">→</div>
+        </div>
+      </div>
+    </a>
+
+    <a href="https://www.ifood.com.br/delivery/busca?q=tacos+al+pastor" target="_blank" class="dish">
+      <div class="dish-img t6">🌮<div class="badge">🌶 Picante</div></div>
+      <div class="dish-body">
+        <div class="dish-top"><span class="dish-from">El Rancho</span><span class="dish-stars">⭐ 4.6</span></div>
+        <div class="dish-name">Combo Tacos al Pastor</div>
+        <div class="dish-desc">4 tacos com carne marinada, abacaxi grelhado, coentro, cebola roxa e chipotle.</div>
+        <div class="dish-foot">
+          <div class="dish-price"><span class="from">A partir de</span><span class="val"><sup>R$</sup>44</span></div>
+          <div class="dish-chips"><span class="chip">🕐 30min</span><span class="chip">🏍 R$3</span></div>
+          <div class="arrow">→</div>
+        </div>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- PROMO -->
+<div class="promo-wrap reveal">
+  <div class="promo-card">
+    <div>
+      <div class="promo-pct">-30%</div>
+      <div class="promo-title">Primeira entrega<br>com desconto especial</div>
+      <p class="promo-desc">Faça seu primeiro pedido pelo iFood e ganhe 30% de desconto em qualquer restaurante parceiro. Válido para novos usuários.</p>
+      <a href="https://www.ifood.com.br" target="_blank" class="btn-main" style="font-size:14px;padding:14px 28px">🎁 Aproveitar no iFood</a>
+    </div>
+    <div class="promo-emoji">🎉</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- RESTAURANTS -->
+<section class="sec reveal" id="restaurantes">
+  <div class="sec-label"><span>Parceiros selecionados</span></div>
+  <h2 class="sec-title">Restaurantes em <em>destaque</em></h2>
+  <div class="rest-scroll">
+    <a href="https://www.ifood.com.br/delivery/busca?q=Bella+Napoli+pizza" target="_blank" class="rest-card">
+      <span class="rest-icon">🍕</span>
+      <div class="rest-name">Bella Napoli</div><div class="rest-type">Pizzaria Italiana</div>
+      <div class="rest-tags"><span class="rest-tag">Artesanal</span><span class="rest-tag">Forno a Lenha</span><span class="rest-tag">Premium</span></div>
+      <div class="rest-meta"><div class="rmi"><strong>4.9 ⭐</strong><span>Avaliação</span></div><div class="rmi"><strong>~25 min</strong><span>Entrega</span></div></div>
+    </a>
+    <a href="https://www.ifood.com.br/delivery/busca?q=Sakura+House+sushi" target="_blank" class="rest-card">
+      <span class="rest-icon">🍱</span>
+      <div class="rest-name">Sakura House</div><div class="rest-type">Culinária Japonesa</div>
+      <div class="rest-tags"><span class="rest-tag">Sushi</span><span class="rest-tag">Temaki</span><span class="rest-tag">Premium</span></div>
+      <div class="rest-meta"><div class="rmi"><strong>4.8 ⭐</strong><span>Avaliação</span></div><div class="rmi"><strong>~35 min</strong><span>Entrega</span></div></div>
+    </a>
+    <a href="https://www.ifood.com.br/delivery/busca?q=smash+burger+artesanal" target="_blank" class="rest-card">
+      <span class="rest-icon">🍔</span>
+      <div class="rest-name">Crush Burger</div><div class="rest-type">Hamburgeria Artesanal</div>
+      <div class="rest-tags"><span class="rest-tag">Smash</span><span class="rest-tag">Angus</span><span class="rest-tag">Gourmet</span></div>
+      <div class="rest-meta"><div class="rmi"><strong>4.7 ⭐</strong><span>Avaliação</span></div><div class="rmi"><strong>~20 min</strong><span>Entrega</span></div></div>
+    </a>
+    <a href="https://www.ifood.com.br/delivery/busca?q=churrasco+costela+brasa" target="_blank" class="rest-card">
+      <span class="rest-icon">🔥</span>
+      <div class="rest-name">Fogo e Brasa</div><div class="rest-type">Churrascaria Premium</div>
+      <div class="rest-tags"><span class="rest-tag">Costela</span><span class="rest-tag">Picanha</span><span class="rest-tag">12h lento</span></div>
+      <div class="rest-meta"><div class="rmi"><strong>4.9 ⭐</strong><span>Avaliação</span></div><div class="rmi"><strong>~40 min</strong><span>Entrega</span></div></div>
+    </a>
+    <a href="https://www.ifood.com.br/delivery/busca?q=acai+natural+saudavel" target="_blank" class="rest-card">
+      <span class="rest-icon">🌿</span>
+      <div class="rest-name">Raízes do Norte</div><div class="rest-type">Açaí e Saúde</div>
+      <div class="rest-tags"><span class="rest-tag">Vegano</span><span class="rest-tag">Natural</span><span class="rest-tag">Paraense</span></div>
+      <div class="rest-meta"><div class="rmi"><strong>4.8 ⭐</strong><span>Avaliação</span></div><div class="rmi"><strong>~15 min</strong><span>Entrega</span></div></div>
+    </a>
+    <a href="https://www.ifood.com.br/delivery/busca?q=tacos+burritos+mexicano" target="_blank" class="rest-card">
+      <span class="rest-icon">🌮</span>
+      <div class="rest-name">El Rancho</div><div class="rest-type">Culinária Mexicana</div>
+      <div class="rest-tags"><span class="rest-tag">Tacos</span><span class="rest-tag">Burritos</span><span class="rest-tag">Picante</span></div>
+      <div class="rest-meta"><div class="rmi"><strong>4.6 ⭐</strong><span>Avaliação</span></div><div class="rmi"><strong>~30 min</strong><span>Entrega</span></div></div>
+    </a>
+    <a href="https://www.ifood.com.br/delivery/busca?q=massa+italiana+pasta+fresca" target="_blank" class="rest-card">
+      <span class="rest-icon">🍝</span>
+      <div class="rest-name">Pasta Mia</div><div class="rest-type">Massas Artesanais</div>
+      <div class="rest-tags"><span class="rest-tag">Fresca</span><span class="rest-tag">Italiana</span><span class="rest-tag">Clássico</span></div>
+      <div class="rest-meta"><div class="rmi"><strong>4.7 ⭐</strong><span>Avaliação</span></div><div class="rmi"><strong>~30 min</strong><span>Entrega</span></div></div>
+    </a>
+  </div>
+</section>
+
+<footer class="reveal">
+  <div class="footer-logo">Sabo<span>res</span></div>
+  <p class="footer-note">Vitrine de inspiração culinária. Todos os pedidos são processados pelo iFood.</p>
+  <a href="https://www.ifood.com.br" target="_blank" class="footer-link">Ir para o <span class="red">iFood</span> →</a>
+</footer>
+
+<script>
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); obs.unobserve(e.target); } });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
