@@ -51,8 +51,7 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 @keyframes ldrFill{to{width:100%}}
 
 /* ── NOISE GRAIN OVERLAY ── */
-.grain::before{content:'';position:absolute;inset:-50%;width:200%;height:200%;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.035;pointer-events:none;z-index:0;animation:grainMove 8s steps(10) infinite}
-@keyframes grainMove{0%{transform:translate(0,0)}10%{transform:translate(-5%,-5%)}20%{transform:translate(-10%,5%)}30%{transform:translate(5%,-10%)}40%{transform:translate(-5%,15%)}50%{transform:translate(-15%,5%)}60%{transform:translate(15%,0)}70%{transform:translate(0,10%)}80%{transform:translate(-5%,-15%)}90%{transform:translate(10%,5%)}100%{transform:translate(5%,0)}}
+/* grain removed - was causing page to shake */
 
 /* ── KEYFRAMES ── */
 @keyframes fadeUp{from{opacity:0;transform:translateY(44px)}to{opacity:1;transform:none}}
@@ -90,6 +89,18 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
   .promo-grid{grid-template-columns:1fr!important}
   .how-grid{grid-template-columns:1fr!important}
 }
+/* ── NAV MOBILE ── */
+@media(max-width:600px){
+  .nav-status{display:none!important}
+  .nav-logo{font-size:22px!important}
+  .nav-theme{display:none!important}
+  .nav-cta{padding:9px 14px!important;font-size:11px!important}
+  .hero-h1{min-height:3.2em}
+}
+@media(max-width:400px){
+  .nav-cta span.cta-label{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -462,17 +473,17 @@ function App(){
       ),
 
 /* ════ NAV ════ */
-      h('nav',{style:{position:'sticky',top:0,zIndex:500,background:c.nav,backdropFilter:'blur(28px)',WebkitBackdropFilter:'blur(28px)',borderBottom:`1px solid ${c.border}`,padding:sc?'10px 28px':'18px 28px',display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,transition:'padding .4s cubic-bezier(.22,1,.36,1),box-shadow .4s',boxShadow:sc?'0 8px 40px rgba(0,0,0,.38)':'none'}},
-        h('a',{href:'#',style:{fontFamily:"'Playfair Display',serif",fontSize:sc?21:28,fontWeight:900,color:c.cream,textDecoration:'none',transition:'font-size .35s',flexShrink:0,letterSpacing:'-1px'}},
+      h('nav',{className:'sabores-nav',style:{position:'sticky',top:0,zIndex:500,background:c.nav,backdropFilter:'blur(28px)',WebkitBackdropFilter:'blur(28px)',borderBottom:`1px solid ${c.border}`,padding:sc?'10px 28px':'18px 28px',display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,transition:'padding .4s cubic-bezier(.22,1,.36,1),box-shadow .4s',boxShadow:sc?'0 8px 40px rgba(0,0,0,.38)':'none'}},
+        h('a',{href:'#',className:'nav-logo',style:{fontFamily:"'Playfair Display',serif",fontSize:sc?21:28,fontWeight:900,color:c.cream,textDecoration:'none',transition:'font-size .35s',flexShrink:0,letterSpacing:'-1px'}},
           'Sabo',h('span',{style:{color:c.orange,fontStyle:'italic'}},'res')
         ),
-        h('div',{style:{display:'flex',alignItems:'center',gap:7,padding:'5px 13px',borderRadius:100,background:'rgba(255,255,255,.05)',border:`1px solid ${c.border}`,flexShrink:0}},
+        h('div',{className:'nav-status',style:{display:'flex',alignItems:'center',gap:7,padding:'5px 13px',borderRadius:100,background:'rgba(255,255,255,.05)',border:`1px solid ${c.border}`,flexShrink:0}},
           h('span',{style:{width:7,height:7,borderRadius:'50%',background:open?'#2ecc71':'#e74c3c',boxShadow:open?'0 0 9px #2ecc71':'none',animation:open?'pulse 2s infinite':'none',display:'inline-block'}}),
           h('span',{style:{fontSize:10,fontWeight:600,color:open?'#2ecc71':'#e74c3c',fontFamily:'Inter,sans-serif',whiteSpace:'nowrap',letterSpacing:'.06em'}},open?'Aberto agora':'Fechado hoje')
         ),
         h('div',{style:{display:'flex',gap:8,alignItems:'center',marginLeft:'auto'}},
-          h('button',{'data-h':1,onClick:()=>setDark(d=>!d),style:{background:'none',border:`1px solid ${c.border}`,borderRadius:'50%',cursor:'pointer',width:38,height:38,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,color:c.gold,transition:'all .3s',flexShrink:0}},dark?'☀️':'🌙'),
-          h('a',{'data-h':1,href:'https://www.ifood.com.br',target:'_blank',rel:'noreferrer',style:{background:`linear-gradient(135deg,${c.orange},${c.orangeD})`,color:'#fff',padding:'10px 22px',borderRadius:100,fontSize:12,fontWeight:700,textDecoration:'none',display:'flex',alignItems:'center',gap:7,fontFamily:'Inter,sans-serif',whiteSpace:'nowrap',letterSpacing:'.05em',boxShadow:'0 4px 24px rgba(232,82,10,.38)',transition:'box-shadow .3s,transform .25s',flexShrink:0},
+          h('button',{'data-h':1,className:'nav-theme',onClick:()=>setDark(d=>!d),style:{background:'none',border:`1px solid ${c.border}`,borderRadius:'50%',cursor:'pointer',width:38,height:38,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,color:c.gold,transition:'all .3s',flexShrink:0}},dark?'☀️':'🌙'),
+          h('a',{'data-h':1,className:'nav-cta',href:'https://www.ifood.com.br',target:'_blank',rel:'noreferrer',style:{background:`linear-gradient(135deg,${c.orange},${c.orangeD})`,color:'#fff',padding:'10px 22px',borderRadius:100,fontSize:12,fontWeight:700,textDecoration:'none',display:'flex',alignItems:'center',gap:7,fontFamily:'Inter,sans-serif',whiteSpace:'nowrap',letterSpacing:'.05em',boxShadow:'0 4px 24px rgba(232,82,10,.38)',transition:'box-shadow .3s,transform .25s',flexShrink:0},
             onMouseEnter:e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 10px 40px rgba(232,82,10,.55)';},
             onMouseLeave:e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 4px 24px rgba(232,82,10,.38)';}},
             '🛵 Pedir no iFood'
@@ -494,7 +505,7 @@ function App(){
               h('span',{style:{width:6,height:6,background:c.orange,borderRadius:'50%',animation:'pulse 2s infinite',display:'inline-block'}}),
               h('span',{style:{fontSize:11,letterSpacing:'.16em',textTransform:'uppercase',color:c.orangeL,fontFamily:'Inter,sans-serif',fontWeight:600}},'Curadoria gastronômica de elite')
             ),
-            h('h1',{style:{fontFamily:"'Playfair Display',serif",fontSize:'clamp(44px,7.5vw,88px)',fontWeight:900,lineHeight:.95,color:c.cream,marginBottom:26,letterSpacing:'-3px',animation:'fadeUp .85s .35s cubic-bezier(.22,1,.36,1) both'}},
+            h('h1',{className:'hero-h1',style:{fontFamily:"'Playfair Display',serif",fontSize:'clamp(44px,7.5vw,88px)',fontWeight:900,lineHeight:.95,color:c.cream,marginBottom:26,letterSpacing:'-3px',animation:'fadeUp .85s .35s cubic-bezier(.22,1,.36,1) both',minHeight:'2.1em'}},
               'Cada prato,',h('br'),h('span',{style:{display:'inline-block',marginTop:4}},h(TypeWriter,{color:c.orange}))
             ),
             h('p',{style:{fontSize:16,lineHeight:1.8,color:c.muted,maxWidth:540,marginBottom:44,fontFamily:'Inter,sans-serif',fontWeight:300,animation:'fadeUp .85s .5s cubic-bezier(.22,1,.36,1) both'}},
