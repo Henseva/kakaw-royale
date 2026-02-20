@@ -1,529 +1,470 @@
-import { useState, useEffect, useRef } from "react";
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Sabores — Vitrine iFood. Descubra os melhores pratos da cidade.">
+<meta name="theme-color" content="#0d0a07">
+<title>Sabores — Vitrine iFood</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{overflow-x:hidden}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,77,0,.35);border-radius:3px}
+@keyframes fallLeaf{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+@keyframes blink{0%,100%{border-color:currentColor}50%{border-color:transparent}}
+@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes bannerSlide{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes riseUp{0%{transform:translateY(0);opacity:0}10%{opacity:1}90%{opacity:.4}100%{transform:translateY(-120vh);opacity:0}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const { createElement: h, useState, useEffect, useRef, Fragment } = React;
 
 // ── DATA ──────────────────────────────────────────────────────────────────────
-const categories = [
-  { emoji: "🍕", label: "Pizza",     q: "pizza" },
-  { emoji: "🍔", label: "Burger",    q: "burger" },
-  { emoji: "🍣", label: "Japonês",   q: "sushi" },
-  { emoji: "🥩", label: "Churrasco", q: "churrasco" },
-  { emoji: "🍝", label: "Massas",    q: "massa+italiana" },
-  { emoji: "🌮", label: "Mexicano",  q: "tacos+mexicano" },
-  { emoji: "🍇", label: "Açaí",      q: "acai" },
-  { emoji: "🥗", label: "Saudável",  q: "saudavel+salada" },
-  { emoji: "🍗", label: "Frango",    q: "frango+frito" },
-  { emoji: "🍰", label: "Doces",     q: "sobremesa+doce" },
-  { emoji: "🥦", label: "Vegano",    q: "vegano" },
-  { emoji: "🧃", label: "Bebidas",   q: "bebida+suco" },
+const CATS = [
+  {emoji:"🍕",label:"Pizza",     q:"pizza"},
+  {emoji:"🍔",label:"Burger",    q:"burger"},
+  {emoji:"🍣",label:"Japonês",   q:"sushi"},
+  {emoji:"🥩",label:"Churrasco", q:"churrasco"},
+  {emoji:"🍝",label:"Massas",    q:"massa+italiana"},
+  {emoji:"🌮",label:"Mexicano",  q:"tacos+mexicano"},
+  {emoji:"🍇",label:"Açaí",      q:"acai"},
+  {emoji:"🥗",label:"Saudável",  q:"saudavel+salada"},
+  {emoji:"🍗",label:"Frango",    q:"frango+frito"},
+  {emoji:"🍰",label:"Doces",     q:"sobremesa+doce"},
+  {emoji:"🥦",label:"Vegano",    q:"vegano"},
+  {emoji:"🧃",label:"Bebidas",   q:"bebida+suco"},
 ];
 
-const dishes = [
-  { emoji:"🍕", badge:"🔥 Mais pedido", from:"Bella Napoli",   stars:"4.9", name:"Pizza Margherita Trufada",  desc:"Massa artesanal fermentada, molho San Marzano, mozzarella de búfala e trufa negra.", price:"54", time:"25min", frete:"Grátis", q:"pizza+margherita+artesanal",     bg:"linear-gradient(135deg,#1a0f05,#2a1809)", tag:"Mais pedidos" },
-  { emoji:"🍱", badge:"✦ Premium",     from:"Sakura House",    stars:"4.8", name:"Combinado do Chef",          desc:"30 peças com salmão premium, atum fresco, polvinho e temaki especial da casa.",  price:"89", time:"35min", frete:"R$5",    q:"combinado+sushi+especial",       bg:"linear-gradient(135deg,#091a11,#0c2516)", tag:"Premium" },
-  { emoji:"🍔", badge:"⚡ Novo",        from:"Crush Burger",    stars:"4.7", name:"Smash Double Crispy",        desc:"Dois smash patties de angus, queijo americano derretido, pickles e molho especial.", price:"38", time:"20min", frete:"Grátis", q:"smash+burger+duplo",             bg:"linear-gradient(135deg,#1a0c04,#2b1508)", tag:"Novidades" },
-  { emoji:"🥩", badge:"🏆 Top avaliado",from:"Fogo e Brasa",   stars:"4.9", name:"Costela Bovina na Brasa",    desc:"Cozida por 12 horas, desfiando no garfo, com vinagrete especial e farofa.",       price:"67", time:"40min", frete:"R$8",    q:"costela+bovina+churrasco",       bg:"linear-gradient(135deg,#0a1018,#101a28)", tag:"Mais pedidos" },
-  { emoji:"🍇", badge:"🌿 Saudável",   from:"Raízes do Norte", stars:"4.8", name:"Bowl de Açaí Amazônico",     desc:"Açaí puro do Pará, granola artesanal, banana, morango e mel silvestre.",         price:"26", time:"15min", frete:"Grátis", q:"bowl+acai+para",                 bg:"linear-gradient(135deg,#1a0a0a,#2b1212)", tag:"Promoções" },
-  { emoji:"🌮", badge:"🌶 Picante",    from:"El Rancho",       stars:"4.6", name:"Combo Tacos al Pastor",      desc:"4 tacos com carne marinada, abacaxi grelhado, cebola roxa e molho chipotle.",   price:"44", time:"30min", frete:"R$3",    q:"tacos+al+pastor",                bg:"linear-gradient(135deg,#120d1a,#1c1228)", tag:"Promoções" },
+const DISHES = [
+  {emoji:"🍕",badge:"🔥 Mais pedido",  from:"Bella Napoli",    stars:"4.9",name:"Pizza Margherita Trufada",  desc:"Massa artesanal fermentada, molho San Marzano, mozzarella de búfala e trufa negra.",price:"54",time:"25min",frete:"Grátis",q:"pizza+margherita",      bg:"linear-gradient(135deg,#1a0f05,#2a1809)",tag:"Mais pedidos"},
+  {emoji:"🍱",badge:"✦ Premium",        from:"Sakura House",    stars:"4.8",name:"Combinado do Chef",          desc:"30 peças com salmão premium, atum fresco, polvinho e temaki especial da casa.",  price:"89",time:"35min",frete:"R$5",   q:"combinado+sushi",        bg:"linear-gradient(135deg,#091a11,#0c2516)",tag:"Premium"},
+  {emoji:"🍔",badge:"⚡ Novo",           from:"Crush Burger",    stars:"4.7",name:"Smash Double Crispy",        desc:"Dois smash patties de angus, queijo americano derretido, pickles e molho especial.",price:"38",time:"20min",frete:"Grátis",q:"smash+burger",           bg:"linear-gradient(135deg,#1a0c04,#2b1508)",tag:"Novidades"},
+  {emoji:"🥩",badge:"🏆 Top avaliado",  from:"Fogo e Brasa",    stars:"4.9",name:"Costela Bovina na Brasa",    desc:"Cozida por 12 horas, desfiando no garfo, com vinagrete especial e farofa.",       price:"67",time:"40min",frete:"R$8",   q:"costela+churrasco",      bg:"linear-gradient(135deg,#0a1018,#101a28)",tag:"Mais pedidos"},
+  {emoji:"🍇",badge:"🌿 Saudável",      from:"Raízes do Norte", stars:"4.8",name:"Bowl de Açaí Amazônico",     desc:"Açaí puro do Pará, granola artesanal, banana, morango e mel silvestre.",         price:"26",time:"15min",frete:"Grátis",q:"bowl+acai",               bg:"linear-gradient(135deg,#1a0a0a,#2b1212)",tag:"Promoções"},
+  {emoji:"🌮",badge:"🌶 Picante",       from:"El Rancho",       stars:"4.6",name:"Combo Tacos al Pastor",      desc:"4 tacos com carne marinada, abacaxi grelhado, cebola roxa e molho chipotle.",   price:"44",time:"30min",frete:"R$3",   q:"tacos+pastor",           bg:"linear-gradient(135deg,#120d1a,#1c1228)",tag:"Promoções"},
 ];
 
-const drinks = [
-  { emoji:"🥤", name:"Limonada Suíça",   desc:"Leite condensado, limão siciliano e menta fresca batidos na hora.",    price:"18", color:"linear-gradient(135deg,#1a3a1a,#2d6b2d)", badge:"🌿 Refrescante", kcal:"180 kcal" },
-  { emoji:"🧃", name:"Suco de Manga",     desc:"Manga Tommy fresca, sem adição de açúcar. 100% natural.",              price:"14", color:"linear-gradient(135deg,#3a2000,#7a4500)", badge:"🔥 Top",         kcal:"120 kcal" },
-  { emoji:"🍵", name:"Chá Gelado Hibisco",desc:"Hibisco, gengibre, mel e limão. Servido com pedras de gelo.",          price:"16", color:"linear-gradient(135deg,#3a001a,#7a0040)", badge:"✦ Especial",     kcal:"90 kcal"  },
-  { emoji:"🥛", name:"Vitamina de Açaí",  desc:"Açaí puro, banana, aveia e mel. Energia para o dia todo.",             price:"22", color:"linear-gradient(135deg,#1a0a2e,#3d1460)", badge:"💜 Premium",     kcal:"280 kcal" },
-  { emoji:"🍹", name:"Água de Coco Fresca",desc:"Diretamente do coco verde, gelada e natural.",                        price:"12", color:"linear-gradient(135deg,#0a2e2e,#145050)", badge:"🌴 Fresh",        kcal:"60 kcal"  },
+const DRINKS = [
+  {emoji:"🥤",name:"Limonada Suíça",    desc:"Leite condensado, limão siciliano e menta fresca batidos na hora.",price:"18",bg:"linear-gradient(135deg,#1a3a1a,#2d6b2d)",badge:"🌿 Refrescante",kcal:"180 kcal"},
+  {emoji:"🧃",name:"Suco de Manga",     desc:"Manga Tommy fresca, sem adição de açúcar. 100% natural.",          price:"14",bg:"linear-gradient(135deg,#3a2000,#7a4500)",badge:"🔥 Top",         kcal:"120 kcal"},
+  {emoji:"🍵",name:"Chá Gelado Hibisco",desc:"Hibisco, gengibre, mel e limão. Servido com pedras de gelo.",      price:"16",bg:"linear-gradient(135deg,#3a001a,#7a0040)",badge:"✦ Especial",     kcal:"90 kcal"},
+  {emoji:"🥛",name:"Vitamina de Açaí",  desc:"Açaí puro, banana, aveia e mel. Energia para o dia todo.",        price:"22",bg:"linear-gradient(135deg,#1a0a2e,#3d1460)",badge:"💜 Premium",     kcal:"280 kcal"},
+  {emoji:"🍹",name:"Água de Coco Fresca",desc:"Diretamente do coco verde, gelada e natural.",                    price:"12",bg:"linear-gradient(135deg,#0a2e2e,#145050)",badge:"🌴 Fresh",        kcal:"60 kcal"},
 ];
 
-const restaurants = [
-  { icon:"🍕", name:"Bella Napoli",    type:"Pizzaria Italiana",   tags:["Artesanal","Forno a Lenha"], rating:"4.9", time:"~25 min", q:"Bella+Napoli+pizza" },
-  { icon:"🍱", name:"Sakura House",    type:"Culinária Japonesa",  tags:["Sushi","Temaki","Premium"],  rating:"4.8", time:"~35 min", q:"Sakura+House+sushi" },
-  { icon:"🍔", name:"Crush Burger",    type:"Hamburgeria",          tags:["Smash","Angus","Gourmet"],   rating:"4.7", time:"~20 min", q:"smash+burger+artesanal" },
-  { icon:"🔥", name:"Fogo e Brasa",    type:"Churrascaria Premium", tags:["Costela","Picanha"],         rating:"4.9", time:"~40 min", q:"churrasco+costela+brasa" },
-  { icon:"🌿", name:"Raízes do Norte", type:"Açaí e Saúde",         tags:["Vegano","Natural"],          rating:"4.8", time:"~15 min", q:"acai+natural+saudavel" },
-  { icon:"🌮", name:"El Rancho",       type:"Culinária Mexicana",   tags:["Tacos","Burritos"],          rating:"4.6", time:"~30 min", q:"tacos+burritos+mexicano" },
-  { icon:"🍝", name:"Pasta Mia",       type:"Massas Artesanais",    tags:["Fresca","Italiana"],         rating:"4.7", time:"~30 min", q:"massa+italiana+pasta+fresca" },
+const RESTAURANTS = [
+  {icon:"🍕",name:"Bella Napoli",    type:"Pizzaria Italiana",   tags:["Artesanal","Forno a Lenha"],rating:"4.9",time:"~25 min",q:"Bella+Napoli+pizza"},
+  {icon:"🍱",name:"Sakura House",    type:"Culinária Japonesa",  tags:["Sushi","Temaki","Premium"],  rating:"4.8",time:"~35 min",q:"Sakura+sushi"},
+  {icon:"🍔",name:"Crush Burger",    type:"Hamburgeria",          tags:["Smash","Angus","Gourmet"],   rating:"4.7",time:"~20 min",q:"smash+burger"},
+  {icon:"🔥",name:"Fogo e Brasa",    type:"Churrascaria Premium", tags:["Costela","Picanha"],         rating:"4.9",time:"~40 min",q:"churrasco+costela"},
+  {icon:"🌿",name:"Raízes do Norte", type:"Açaí e Saúde",         tags:["Vegano","Natural"],          rating:"4.8",time:"~15 min",q:"acai+natural"},
+  {icon:"🌮",name:"El Rancho",       type:"Culinária Mexicana",   tags:["Tacos","Burritos"],          rating:"4.6",time:"~30 min",q:"tacos+mexicano"},
+  {icon:"🍝",name:"Pasta Mia",       type:"Massas Artesanais",    tags:["Fresca","Italiana"],         rating:"4.7",time:"~30 min",q:"massa+italiana"},
 ];
 
-const hours = [
-  { day:"Segunda",  range:"11h – 22h" },
-  { day:"Terça",    range:"11h – 22h" },
-  { day:"Quarta",   range:"11h – 22h" },
-  { day:"Quinta",   range:"11h – 23h" },
-  { day:"Sexta",    range:"11h – 00h" },
-  { day:"Sábado",   range:"10h – 00h" },
-  { day:"Domingo",  range:"10h – 22h" },
+const HOURS = [
+  {day:"Segunda",range:"11h – 22h"},{day:"Terça",range:"11h – 22h"},
+  {day:"Quarta", range:"11h – 22h"},{day:"Quinta",range:"11h – 23h"},
+  {day:"Sexta",  range:"11h – 00h"},{day:"Sábado",range:"10h – 00h"},
+  {day:"Domingo",range:"10h – 22h"},
 ];
 
-const FILTER_TABS = ["Todos","Mais pedidos","Novidades","Premium","Promoções"];
-const ifoodUrl = (q) => `https://www.ifood.com.br/delivery/busca?q=${q}`;
+const FILTERS = ["Todos","Mais pedidos","Novidades","Premium","Promoções"];
+const iurl = q => `https://www.ifood.com.br/delivery/busca?q=${q}`;
 
-// ── HELPERS ───────────────────────────────────────────────────────────────────
-function isOpen() {
-  const now  = new Date();
-  const day  = now.getDay();          // 0 = Sun
-  const hour = now.getHours() + now.getMinutes() / 60;
-  if (day === 0)            return hour >= 10 && hour < 22;
-  if (day === 6)            return hour >= 10 && hour < 24;
-  if (day === 5)            return hour >= 11;          // sexta fecha meia-noite
-  if (day === 4)            return hour >= 11 && hour < 23;
-  return                           hour >= 11 && hour < 22;
+function storeOpen(){
+  const now=new Date(),day=now.getDay(),h=now.getHours()+now.getMinutes()/60;
+  if(day===0)return h>=10&&h<22; if(day===6)return h>=10;
+  if(day===5)return h>=11;       if(day===4)return h>=11&&h<23;
+  return h>=11&&h<22;
 }
 
-// ── REVEAL HOOK ───────────────────────────────────────────────────────────────
-function useReveal() {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const el = ref.current; if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.unobserve(el); } }, { threshold: 0.1 });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-  return [ref, visible];
-}
-
-// ── COMPONENTS ────────────────────────────────────────────────────────────────
-function RevealDiv({ children, style = {}, delay = 0 }) {
-  const [ref, vis] = useReveal();
-  return (
-    <div ref={ref} style={{ opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(36px)", transition: `opacity .7s ${delay}s ease, transform .7s ${delay}s ease`, ...style }}>
-      {children}
-    </div>
-  );
-}
-
-// ── MAIN APP ──────────────────────────────────────────────────────────────────
-export default function App() {
-  const [darkMode,   setDarkMode]   = useState(true);
-  const [scrolled,   setScrolled]   = useState(false);
-  const [showTop,    setShowTop]    = useState(false);
-  const [filter,     setFilter]     = useState("Todos");
-  const [favs,       setFavs]       = useState({});
-  const [drinkIdx,   setDrinkIdx]   = useState(0);
-  const [leaves,     setLeaves]     = useState([]);
-  const [soundOn,    setSoundOn]    = useState(false);
-  const [typedText,  setTypedText]  = useState("");
-  const [bannerOn,   setBannerOn]   = useState(true);
-  const sliderRef = useRef(null);
-  const open = isOpen();
-
-  // dark / light colours
-  const c = darkMode ? {
-    bg:"#0d0a07", bg2:"#111009", card:"#181210", card2:"#201a14",
-    cream:"#f0e6d3", orange:"#ff4d00", orangeL:"#ff7b3a", gold:"#d4a843",
-    muted:"#6b5c48", text:"#c8baa8", nav:"rgba(13,10,7,0.97)", border:"rgba(255,255,255,0.06)",
-    divider:"rgba(255,255,255,0.05)", shadow:"rgba(0,0,0,0.5)",
+// ── PALETTE ──────────────────────────────────────────────────────────────────
+function palette(dark){
+  return dark ? {
+    bg:"#0d0a07",bg2:"#111009",card:"#181210",card2:"#201a14",
+    cream:"#f0e6d3",orange:"#ff4d00",orangeL:"#ff7b3a",gold:"#d4a843",
+    muted:"#6b5c48",text:"#c8baa8",navBg:"rgba(13,10,7,0.97)",
+    border:"rgba(255,255,255,0.06)",divider:"rgba(255,255,255,0.05)",
   } : {
-    bg:"#faf7f2", bg2:"#f0ebe0", card:"#ffffff", card2:"#fdf8f0",
-    cream:"#2d2010", orange:"#e03d00", orangeL:"#d06030", gold:"#b8860b",
-    muted:"#8a7060", text:"#3d2d1a", nav:"rgba(250,247,242,0.97)", border:"rgba(0,0,0,0.08)",
-    divider:"rgba(0,0,0,0.07)", shadow:"rgba(0,0,0,0.12)",
+    bg:"#faf7f2",bg2:"#f0ebe0",card:"#ffffff",card2:"#fdf8f0",
+    cream:"#2d2010",orange:"#e03d00",orangeL:"#c05020",gold:"#b8860b",
+    muted:"#8a7060",text:"#3d2d1a",navBg:"rgba(250,247,242,0.97)",
+    border:"rgba(0,0,0,0.08)",divider:"rgba(0,0,0,0.07)",
   };
+}
 
-  // ── typing effect ────────────────────────────────────────────────────────
-  const fullText = "Cada prato, uma obra de arte.";
-  useEffect(() => {
-    let i = 0; setTypedText("");
-    const id = setInterval(() => {
-      i++; setTypedText(fullText.slice(0, i));
-      if (i >= fullText.length) clearInterval(id);
-    }, 60);
-    return () => clearInterval(id);
-  }, []);
+// ── REVEAL ───────────────────────────────────────────────────────────────────
+function Reveal({children, delay=0, style={}}){
+  const ref=useRef(null);
+  const [vis,setVis]=useState(false);
+  useEffect(()=>{
+    const el=ref.current; if(!el)return;
+    const obs=new IntersectionObserver(([e])=>{
+      if(e.isIntersecting){setVis(true);obs.unobserve(el);}
+    },{threshold:0.08});
+    obs.observe(el); return()=>obs.disconnect();
+  },[]);
+  return h("div",{ref,style:{
+    opacity:vis?1:0,
+    transform:vis?"translateY(0)":"translateY(34px)",
+    transition:`opacity .7s ${delay}s ease, transform .7s ${delay}s ease`,
+    ...style
+  }},children);
+}
 
-  // ── scroll events ────────────────────────────────────────────────────────
-  useEffect(() => {
-    const fn = () => { setScrolled(window.scrollY > 50); setShowTop(window.scrollY > 300); };
-    window.addEventListener("scroll", fn);
-    return () => window.removeEventListener("scroll", fn);
-  }, []);
-
-  // ── leaves ───────────────────────────────────────────────────────────────
-  useEffect(() => {
-    const id = setInterval(() => {
-      const leaf = { id: Date.now(), left: Math.random() * 100, dur: 4 + Math.random() * 4, emoji: ["🍃","🌿","🍂"][Math.floor(Math.random()*3)] };
-      setLeaves(p => [...p.slice(-8), leaf]);
-    }, 3000);
-    return () => clearInterval(id);
-  }, []);
-
-  // ── drink slider scroll sync ─────────────────────────────────────────────
-  useEffect(() => {
-    const el = sliderRef.current; if (!el) return;
-    const fn = () => {
-      const slides = el.querySelectorAll("[data-slide]");
-      const cx = el.scrollLeft + el.clientWidth / 2;
-      let best = 0, bestD = Infinity;
-      slides.forEach((s, i) => {
-        const d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - cx);
-        if (d < bestD) { bestD = d; best = i; }
-      });
-      setDrinkIdx(best);
-    };
-    el.addEventListener("scroll", fn, { passive: true });
-    return () => el.removeEventListener("scroll", fn);
-  }, []);
-
-  const scrollToDrink = (i) => {
-    const el = sliderRef.current; if (!el) return;
-    const slides = el.querySelectorAll("[data-slide]");
-    if (slides[i]) slides[i].scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-    setDrinkIdx(i);
-  };
-
-  const toggleFav = (i) => setFavs(f => ({ ...f, [i]: !f[i] }));
-  const filteredDishes = filter === "Todos" ? dishes : dishes.filter(d => d.tag === filter);
-
-  // ── styles ───────────────────────────────────────────────────────────────
-  const S = {
-    app:    { background: c.bg, minHeight:"100vh", fontFamily:"'Georgia',serif", color: c.text, overflowX:"hidden", transition:"background .5s,color .5s" },
-    nav:    { position:"sticky", top:0, zIndex:200, background: c.nav, backdropFilter:"blur(16px)", borderBottom:`1px solid ${c.border}`, padding: scrolled ? "10px 24px" : "16px 24px", display:"flex", justifyContent:"space-between", alignItems:"center", transition:"padding .3s,box-shadow .3s", boxShadow: scrolled ? "0 4px 20px rgba(0,0,0,0.3)" : "none" },
-    logo:   { fontFamily:"Georgia,serif", fontSize: scrolled ? 18 : 22, fontWeight:700, color: c.cream, textDecoration:"none", transition:"font-size .3s" },
-    pill:   (active) => ({ background: active ? c.orange : "transparent", color: active ? "#fff" : c.muted, border:`1px solid ${active ? c.orange : c.border}`, padding:"8px 18px", borderRadius:100, fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:"sans-serif", transition:"all .25s", whiteSpace:"nowrap" }),
-  };
-
-  const todayIdx = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
-
-  return (
-    <div style={S.app}>
-
-      {/* ── LEAVES ── */}
-      {leaves.map(l => (
-        <div key={l.id} style={{ position:"fixed", top:"-5%", left:`${l.left}%`, zIndex:9998, pointerEvents:"none", fontSize:20, animation:`fallLeaf ${l.dur}s linear forwards` }}>
-          {l.emoji}
-        </div>
-      ))}
-      <style>{`
-        @keyframes fallLeaf { to { transform: translateY(110vh) rotate(720deg); opacity:0; } }
-        @keyframes blink    { 0%,100%{border-color:currentColor} 50%{border-color:transparent} }
-        @keyframes pulseDot { 0%,100%{opacity:1} 50%{opacity:.3} }
-        @keyframes bannerSlide { 0%{background-position:0% 50%} 100%{background-position:300% 50%} }
-        @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-        ::-webkit-scrollbar { width:6px; height:6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,77,0,0.3); border-radius:3px; }
-      `}</style>
-
-      {/* ── PROMO BANNER ── */}
-      {bannerOn && (
-        <div style={{ background:"linear-gradient(90deg,#b5451b,#ff4d00,#e8925a,#ff4d00,#b5451b)", backgroundSize:"300% 100%", animation:"bannerSlide 5s linear infinite", color:"#fff", padding:"8px 48px 8px 16px", fontSize:12, fontWeight:600, fontFamily:"sans-serif", textAlign:"center", position:"relative" }}>
-          🎉 Primeira entrega com <span style={{ background:"rgba(255,255,255,0.25)", padding:"2px 8px", borderRadius:100, margin:"0 4px" }}>30% OFF</span> no iFood · Válido para novos usuários!
-          <button onClick={() => setBannerOn(false)} style={{ position:"absolute", right:12, top:"50%", transform:"translateY(-50%)", background:"none", border:"none", color:"#fff", cursor:"pointer", fontSize:16, lineHeight:1 }}>×</button>
-        </div>
-      )}
-
-      {/* ── NAV ── */}
-      <nav style={S.nav}>
-        <a href="#" style={S.logo}>Sabo<span style={{ color: c.orange }}>res</span></a>
-
-        {/* Status badge */}
-        <div style={{ display:"flex", alignItems:"center", gap:6, background:"rgba(0,0,0,0.2)", padding:"4px 10px", borderRadius:20, marginLeft:12 }}>
-          <div style={{ width:8, height:8, borderRadius:"50%", background: open ? "#2ecc71" : "#e74c3c", boxShadow: open ? "0 0 8px #2ecc71" : "none", animation: open ? "pulseDot 2s infinite" : "none" }} />
-          <span style={{ fontSize:11, fontWeight:700, color: open ? "#2ecc71" : "#e74c3c", fontFamily:"sans-serif", whiteSpace:"nowrap" }}>
-            {open ? "Aberto agora" : "Fechado"}
-          </span>
-        </div>
-
-        <div style={{ display:"flex", gap:10, alignItems:"center", marginLeft:"auto" }}>
-          {/* Sound */}
-          <button onClick={() => setSoundOn(s => !s)} title="Som" style={{ background:"none", border:"none", cursor:"pointer", fontSize:18, color: soundOn ? "#2ecc71" : c.muted, filter: soundOn ? "drop-shadow(0 0 6px #2ecc71)" : "none", transition:"all .3s" }}>
-            {soundOn ? "🔊" : "🔇"}
-          </button>
-          {/* Dark/light */}
-          <button onClick={() => setDarkMode(d => !d)} title="Tema" style={{ background:"none", border:"none", cursor:"pointer", fontSize:18, color: c.gold }}>
-            {darkMode ? "☀️" : "🌙"}
-          </button>
-          {/* iFood CTA */}
-          <a href="https://www.ifood.com.br" target="_blank" rel="noreferrer"
-            style={{ background: c.orange, color:"#fff", padding:"9px 18px", borderRadius:100, fontSize:13, fontWeight:700, textDecoration:"none", display:"flex", alignItems:"center", gap:6, animation:"bounce 3s ease-in-out infinite", fontFamily:"sans-serif" }}>
-            🛵 iFood
-          </a>
-        </div>
-      </nav>
-
-      {/* ── HERO ── */}
-      <section style={{ padding:"64px 24px 72px", textAlign:"center", background:`radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255,77,0,0.1) 0%, transparent 70%)` }}>
-        <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"rgba(255,77,0,0.1)", border:`1px solid rgba(255,77,0,0.25)`, color: c.orangeL, fontSize:11, letterSpacing:"0.15em", textTransform:"uppercase", padding:"7px 16px", borderRadius:100, marginBottom:28, fontFamily:"sans-serif" }}>
-          <span style={{ width:6, height:6, background: c.orange, borderRadius:"50%", display:"inline-block", animation:"pulseDot 2s infinite" }} />
-          Entrega em até 30 minutos
-        </div>
-
-        <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(36px,8vw,76px)", fontWeight:900, lineHeight:1.0, color: c.cream, marginBottom:20, minHeight:"1.2em" }}>
-          <span style={{ borderRight:`3px solid ${c.orange}`, paddingRight:4, animation:"blink .75s step-end infinite" }}>
-            {typedText}
-          </span>
-        </h1>
-
-        <p style={{ fontSize:15, lineHeight:1.7, color: c.muted, maxWidth:460, margin:"0 auto 32px", fontFamily:"sans-serif", fontWeight:300 }}>
-          Descubra os melhores sabores da cidade. Escolha o que te encanta e pedimos pelo iFood.
-        </p>
-        <div style={{ display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap" }}>
-          <a href="#pratos" style={{ background: c.orange, color:"#fff", padding:"14px 30px", borderRadius:100, fontSize:14, fontWeight:700, textDecoration:"none", fontFamily:"sans-serif" }}>🍽 Explorar Pratos</a>
-          <a href="#categorias" style={{ color: c.muted, padding:"14px 22px", borderRadius:100, fontSize:13, textDecoration:"none", border:`1px solid ${c.border}`, fontFamily:"sans-serif" }}>Ver Categorias →</a>
-        </div>
-        <div style={{ marginTop:48, display:"flex", justifyContent:"center", gap:14, flexWrap:"wrap" }}>
-          {["🍕","🍔","🍱","🥩","🍝"].map((e,i) => (
-            <div key={i} style={{ width:60, height:60, background: c.card, border:`1px solid ${c.border}`, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:26, animation:`bounce ${3+i*0.4}s ease-in-out infinite` }}>{e}</div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── CATEGORIES ── */}
-      <section id="categorias" style={{ padding:"56px 24px", background: c.bg2 }}>
-        <RevealDiv>
-          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
-            <div style={{ width:24, height:1, background: c.orange }} />
-            <span style={{ fontSize:11, letterSpacing:"0.18em", textTransform:"uppercase", color: c.orangeL, fontFamily:"sans-serif" }}>O que você quer hoje?</span>
-          </div>
-          <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(26px,5vw,40px)", fontWeight:900, color: c.cream, marginBottom:32, lineHeight:1.1 }}>
-            Escolha sua <em style={{ color: c.orange }}>categoria</em>
-          </h2>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(90px,1fr))", gap:10 }}>
-            {categories.map((cat,i) => (
-              <a key={i} href={ifoodUrl(cat.q)} target="_blank" rel="noreferrer"
-                style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:8, padding:"20px 8px", borderRadius:14, background: c.card, border:`1px solid ${c.border}`, textDecoration:"none", transition:"all .25s" }}
-                onMouseEnter={e => { e.currentTarget.style.background = c.card2; e.currentTarget.style.borderColor = "rgba(255,77,0,0.2)"; e.currentTarget.style.transform = "translateY(-5px)"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = c.card;  e.currentTarget.style.borderColor = c.border;              e.currentTarget.style.transform = "translateY(0)"; }}>
-                <span style={{ fontSize:30 }}>{cat.emoji}</span>
-                <span style={{ fontSize:11, color: c.muted, fontFamily:"sans-serif", textAlign:"center" }}>{cat.label}</span>
-              </a>
-            ))}
-          </div>
-        </RevealDiv>
-      </section>
-
-      {/* ── DISHES ── */}
-      <section id="pratos" style={{ padding:"56px 24px" }}>
-        <RevealDiv>
-          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
-            <div style={{ width:24, height:1, background: c.orange }} />
-            <span style={{ fontSize:11, letterSpacing:"0.18em", textTransform:"uppercase", color: c.orangeL, fontFamily:"sans-serif" }}>Seleção da casa</span>
-          </div>
-          <div style={{ display:"flex", flexWrap:"wrap", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28, gap:16 }}>
-            <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(26px,5vw,40px)", fontWeight:900, color: c.cream, lineHeight:1.1 }}>
-              Pratos em <span style={{ color: c.gold }}>destaque</span>
-            </h2>
-            {/* Filter tabs */}
-            <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-              {FILTER_TABS.map(tab => (
-                <button key={tab} onClick={() => setFilter(tab)} style={S.pill(filter === tab)}>{tab}</button>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:20 }}>
-            {filteredDishes.map((d,i) => (
-              <div key={i} style={{ position:"relative" }}>
-                <a href={ifoodUrl(d.q)} target="_blank" rel="noreferrer"
-                  style={{ background: c.card, border:`1px solid ${c.border}`, borderRadius:20, overflow:"hidden", textDecoration:"none", display:"block", transition:"all .3s" }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-8px)"; e.currentTarget.style.borderColor = "rgba(255,77,0,0.18)"; e.currentTarget.style.boxShadow = `0 24px 48px ${c.shadow}`; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.borderColor = c.border; e.currentTarget.style.boxShadow = "none"; }}>
-                  {/* image */}
-                  <div style={{ height:150, display:"flex", alignItems:"center", justifyContent:"center", fontSize:68, background:d.bg, position:"relative", overflow:"hidden" }}>
-                    {d.emoji}
-                    <div style={{ position:"absolute", top:12, left:12, background:"rgba(13,10,7,0.85)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:100, padding:"3px 10px", fontSize:10, color: c.gold, fontFamily:"sans-serif", fontWeight:600 }}>{d.badge}</div>
-                    <button onClick={ev => { ev.preventDefault(); ev.stopPropagation(); toggleFav(i); }}
-                      style={{ position:"absolute", top:10, right:12, width:34, height:34, background:"rgba(13,10,7,0.85)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:15, color: favs[i] ? "#ff4d00" : c.muted, transition:"color .2s" }}>
-                      {favs[i] ? "♥" : "♡"}
-                    </button>
-                  </div>
-                  {/* body */}
-                  <div style={{ padding:"16px 20px 20px" }}>
-                    <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-                      <span style={{ fontSize:10, color: c.muted, textTransform:"uppercase", letterSpacing:"0.08em", fontFamily:"sans-serif" }}>{d.from}</span>
-                      <span style={{ fontSize:11, color: c.gold, fontWeight:600, fontFamily:"sans-serif" }}>⭐ {d.stars}</span>
-                    </div>
-                    <div style={{ fontFamily:"Georgia,serif", fontSize:18, fontWeight:700, color: c.cream, marginBottom:6, lineHeight:1.2 }}>{d.name}</div>
-                    <div style={{ fontSize:12, color: c.muted, lineHeight:1.55, marginBottom:16, fontFamily:"sans-serif", fontWeight:300 }}>{d.desc}</div>
-                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:8 }}>
-                      <div>
-                        <div style={{ fontSize:9, color: c.muted, textTransform:"uppercase", letterSpacing:"0.1em", fontFamily:"sans-serif" }}>A partir de</div>
-                        <div style={{ fontFamily:"Georgia,serif", fontSize:22, fontWeight:700, color: c.cream }}><sup style={{ fontSize:12, fontFamily:"sans-serif", fontWeight:400 }}>R$</sup>{d.price}</div>
-                      </div>
-                      <div style={{ display:"flex", gap:8, alignItems:"center" }}>
-                        <span style={{ fontSize:11, color: c.muted, fontFamily:"sans-serif" }}>🕐 {d.time}</span>
-                        <span style={{ fontSize:11, color: c.muted, fontFamily:"sans-serif" }}>🏍 {d.frete}</span>
-                        <div style={{ width:38, height:38, background: c.orange, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontSize:16, flexShrink:0 }}>→</div>
-                      </div>
-                    </div>
-                  </div>
-                </a>
-              </div>
-            ))}
-          </div>
-        </RevealDiv>
-      </section>
-
-      {/* ── DRINKS SLIDER ── */}
-      <section id="bebidas" style={{ padding:"72px 0", background: c.bg2, textAlign:"center", position:"relative", overflow:"hidden" }}>
-        {/* bubbles */}
-        {[...Array(8)].map((_,i) => (
-          <div key={i} style={{ position:"absolute", bottom:-20, left:`${10+i*11}%`, width: 6+i*4, height: 6+i*4, borderRadius:"50%", background:"rgba(255,255,255,0.05)", animation:`riseUp ${4+i*1.2}s ${i*0.6}s linear infinite` }} />
-        ))}
-        <style>{`@keyframes riseUp{0%{transform:translateY(0);opacity:0}10%{opacity:1}90%{opacity:.4}100%{transform:translateY(-120vh);opacity:0}}`}</style>
-
-        <RevealDiv style={{ padding:"0 24px", marginBottom:32 }}>
-          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10, justifyContent:"center" }}>
-            <div style={{ width:24, height:1, background: c.orange }} />
-            <span style={{ fontSize:11, letterSpacing:"0.18em", textTransform:"uppercase", color: c.orangeL, fontFamily:"sans-serif" }}>Para acompanhar</span>
-            <div style={{ width:24, height:1, background: c.orange }} />
-          </div>
-          <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(26px,5vw,40px)", fontWeight:900, color: c.cream, lineHeight:1.1 }}>
-            Nossas <em style={{ color: c.orange }}>bebidas</em>
-          </h2>
-        </RevealDiv>
-
-        {/* slider */}
-        <div ref={sliderRef} style={{ display:"flex", gap:20, padding:"10px 10%", overflowX:"auto", scrollSnapType:"x mandatory", alignItems:"center", scrollbarWidth:"none" }}>
-          {drinks.map((dr, i) => {
-            const active = drinkIdx === i;
-            return (
-              <div key={i} data-slide={i}
-                onClick={() => scrollToDrink(i)}
-                style={{
-                  minWidth:270, height:440,
-                  background: active ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.03)",
-                  backdropFilter:"blur(15px)", border: active ? `1.5px solid rgba(255,255,255,0.4)` : `1px solid rgba(255,255,255,0.08)`,
-                  borderRadius:36, padding:"28px 20px",
-                  scrollSnapAlign:"center", transition:"all .5s ease",
-                  opacity: active ? 1 : 0.45, transform: active ? "scale(1.05)" : "scale(0.87)",
-                  display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"space-between",
-                  background: active ? dr.color : c.card,
-                  boxShadow: active ? `0 20px 40px ${c.shadow}, 0 0 30px rgba(255,255,255,0.06)` : "none",
-                  cursor:"pointer", position:"relative",
-                }}>
-                {/* badge */}
-                <div style={{ position:"absolute", top:16, right:16, fontSize:10, fontWeight:700, padding:"4px 10px", borderRadius:20, background:"rgba(255,255,255,0.2)", backdropFilter:"blur(6px)", color:"#fff", letterSpacing:"0.5px", fontFamily:"sans-serif" }}>{dr.badge}</div>
-                <div style={{ fontSize:70, marginBottom:8, filter: active ? "drop-shadow(0 10px 15px rgba(0,0,0,0.4))" : "none", transition:"transform .5s", transform: active ? "translateY(-8px) rotate(5deg)" : "none" }}>{dr.emoji}</div>
-                <div style={{ textAlign:"center", color: active ? "#fff" : c.text }}>
-                  <div style={{ fontFamily:"Georgia,serif", fontSize:18, fontWeight:700, marginBottom:6 }}>{dr.name}</div>
-                  <div style={{ fontSize:12, opacity:0.8, lineHeight:1.5, marginBottom:8, fontFamily:"sans-serif" }}>{dr.desc}</div>
-                  <div style={{ fontSize:10, opacity: active ? 0.7 : 0, transition:"opacity .4s", fontFamily:"sans-serif", marginBottom:8 }}>🔥 {dr.kcal}</div>
-                  <div style={{ fontWeight:700, fontSize:22, fontFamily:"Georgia,serif" }}>R$ {dr.price}</div>
-                </div>
-                <a href={ifoodUrl("bebida+"+dr.name.replace(/\s+/g,"+"))} target="_blank" rel="noreferrer"
-                  onClick={e => e.stopPropagation()}
-                  style={{ background: c.orange, color:"#fff", padding:"10px 24px", borderRadius:100, fontSize:12, fontWeight:700, textDecoration:"none", fontFamily:"sans-serif", opacity: active ? 1 : 0, transition:"opacity .4s", pointerEvents: active ? "auto" : "none" }}>
-                  Pedir no iFood →
-                </a>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* dots */}
-        <div style={{ display:"flex", justifyContent:"center", gap:8, marginTop:24 }}>
-          {drinks.map((_,i) => (
-            <button key={i} onClick={() => scrollToDrink(i)} style={{ width:8, height:8, borderRadius:"50%", background: drinkIdx===i ? "#fff" : "rgba(255,255,255,0.3)", border:"none", cursor:"pointer", transform: drinkIdx===i ? "scale(1.3)" : "scale(1)", transition:"all .3s" }} />
-          ))}
-        </div>
-      </section>
-
-      {/* ── PROMO BANNER ── */}
-      <RevealDiv style={{ padding:"0 24px 56px" }}>
-        <div style={{ background:"linear-gradient(135deg,#1a0f05,#0d0a07,#150e05)", border:"1px solid rgba(255,77,0,0.2)", borderRadius:24, padding:"48px 36px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:32, flexWrap:"wrap", position:"relative", overflow:"hidden" }}>
-          <div style={{ position:"absolute", top:-60, right:-60, width:240, height:240, background:"radial-gradient(circle,rgba(255,77,0,0.1) 0%,transparent 65%)", pointerEvents:"none" }} />
-          <div style={{ position:"relative", zIndex:1 }}>
-            <div style={{ fontFamily:"Georgia,serif", fontSize:"clamp(52px,10vw,88px)", fontWeight:900, color: c.orange, lineHeight:1, marginBottom:10 }}>-30%</div>
-            <div style={{ fontFamily:"Georgia,serif", fontSize:"clamp(20px,3vw,30px)", fontWeight:700, color: c.cream, marginBottom:12 }}>Primeira entrega<br />com desconto especial</div>
-            <p style={{ fontSize:14, color: c.muted, lineHeight:1.65, marginBottom:28, maxWidth:360, fontFamily:"sans-serif" }}>Faça seu primeiro pedido pelo iFood e ganhe 30% de desconto em qualquer restaurante parceiro.</p>
-            <a href="https://www.ifood.com.br" target="_blank" rel="noreferrer"
-              style={{ background: c.orange, color:"#fff", padding:"14px 28px", borderRadius:100, fontSize:14, fontWeight:700, textDecoration:"none", display:"inline-flex", alignItems:"center", gap:8, fontFamily:"sans-serif" }}>
-              🎁 Aproveitar no iFood
-            </a>
-          </div>
-          <div style={{ fontSize:90, flexShrink:0 }}>🎉</div>
-        </div>
-      </RevealDiv>
-
-      {/* ── RESTAURANTS ── */}
-      <section id="restaurantes" style={{ padding:"56px 24px", borderTop:`1px solid ${c.divider}` }}>
-        <RevealDiv>
-          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
-            <div style={{ width:24, height:1, background: c.orange }} />
-            <span style={{ fontSize:11, letterSpacing:"0.18em", textTransform:"uppercase", color: c.orangeL, fontFamily:"sans-serif" }}>Parceiros selecionados</span>
-          </div>
-          <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(26px,5vw,40px)", fontWeight:900, color: c.cream, marginBottom:32, lineHeight:1.1 }}>
-            Restaurantes em <em style={{ color: c.orange }}>destaque</em>
-          </h2>
-          <div style={{ display:"flex", gap:14, overflowX:"auto", paddingBottom:10 }}>
-            {restaurants.map((r,i) => (
-              <a key={i} href={ifoodUrl(r.q)} target="_blank" rel="noreferrer"
-                style={{ flex:"0 0 210px", background: c.card, border:`1px solid ${c.border}`, borderRadius:16, padding:22, textDecoration:"none", transition:"all .25s", display:"block" }}
-                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-5px)"; e.currentTarget.style.borderColor = "rgba(255,77,0,0.2)"; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.borderColor = c.border; }}>
-                <div style={{ fontSize:36, marginBottom:12 }}>{r.icon}</div>
-                <div style={{ fontFamily:"Georgia,serif", fontSize:15, fontWeight:700, color: c.cream, marginBottom:4 }}>{r.name}</div>
-                <div style={{ fontSize:11, color: c.muted, marginBottom:12, fontFamily:"sans-serif" }}>{r.type}</div>
-                <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginBottom:14 }}>
-                  {r.tags.map((t,j) => <span key={j} style={{ padding:"3px 9px", background:"rgba(255,255,255,0.03)", border:`1px solid ${c.border}`, borderRadius:100, fontSize:9, color: c.muted, fontFamily:"sans-serif" }}>{t}</span>)}
-                </div>
-                <div style={{ display:"flex", gap:14 }}>
-                  <div><strong style={{ fontSize:13, color: c.cream, fontFamily:"sans-serif" }}>{r.rating} ⭐</strong><div style={{ fontSize:9, color: c.muted, fontFamily:"sans-serif", textTransform:"uppercase", letterSpacing:"0.08em" }}>Avaliação</div></div>
-                  <div><strong style={{ fontSize:13, color: c.cream, fontFamily:"sans-serif" }}>{r.time}</strong><div style={{ fontSize:9, color: c.muted, fontFamily:"sans-serif", textTransform:"uppercase", letterSpacing:"0.08em" }}>Entrega</div></div>
-                </div>
-              </a>
-            ))}
-          </div>
-        </RevealDiv>
-      </section>
-
-      {/* ── FOOTER ── */}
-      <footer style={{ background: darkMode ? "#080604" : "#1a1208", padding:"60px 24px 40px", borderTop:`1px solid ${c.divider}` }}>
-        <RevealDiv>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:40, maxWidth:960, margin:"0 auto 48px" }}>
-            {/* brand */}
-            <div>
-              <div style={{ fontFamily:"Georgia,serif", fontSize:32, fontWeight:700, color: c.cream, marginBottom:8 }}>Sabo<span style={{ color: c.orange }}>res</span></div>
-              <p style={{ fontSize:13, color: c.muted, lineHeight:1.7, fontFamily:"sans-serif" }}>Vitrine de inspiração culinária.<br />Todos os pedidos são processados pelo iFood.</p>
-            </div>
-            {/* hours */}
-            <div>
-              <div style={{ fontFamily:"Georgia,serif", fontSize:18, color: c.gold, marginBottom:16 }}>Horários</div>
-              <ul style={{ listStyle:"none", fontFamily:"sans-serif" }}>
-                {hours.map((h,i) => (
-                  <li key={i} style={{ display:"flex", justifyContent:"space-between", padding:"4px 0", fontSize:13, color: i === todayIdx ? c.gold : c.muted, fontWeight: i === todayIdx ? 700 : 400, borderBottom:`1px solid ${c.divider}` }}>
-                    <span>{h.day}</span><span>{h.range}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            {/* links */}
-            <div>
-              <div style={{ fontFamily:"Georgia,serif", fontSize:18, color: c.gold, marginBottom:16 }}>Links</div>
-              {[["🍽 Cardápio","#pratos"],["🗂 Categorias","#categorias"],["🥤 Bebidas","#bebidas"],["🏪 Restaurantes","#restaurantes"]].map(([l,h]) => (
-                <a key={l} href={h} style={{ display:"block", fontSize:13, color: c.muted, textDecoration:"none", lineHeight:2.2, fontFamily:"sans-serif", transition:"color .2s" }}
-                  onMouseEnter={e => e.currentTarget.style.color = c.cream}
-                  onMouseLeave={e => e.currentTarget.style.color = c.muted}>{l}</a>
-              ))}
-            </div>
-          </div>
-
-          {/* big CTA */}
-          <a href="https://www.ifood.com.br" target="_blank" rel="noreferrer"
-            style={{ display:"block", maxWidth:400, margin:"0 auto 24px", padding:"20px", borderRadius:16, textAlign:"center", background: c.orange, color:"#fff", textDecoration:"none", fontWeight:700, fontSize:16, fontFamily:"sans-serif" }}>
-            🛵 Ir para o iFood e pedir agora
-          </a>
-
-          <p style={{ textAlign:"center", fontSize:11, color: c.muted, fontFamily:"sans-serif" }}>
-            © {new Date().getFullYear()} Sabores · Vitrine de inspiração culinária
-          </p>
-        </RevealDiv>
-      </footer>
-
-      {/* ── WHATSAPP FLOAT ── */}
-      <a href="https://wa.me/5511999999999" target="_blank" rel="noreferrer"
-        style={{ position:"fixed", bottom:24, right:24, width:56, height:56, background:"#25D366", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:30, textDecoration:"none", zIndex:500, boxShadow:"0 4px 20px rgba(37,211,102,0.45)", transition:"all .3s" }}
-        onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.12) rotate(-8deg)"; e.currentTarget.style.boxShadow = "0 8px 30px rgba(37,211,102,0.65)"; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = "scale(1) rotate(0)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(37,211,102,0.45)"; }}>
-        💬
-      </a>
-
-      {/* ── BACK TO TOP ── */}
-      <button onClick={() => window.scrollTo({ top:0, behavior:"smooth" })}
-        style={{ position:"fixed", bottom:92, right:28, width:40, height:40, background: c.orange, border:"none", borderRadius:"50%", color:"#fff", fontSize:18, cursor:"pointer", zIndex:500, opacity: showTop ? 1 : 0, transform: showTop ? "translateY(0)" : "translateY(10px)", transition:"all .3s", pointerEvents: showTop ? "auto" : "none" }}>
-        ↑
-      </button>
-
-    </div>
+// ── SECTION LABEL ────────────────────────────────────────────────────────────
+function SectionLabel({text,c,center=false}){
+  return h("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:8,justifyContent:center?"center":"flex-start"}},
+    h("div",{style:{width:22,height:1,background:c.orange}}),
+    h("span",{style:{fontSize:10,letterSpacing:"0.18em",textTransform:"uppercase",color:c.orangeL,fontFamily:"sans-serif"}},text),
+    center && h("div",{style:{width:22,height:1,background:c.orange}})
   );
 }
+
+// ── APP ───────────────────────────────────────────────────────────────────────
+function App(){
+  const [dark,    setDark]    = useState(true);
+  const [scrolled,setScrolled]= useState(false);
+  const [showTop, setShowTop] = useState(false);
+  const [filter,  setFilter]  = useState("Todos");
+  const [favs,    setFavs]    = useState({});
+  const [dIdx,    setDIdx]    = useState(0);
+  const [leaves,  setLeaves]  = useState([]);
+  const [typed,   setTyped]   = useState("");
+  const [banner,  setBanner]  = useState(true);
+  const [sound,   setSound]   = useState(false);
+  const slRef=useRef(null);
+  const open=storeOpen();
+  const c=palette(dark);
+
+  // typing
+  useEffect(()=>{
+    const full="Cada prato, uma obra de arte.";
+    let i=0; setTyped("");
+    const id=setInterval(()=>{ i++; setTyped(full.slice(0,i)); if(i>=full.length)clearInterval(id); },65);
+    return()=>clearInterval(id);
+  },[]);
+
+  // scroll
+  useEffect(()=>{
+    const fn=()=>{ setScrolled(window.scrollY>50); setShowTop(window.scrollY>300); };
+    window.addEventListener("scroll",fn,{passive:true});
+    return()=>window.removeEventListener("scroll",fn);
+  },[]);
+
+  // leaves
+  useEffect(()=>{
+    const id=setInterval(()=>{
+      const emojis=["🍃","🌿","🍂"];
+      setLeaves(p=>[...p.slice(-7),{id:Date.now(),left:Math.random()*95,dur:4+Math.random()*4,e:emojis[Math.floor(Math.random()*3)]}]);
+    },3200);
+    return()=>clearInterval(id);
+  },[]);
+
+  // drink scroll sync
+  useEffect(()=>{
+    const el=slRef.current; if(!el)return;
+    const fn=()=>{
+      const slides=el.querySelectorAll("[data-slide]"),cx=el.scrollLeft+el.clientWidth/2;
+      let best=0,bestD=Infinity;
+      slides.forEach((s,i)=>{ const d=Math.abs(s.offsetLeft+s.offsetWidth/2-cx); if(d<bestD){bestD=d;best=i;} });
+      setDIdx(best);
+    };
+    el.addEventListener("scroll",fn,{passive:true});
+    return()=>el.removeEventListener("scroll",fn);
+  },[]);
+
+  const scrollToDrink=i=>{
+    const el=slRef.current; if(!el)return;
+    const s=el.querySelectorAll("[data-slide]");
+    if(s[i]) s[i].scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});
+  };
+
+  const todayIdx = new Date().getDay()===0 ? 6 : new Date().getDay()-1;
+  const filtered = filter==="Todos" ? DISHES : DISHES.filter(d=>d.tag===filter);
+
+  const hov=(el,on)=>{
+    el.style.transform=on?"translateY(-7px)":"translateY(0)";
+    el.style.borderColor=on?"rgba(255,77,0,0.22)":c.border;
+    el.style.boxShadow=on?"0 24px 48px rgba(0,0,0,0.4)":"none";
+  };
+
+  return h(Fragment,null,
+    // leaves
+    ...leaves.map(l=>
+      h("div",{key:l.id,style:{position:"fixed",top:"-5%",left:`${l.left}%`,zIndex:9000,pointerEvents:"none",fontSize:17,animation:`fallLeaf ${l.dur}s linear forwards`}},l.e)
+    ),
+
+    h("div",{style:{background:c.bg,minHeight:"100vh",fontFamily:"Georgia,serif",color:c.text,overflowX:"hidden",transition:"background .5s,color .5s"}},
+
+      // ── PROMO BANNER ──
+      banner && h("div",{style:{background:"linear-gradient(90deg,#b5451b,#ff4d00,#e8925a,#ff4d00,#b5451b)",backgroundSize:"300% 100%",animation:"bannerSlide 5s linear infinite",color:"#fff",padding:"8px 44px 8px 16px",fontSize:12,fontWeight:700,fontFamily:"sans-serif",textAlign:"center",position:"relative"}},
+        "🎉 Primeira entrega com ",
+        h("span",{style:{background:"rgba(255,255,255,0.25)",padding:"2px 8px",borderRadius:100}},"30% OFF"),
+        " no iFood · Válido para novos usuários!",
+        h("button",{onClick:()=>setBanner(false),style:{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#fff",cursor:"pointer",fontSize:18,lineHeight:1}},"×")
+      ),
+
+      // ── NAV ──
+      h("nav",{style:{position:"sticky",top:0,zIndex:200,background:c.navBg,backdropFilter:"blur(16px)",borderBottom:`1px solid ${c.border}`,padding:scrolled?"11px 20px":"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,transition:"padding .3s,box-shadow .3s",boxShadow:scrolled?"0 4px 20px rgba(0,0,0,0.3)":"none"}},
+        h("a",{href:"#",style:{fontFamily:"Georgia,serif",fontSize:scrolled?18:22,fontWeight:700,color:c.cream,textDecoration:"none",transition:"font-size .3s",flexShrink:0}},
+          "Sabo",h("span",{style:{color:c.orange}},"res")
+        ),
+        h("div",{style:{display:"flex",alignItems:"center",gap:6,background:"rgba(0,0,0,0.15)",padding:"4px 10px",borderRadius:20,flexShrink:0}},
+          h("div",{style:{width:7,height:7,borderRadius:"50%",background:open?"#2ecc71":"#e74c3c",boxShadow:open?"0 0 7px #2ecc71":"none",animation:open?"pulseDot 2s infinite":"none"}}),
+          h("span",{style:{fontSize:10,fontWeight:700,color:open?"#2ecc71":"#e74c3c",fontFamily:"sans-serif",whiteSpace:"nowrap"}},open?"Aberto agora":"Fechado")
+        ),
+        h("div",{style:{display:"flex",gap:8,alignItems:"center",marginLeft:"auto"}},
+          h("button",{onClick:()=>setSound(s=>!s),title:"Som",style:{background:"none",border:"none",cursor:"pointer",fontSize:16,color:sound?"#2ecc71":c.muted,filter:sound?"drop-shadow(0 0 5px #2ecc71)":"none",transition:"all .3s"}},sound?"🔊":"🔇"),
+          h("button",{onClick:()=>setDark(d=>!d),title:"Tema",style:{background:"none",border:"none",cursor:"pointer",fontSize:16,color:c.gold}},dark?"☀️":"🌙"),
+          h("a",{href:"https://www.ifood.com.br",target:"_blank",rel:"noreferrer",style:{background:c.orange,color:"#fff",padding:"9px 16px",borderRadius:100,fontSize:12,fontWeight:700,textDecoration:"none",display:"flex",alignItems:"center",gap:5,animation:"bounce 3s ease-in-out infinite",fontFamily:"sans-serif",whiteSpace:"nowrap"}},"🛵 iFood")
+        )
+      ),
+
+      // ── HERO ──
+      h("section",{style:{padding:"60px 20px 68px",textAlign:"center",background:"radial-gradient(ellipse 80% 50% at 50% 0%,rgba(255,77,0,0.1) 0%,transparent 70%)"}},
+        h("div",{style:{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(255,77,0,0.1)",border:"1px solid rgba(255,77,0,0.25)",color:c.orangeL,fontSize:10,letterSpacing:"0.15em",textTransform:"uppercase",padding:"7px 14px",borderRadius:100,marginBottom:28,fontFamily:"sans-serif"}},
+          h("span",{style:{width:6,height:6,background:c.orange,borderRadius:"50%",display:"inline-block",animation:"pulseDot 2s infinite"}}),
+          "Entrega em até 30 minutos"
+        ),
+        h("h1",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(32px,8vw,72px)",fontWeight:900,lineHeight:1,color:c.cream,marginBottom:20,minHeight:"1.15em"}},
+          h("span",{style:{borderRight:`3px solid ${c.orange}`,paddingRight:4,animation:"blink .75s step-end infinite"}},typed)
+        ),
+        h("p",{style:{fontSize:14,lineHeight:1.7,color:c.muted,maxWidth:440,margin:"0 auto 32px",fontFamily:"sans-serif",fontWeight:300}},
+          "Descubra os melhores sabores da cidade. Escolha o que te encanta e pedimos pelo iFood."
+        ),
+        h("div",{style:{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap"}},
+          h("a",{href:"#pratos",style:{background:c.orange,color:"#fff",padding:"13px 28px",borderRadius:100,fontSize:14,fontWeight:700,textDecoration:"none",fontFamily:"sans-serif"}},"🍽 Explorar Pratos"),
+          h("a",{href:"#categorias",style:{color:c.muted,padding:"13px 20px",borderRadius:100,fontSize:13,textDecoration:"none",border:`1px solid ${c.border}`,fontFamily:"sans-serif"}},"Ver Categorias →")
+        ),
+        h("div",{style:{marginTop:44,display:"flex",justifyContent:"center",gap:12,flexWrap:"wrap"}},
+          ...["🍕","🍔","🍱","🥩","🍝"].map((e,i)=>
+            h("div",{key:i,style:{width:56,height:56,background:c.card,border:`1px solid ${c.border}`,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,animation:`bounce ${3+i*.4}s ease-in-out infinite`}},e)
+          )
+        )
+      ),
+
+      // ── CATEGORIES ──
+      h("section",{id:"categorias",style:{padding:"56px 20px",background:c.bg2}},
+        h(Reveal,null,
+          h(SectionLabel,{text:"O que você quer hoje?",c}),
+          h("h2",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(24px,5vw,38px)",fontWeight:900,color:c.cream,marginBottom:28,lineHeight:1.1}},
+            "Escolha sua ",h("em",{style:{color:c.orange}},"categoria")
+          ),
+          h("div",{style:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(78px,1fr))",gap:10}},
+            ...CATS.map((cat,i)=>
+              h("a",{key:i,href:iurl(cat.q),target:"_blank",rel:"noreferrer",
+                style:{display:"flex",flexDirection:"column",alignItems:"center",gap:8,padding:"18px 8px",borderRadius:14,background:c.card,border:`1px solid ${c.border}`,textDecoration:"none",transition:"all .25s"},
+                onMouseEnter:e=>{e.currentTarget.style.background=c.card2;e.currentTarget.style.borderColor="rgba(255,77,0,0.22)";e.currentTarget.style.transform="translateY(-5px)";},
+                onMouseLeave:e=>{e.currentTarget.style.background=c.card;e.currentTarget.style.borderColor=c.border;e.currentTarget.style.transform="translateY(0)";}},
+                h("span",{style:{fontSize:28}},cat.emoji),
+                h("span",{style:{fontSize:10,color:c.muted,fontFamily:"sans-serif",textAlign:"center"}},cat.label)
+              )
+            )
+          )
+        )
+      ),
+
+      // ── DISHES ──
+      h("section",{id:"pratos",style:{padding:"56px 20px"}},
+        h(Reveal,null,
+          h(SectionLabel,{text:"Seleção da casa",c}),
+          h("div",{style:{display:"flex",flexWrap:"wrap",justifyContent:"space-between",alignItems:"center",gap:14,marginBottom:28}},
+            h("h2",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(24px,5vw,38px)",fontWeight:900,color:c.cream,lineHeight:1.1}},
+              "Pratos em ",h("span",{style:{color:c.gold}},"destaque")
+            ),
+            h("div",{style:{display:"flex",gap:7,flexWrap:"wrap"}},
+              ...FILTERS.map(f=>
+                h("button",{key:f,onClick:()=>setFilter(f),
+                  style:{background:filter===f?c.orange:"transparent",color:filter===f?"#fff":c.muted,border:`1px solid ${filter===f?c.orange:c.border}`,padding:"7px 14px",borderRadius:100,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"sans-serif",transition:"all .25s",whiteSpace:"nowrap"}},
+                  f
+                )
+              )
+            )
+          ),
+          h("div",{style:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(270px,1fr))",gap:20}},
+            ...filtered.map((d,i)=>
+              h("a",{key:i,href:iurl(d.q),target:"_blank",rel:"noreferrer",
+                style:{background:c.card,border:`1px solid ${c.border}`,borderRadius:20,overflow:"hidden",textDecoration:"none",display:"block",transition:"all .3s"},
+                onMouseEnter:e=>hov(e.currentTarget,true),
+                onMouseLeave:e=>hov(e.currentTarget,false)},
+                h("div",{style:{height:148,display:"flex",alignItems:"center",justifyContent:"center",fontSize:64,background:d.bg,position:"relative"}},
+                  d.emoji,
+                  h("div",{style:{position:"absolute",top:11,left:11,background:"rgba(13,10,7,0.85)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:100,padding:"3px 9px",fontSize:10,color:c.gold,fontFamily:"sans-serif",fontWeight:600}},d.badge),
+                  h("button",{onClick:ev=>{ev.preventDefault();ev.stopPropagation();setFavs(f=>({...f,[i]:!f[i]}));},
+                    style:{position:"absolute",top:9,right:11,width:32,height:32,background:"rgba(13,10,7,0.85)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:14,color:favs[i]?"#ff4d00":c.muted,transition:"color .2s"}},
+                    favs[i]?"♥":"♡"
+                  )
+                ),
+                h("div",{style:{padding:"15px 18px 18px"}},
+                  h("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:5}},
+                    h("span",{style:{fontSize:9,color:c.muted,textTransform:"uppercase",letterSpacing:"0.08em",fontFamily:"sans-serif"}},d.from),
+                    h("span",{style:{fontSize:10,color:c.gold,fontWeight:600,fontFamily:"sans-serif"}},"⭐ "+d.stars)
+                  ),
+                  h("div",{style:{fontFamily:"Georgia,serif",fontSize:17,fontWeight:700,color:c.cream,marginBottom:5,lineHeight:1.2}},d.name),
+                  h("div",{style:{fontSize:11,color:c.muted,lineHeight:1.55,marginBottom:14,fontFamily:"sans-serif",fontWeight:300}},d.desc),
+                  h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}},
+                    h("div",null,
+                      h("div",{style:{fontSize:9,color:c.muted,textTransform:"uppercase",letterSpacing:"0.1em",fontFamily:"sans-serif"}},"A partir de"),
+                      h("div",{style:{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:c.cream}},
+                        h("sup",{style:{fontSize:11,fontFamily:"sans-serif",fontWeight:400}},"R$"),d.price
+                      )
+                    ),
+                    h("div",{style:{display:"flex",gap:7,alignItems:"center"}},
+                      h("span",{style:{fontSize:10,color:c.muted,fontFamily:"sans-serif"}},"🕐 "+d.time),
+                      h("span",{style:{fontSize:10,color:c.muted,fontFamily:"sans-serif"}},"🏍 "+d.frete),
+                      h("div",{style:{width:36,height:36,background:c.orange,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:15,flexShrink:0}},"→")
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      ),
+
+      // ── DRINKS ──
+      h("section",{id:"bebidas",style:{padding:"64px 0",background:c.bg2,textAlign:"center",position:"relative",overflow:"hidden"}},
+        ...[...Array(8)].map((_,i)=>
+          h("div",{key:i,style:{position:"absolute",bottom:-10,left:`${8+i*11}%`,width:6+i*4,height:6+i*4,borderRadius:"50%",background:"rgba(255,255,255,0.05)",animation:`riseUp ${4+i*1.2}s ${i*.6}s linear infinite`}})
+        ),
+        h(Reveal,{style:{padding:"0 20px",marginBottom:28}},
+          h(SectionLabel,{text:"Para acompanhar",c,center:true}),
+          h("h2",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(24px,5vw,38px)",fontWeight:900,color:c.cream,lineHeight:1.1}},
+            "Nossas ",h("em",{style:{color:c.orange}},"bebidas")
+          )
+        ),
+        h("div",{ref:slRef,style:{display:"flex",gap:18,padding:"10px 8%",overflowX:"auto",scrollSnapType:"x mandatory",alignItems:"center",scrollbarWidth:"none"}},
+          ...DRINKS.map((dr,i)=>{
+            const active=dIdx===i;
+            return h("div",{key:i,"data-slide":i,onClick:()=>scrollToDrink(i),
+              style:{minWidth:250,height:400,background:active?dr.bg:c.card,backdropFilter:"blur(15px)",border:active?"1.5px solid rgba(255,255,255,0.35)":`1px solid ${c.border}`,borderRadius:32,padding:"24px 18px",scrollSnapAlign:"center",transition:"all .5s ease",opacity:active?1:0.45,transform:active?"scale(1.05)":"scale(0.87)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"space-between",boxShadow:active?"0 20px 40px rgba(0,0,0,0.4)":"none",cursor:"pointer",position:"relative"}},
+              h("div",{style:{position:"absolute",top:14,right:14,fontSize:9,fontWeight:700,padding:"3px 9px",borderRadius:20,background:"rgba(255,255,255,0.2)",color:"#fff",letterSpacing:"0.5px",fontFamily:"sans-serif"}},dr.badge),
+              h("div",{style:{fontSize:64,transition:"transform .5s",transform:active?"translateY(-8px) rotate(5deg)":"none"}},dr.emoji),
+              h("div",{style:{textAlign:"center",color:active?"#fff":c.text}},
+                h("div",{style:{fontFamily:"Georgia,serif",fontSize:17,fontWeight:700,marginBottom:5}},dr.name),
+                h("div",{style:{fontSize:11,opacity:.8,lineHeight:1.5,marginBottom:6,fontFamily:"sans-serif"}},dr.desc),
+                h("div",{style:{fontSize:10,opacity:active?.7:0,transition:"opacity .4s",fontFamily:"sans-serif",marginBottom:6}},"🔥 "+dr.kcal),
+                h("div",{style:{fontWeight:700,fontSize:20,fontFamily:"Georgia,serif"}},"R$ "+dr.price)
+              ),
+              h("a",{href:iurl("bebida+"+dr.name.replace(/\s+/g,"+")),target:"_blank",rel:"noreferrer",
+                onClick:e=>e.stopPropagation(),
+                style:{background:c.orange,color:"#fff",padding:"9px 22px",borderRadius:100,fontSize:11,fontWeight:700,textDecoration:"none",fontFamily:"sans-serif",opacity:active?1:0,transition:"opacity .4s",pointerEvents:active?"auto":"none"}},
+                "Pedir no iFood →"
+              )
+            );
+          })
+        ),
+        h("div",{style:{display:"flex",justifyContent:"center",gap:7,marginTop:20}},
+          ...DRINKS.map((_,i)=>
+            h("button",{key:i,onClick:()=>scrollToDrink(i),style:{width:7,height:7,borderRadius:"50%",background:dIdx===i?"#fff":"rgba(255,255,255,0.3)",border:"none",cursor:"pointer",transform:dIdx===i?"scale(1.3)":"scale(1)",transition:"all .3s"}})
+          )
+        )
+      ),
+
+      // ── PROMO ──
+      h(Reveal,{style:{padding:"0 20px 56px"}},
+        h("div",{style:{background:"linear-gradient(135deg,#1a0f05,#0d0a07)",border:"1px solid rgba(255,77,0,0.2)",borderRadius:24,padding:"44px 32px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:28,flexWrap:"wrap",position:"relative",overflow:"hidden"}},
+          h("div",{style:{position:"absolute",top:-50,right:-50,width:200,height:200,background:"radial-gradient(circle,rgba(255,77,0,0.1) 0%,transparent 65%)",pointerEvents:"none"}}),
+          h("div",{style:{position:"relative",zIndex:1}},
+            h("div",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(48px,10vw,84px)",fontWeight:900,color:c.orange,lineHeight:1,marginBottom:10}},"-30%"),
+            h("div",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(18px,3vw,28px)",fontWeight:700,color:c.cream,marginBottom:12}},"Primeira entrega",h("br"),"com desconto especial"),
+            h("p",{style:{fontSize:13,color:c.muted,lineHeight:1.65,marginBottom:24,maxWidth:340,fontFamily:"sans-serif"}},"Faça seu primeiro pedido pelo iFood e ganhe 30% de desconto em qualquer restaurante parceiro."),
+            h("a",{href:"https://www.ifood.com.br",target:"_blank",rel:"noreferrer",style:{background:c.orange,color:"#fff",padding:"13px 26px",borderRadius:100,fontSize:13,fontWeight:700,textDecoration:"none",display:"inline-flex",alignItems:"center",gap:7,fontFamily:"sans-serif"}},"🎁 Aproveitar no iFood")
+          ),
+          h("div",{style:{fontSize:80,flexShrink:0}},"🎉")
+        )
+      ),
+
+      // ── RESTAURANTS ──
+      h("section",{id:"restaurantes",style:{padding:"56px 20px",borderTop:`1px solid ${c.divider}`}},
+        h(Reveal,null,
+          h(SectionLabel,{text:"Parceiros selecionados",c}),
+          h("h2",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(24px,5vw,38px)",fontWeight:900,color:c.cream,marginBottom:28,lineHeight:1.1}},
+            "Restaurantes em ",h("em",{style:{color:c.orange}},"destaque")
+          ),
+          h("div",{style:{display:"flex",gap:14,overflowX:"auto",paddingBottom:8,scrollbarWidth:"none"}},
+            ...RESTAURANTS.map((r,i)=>
+              h("a",{key:i,href:iurl(r.q),target:"_blank",rel:"noreferrer",
+                style:{flex:"0 0 200px",background:c.card,border:`1px solid ${c.border}`,borderRadius:16,padding:20,textDecoration:"none",transition:"all .25s",display:"block"},
+                onMouseEnter:e=>{e.currentTarget.style.transform="translateY(-5px)";e.currentTarget.style.borderColor="rgba(255,77,0,0.22)";},
+                onMouseLeave:e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.borderColor=c.border;}},
+                h("div",{style:{fontSize:34,marginBottom:10}},r.icon),
+                h("div",{style:{fontFamily:"Georgia,serif",fontSize:14,fontWeight:700,color:c.cream,marginBottom:4}},r.name),
+                h("div",{style:{fontSize:10,color:c.muted,marginBottom:10,fontFamily:"sans-serif"}},r.type),
+                h("div",{style:{display:"flex",flexWrap:"wrap",gap:5,marginBottom:12}},
+                  ...r.tags.map((t,j)=>h("span",{key:j,style:{padding:"2px 8px",background:"rgba(255,255,255,0.03)",border:`1px solid ${c.border}`,borderRadius:100,fontSize:9,color:c.muted,fontFamily:"sans-serif"}},t))
+                ),
+                h("div",{style:{display:"flex",gap:12}},
+                  h("div",null,h("strong",{style:{fontSize:12,color:c.cream,fontFamily:"sans-serif",display:"block"}},r.rating+" ⭐"),h("span",{style:{fontSize:9,color:c.muted,fontFamily:"sans-serif",textTransform:"uppercase"}},"Avaliação")),
+                  h("div",null,h("strong",{style:{fontSize:12,color:c.cream,fontFamily:"sans-serif",display:"block"}},r.time),h("span",{style:{fontSize:9,color:c.muted,fontFamily:"sans-serif",textTransform:"uppercase"}},"Entrega"))
+                )
+              )
+            )
+          )
+        )
+      ),
+
+      // ── FOOTER ──
+      h("footer",{style:{background:dark?"#080604":"#1a1208",padding:"56px 20px 36px",borderTop:`1px solid ${c.divider}`}},
+        h(Reveal,null,
+          h("div",{style:{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:36,maxWidth:900,margin:"0 auto 44px"}},
+            h("div",null,
+              h("div",{style:{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,color:c.cream,marginBottom:8}},"Sabo",h("span",{style:{color:c.orange}},"res")),
+              h("p",{style:{fontSize:12,color:c.muted,lineHeight:1.7,fontFamily:"sans-serif"}},"Vitrine de inspiração culinária.",h("br"),"Pedidos processados pelo iFood.")
+            ),
+            h("div",null,
+              h("div",{style:{fontFamily:"Georgia,serif",fontSize:16,color:c.gold,marginBottom:14}},"Horários"),
+              h("ul",{style:{listStyle:"none",fontFamily:"sans-serif"}},
+                ...HOURS.map((hh,i)=>
+                  h("li",{key:i,style:{display:"flex",justifyContent:"space-between",padding:"3px 0",fontSize:12,color:i===todayIdx?c.gold:c.muted,fontWeight:i===todayIdx?700:400,borderBottom:`1px solid ${c.divider}`}},
+                    h("span",null,hh.day),h("span",null,hh.range)
+                  )
+                )
+              )
+            ),
+            h("div",null,
+              h("div",{style:{fontFamily:"Georgia,serif",fontSize:16,color:c.gold,marginBottom:14}},"Navegação"),
+              ...[["🍽 Cardápio","#pratos"],["🗂 Categorias","#categorias"],["🥤 Bebidas","#bebidas"],["🏪 Restaurantes","#restaurantes"]].map(([label,href])=>
+                h("a",{key:label,href,style:{display:"block",fontSize:12,color:c.muted,textDecoration:"none",lineHeight:2.2,fontFamily:"sans-serif",transition:"color .2s"},
+                  onMouseEnter:e=>e.currentTarget.style.color=c.cream,
+                  onMouseLeave:e=>e.currentTarget.style.color=c.muted},label)
+              )
+            )
+          ),
+          h("a",{href:"https://www.ifood.com.br",target:"_blank",rel:"noreferrer",style:{display:"block",maxWidth:380,margin:"0 auto 20px",padding:"18px",borderRadius:14,textAlign:"center",background:c.orange,color:"#fff",textDecoration:"none",fontWeight:700,fontSize:15,fontFamily:"sans-serif"}},"🛵 Ir para o iFood e pedir agora"),
+          h("p",{style:{textAlign:"center",fontSize:10,color:c.muted,fontFamily:"sans-serif"}},"© "+new Date().getFullYear()+" Sabores · Vitrine de inspiração culinária")
+        )
+      ),
+
+      // ── WHATSAPP ──
+      h("a",{href:"https://wa.me/5511999999999",target:"_blank",rel:"noreferrer",
+        style:{position:"fixed",bottom:22,right:22,width:52,height:52,background:"#25D366",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,textDecoration:"none",zIndex:500,boxShadow:"0 4px 18px rgba(37,211,102,0.45)",transition:"all .3s"},
+        onMouseEnter:e=>{e.currentTarget.style.transform="scale(1.12) rotate(-8deg)";},
+        onMouseLeave:e=>{e.currentTarget.style.transform="scale(1)";}},
+        "💬"
+      ),
+
+      // ── BACK TO TOP ──
+      h("button",{onClick:()=>window.scrollTo({top:0,behavior:"smooth"}),
+        style:{position:"fixed",bottom:84,right:26,width:38,height:38,background:c.orange,border:"none",borderRadius:"50%",color:"#fff",fontSize:16,cursor:"pointer",zIndex:500,opacity:showTop?1:0,transform:showTop?"translateY(0)":"translateY(10px)",transition:"all .3s",pointerEvents:showTop?"auto":"none"}},
+        "↑"
+      )
+    )
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(h(App));
+</script>
+</body>
+</html>
