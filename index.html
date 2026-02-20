@@ -2,571 +2,783 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Sabores — Vitrine iFood. Descubra os melhores pratos da cidade.">
-<meta name="theme-color" content="#0d0a07">
-<title>Sabores — Vitrine iFood</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="Sabores — A mais sofisticada vitrine gastronômica do Brasil.">
+<meta name="theme-color" content="#0a0805">
+<title>Sabores — Gastronomia de Elite</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <style>
+/* ── RESET ── */
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{overflow-x:hidden}
-::-webkit-scrollbar{width:5px;height:5px}
+body{overflow-x:hidden;background:#0a0805;cursor:none}
+@media(max-width:768px){body{cursor:auto}}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:linear-gradient(#E8520A,#C9A84C);border-radius:2px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(255,77,0,.35);border-radius:3px}
-@keyframes fallLeaf  {to{transform:translateY(110vh) rotate(720deg);opacity:0}}
-@keyframes blink     {0%,100%{border-color:currentColor}50%{border-color:transparent}}
-@keyframes pulseDot  {0%,100%{opacity:1}50%{opacity:.3}}
-@keyframes bannerSlide{0%{background-position:0 50%}100%{background-position:300% 50%}}
-@keyframes bounce    {0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-@keyframes riseUp    {0%{transform:translateY(0);opacity:0}10%{opacity:1}90%{opacity:.4}100%{transform:translateY(-120vh);opacity:0}}
-.no-scroll::-webkit-scrollbar{display:none}
-.no-scroll{-ms-overflow-style:none;scrollbar-width:none}
+
+/* ── CURSOR ── */
+#cur{width:10px;height:10px;background:#E8520A;border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:transform .12s,background .2s,width .2s,height .2s}
+#cur-r{width:40px;height:40px;border:1.5px solid rgba(232,82,10,.5);border-radius:50%;position:fixed;pointer-events:none;z-index:9997;transform:translate(-50%,-50%);transition:transform .06s linear,width .25s,height .25s,border-color .25s,background .25s}
+body.ch #cur{width:14px;height:14px;background:#C9A84C}
+body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);background:rgba(201,168,76,.04)}
+@media(max-width:768px){#cur,#cur-r{display:none}}
+
+/* ── PROGRESS ── */
+#prog{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,#E8520A,#C9A84C,#E8520A);background-size:200%;z-index:9999;width:0;transition:width .08s linear;animation:shimmer 2s linear infinite}
+@keyframes shimmer{to{background-position:200% 0}}
+
+/* ── LOADER ── */
+#ldr{position:fixed;inset:0;z-index:99999;background:#0a0805;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .9s ease,visibility .9s}
+#ldr.out{opacity:0;visibility:hidden;pointer-events:none}
+.ldr-logo{font-family:'Playfair Display',serif;font-size:clamp(52px,9vw,96px);font-weight:900;color:#f0e6d3;letter-spacing:-3px;overflow:hidden;display:flex}
+.ldr-logo span{display:inline-block;animation:ldrUp .9s cubic-bezier(.22,1,.36,1) forwards;opacity:0;transform:translateY(110%)}
+.ldr-logo span:nth-child(1){animation-delay:.05s}
+.ldr-logo span:nth-child(2){animation-delay:.12s}
+.ldr-logo span:nth-child(3){animation-delay:.19s;color:#E8520A}
+.ldr-logo span:nth-child(4){animation-delay:.26s;color:#E8520A}
+.ldr-logo span:nth-child(5){animation-delay:.33s;color:#E8520A}
+.ldr-logo span:nth-child(6){animation-delay:.40s;color:#E8520A}
+.ldr-logo span:nth-child(7){animation-delay:.47s;color:#E8520A}
+.ldr-bar{width:140px;height:1px;background:rgba(255,255,255,.1);margin-top:48px;overflow:hidden}
+.ldr-fill{height:100%;background:linear-gradient(90deg,#E8520A,#C9A84C);animation:ldrFill 1.9s ease forwards}
+.ldr-tag{font-family:Inter,sans-serif;font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-top:20px}
+@keyframes ldrUp{to{opacity:1;transform:translateY(0)}}
+@keyframes ldrFill{to{width:100%}}
+
+/* ── NOISE GRAIN OVERLAY ── */
+.grain::before{content:'';position:absolute;inset:-50%;width:200%;height:200%;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.035;pointer-events:none;z-index:0;animation:grainMove 8s steps(10) infinite}
+@keyframes grainMove{0%{transform:translate(0,0)}10%{transform:translate(-5%,-5%)}20%{transform:translate(-10%,5%)}30%{transform:translate(5%,-10%)}40%{transform:translate(-5%,15%)}50%{transform:translate(-15%,5%)}60%{transform:translate(15%,0)}70%{transform:translate(0,10%)}80%{transform:translate(-5%,-15%)}90%{transform:translate(10%,5%)}100%{transform:translate(5%,0)}}
+
+/* ── KEYFRAMES ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(44px)}to{opacity:1;transform:none}}
+@keyframes blink{0%,100%{border-color:currentColor}50%{border-color:transparent}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
+@keyframes bannerFlow{0%{background-position:0 0}100%{background-position:300% 0}}
+@keyframes orbDrift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(28px,-18px) scale(1.04)}66%{transform:translate(-18px,14px) scale(.97)}}
+@keyframes fallLeaf{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+@keyframes riseUp{0%{transform:translateY(0);opacity:0}15%{opacity:1}85%{opacity:.5}100%{transform:translateY(-110vh);opacity:0}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.92) translateY(12px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes cardGlow{0%,100%{box-shadow:0 0 30px rgba(232,82,10,0)}50%{box-shadow:0 0 60px rgba(232,82,10,0.25)}}
+@keyframes textGrad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+/* ── UTILS ── */
+.ns{scrollbar-width:none;-ms-overflow-style:none}
+.ns::-webkit-scrollbar{display:none}
+.glass{background:rgba(255,255,255,.042);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.08)}
+
+/* ── TILT CARD ── */
+.tilt{transform-style:preserve-3d;transition:transform .08s linear,box-shadow .4s}
+.tilt:hover{box-shadow:0 40px 80px rgba(0,0,0,.55)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .hero-grid{grid-template-columns:1fr!important}
+  .hero-floats{display:none!important}
+  .stats-grid{grid-template-columns:1fr 1fr!important}
+  .footer-grid{grid-template-columns:1fr 1fr!important}
+}
+@media(max-width:600px){
+  .stats-grid{grid-template-columns:1fr 1fr!important}
+  .footer-grid{grid-template-columns:1fr!important}
+  .promo-grid{grid-template-columns:1fr!important}
+  .how-grid{grid-template-columns:1fr!important}
+}
 </style>
 </head>
 <body>
+<div id="prog"></div>
+<div id="cur"></div>
+<div id="cur-r"></div>
+<div id="ldr">
+  <div class="ldr-logo">
+    <span>S</span><span>a</span><span>b</span><span>o</span><span>r</span><span>e</span><span>s</span>
+  </div>
+  <div class="ldr-bar"><div class="ldr-fill"></div></div>
+  <div class="ldr-tag">gastronomia de elite · est. 2024</div>
+</div>
 <div id="root"></div>
+
 <script>
-const {createElement:h,useState,useEffect,useRef,memo,Fragment}=React;
+'use strict';
+const {createElement:h,useState,useEffect,useRef,useCallback,Fragment}=React;
 
-// ── DATA ─────────────────────────────────────────────────────────────────────
+/* ════════════════════════════════════════════════════════════
+   DATA
+════════════════════════════════════════════════════════════ */
 const CATS=[
-  {emoji:"🍕",label:"Pizza",q:"pizza"},{emoji:"🍔",label:"Burger",q:"burger"},
-  {emoji:"🍣",label:"Japonês",q:"sushi"},{emoji:"🥩",label:"Churrasco",q:"churrasco"},
-  {emoji:"🍝",label:"Massas",q:"massa+italiana"},{emoji:"🌮",label:"Mexicano",q:"tacos+mexicano"},
-  {emoji:"🍇",label:"Açaí",q:"acai"},{emoji:"🥗",label:"Saudável",q:"saudavel+salada"},
-  {emoji:"🍗",label:"Frango",q:"frango+frito"},{emoji:"🍰",label:"Doces",q:"sobremesa+doce"},
-  {emoji:"🥦",label:"Vegano",q:"vegano"},{emoji:"🧃",label:"Bebidas",q:"bebida+suco"},
+  {e:"🍕",l:"Pizza",q:"pizza"},{e:"🍔",l:"Burger",q:"burger"},
+  {e:"🍣",l:"Japonês",q:"sushi"},{e:"🥩",l:"Churrasco",q:"churrasco"},
+  {e:"🍝",l:"Massas",q:"massa+italiana"},{e:"🌮",l:"Mexicano",q:"tacos+mexicano"},
+  {e:"🍇",l:"Açaí",q:"acai"},{e:"🥗",l:"Saudável",q:"saudavel+fit"},
+  {e:"🍗",l:"Frango",q:"frango+frito"},{e:"🍰",l:"Doces",q:"sobremesa+doce"},
+  {e:"🥦",l:"Vegano",q:"vegano"},{e:"🧃",l:"Bebidas",q:"bebida+suco"},
 ];
-const DISHES=[
-  {emoji:"🍕",badge:"🔥 Mais pedido", from:"Bella Napoli",   stars:"4.9",name:"Pizza Margherita Trufada", desc:"Massa artesanal fermentada, molho San Marzano, mozzarella de búfala e trufa negra.",price:"54",time:"25min",frete:"Grátis",q:"pizza+margherita",  bg:"linear-gradient(135deg,#1a0f05,#2a1809)",tag:"Mais pedidos"},
-  {emoji:"🍱",badge:"✦ Premium",       from:"Sakura House",  stars:"4.8",name:"Combinado do Chef",         desc:"30 peças com salmão premium, atum fresco, polvinho e temaki especial da casa.",  price:"89",time:"35min",frete:"R$5",  q:"combinado+sushi",   bg:"linear-gradient(135deg,#091a11,#0c2516)",tag:"Premium"},
-  {emoji:"🍔",badge:"⚡ Novo",          from:"Crush Burger",  stars:"4.7",name:"Smash Double Crispy",       desc:"Dois smash patties de angus, queijo americano derretido, pickles e molho especial.",price:"38",time:"20min",frete:"Grátis",q:"smash+burger",      bg:"linear-gradient(135deg,#1a0c04,#2b1508)",tag:"Novidades"},
-  {emoji:"🥩",badge:"🏆 Top avaliado", from:"Fogo e Brasa",  stars:"4.9",name:"Costela Bovina na Brasa",   desc:"Cozida por 12 horas, desfiando no garfo, com vinagrete especial e farofa.",       price:"67",time:"40min",frete:"R$8",  q:"costela+churrasco", bg:"linear-gradient(135deg,#0a1018,#101a28)",tag:"Mais pedidos"},
-  {emoji:"🍇",badge:"🌿 Saudável",     from:"Raízes do Norte",stars:"4.8",name:"Bowl de Açaí Amazônico",    desc:"Açaí puro do Pará, granola artesanal, banana, morango e mel silvestre.",         price:"26",time:"15min",frete:"Grátis",q:"bowl+acai",          bg:"linear-gradient(135deg,#1a0a0a,#2b1212)",tag:"Promoções"},
-  {emoji:"🌮",badge:"🌶 Picante",      from:"El Rancho",     stars:"4.6",name:"Combo Tacos al Pastor",      desc:"4 tacos com carne marinada, abacaxi grelhado, cebola roxa e molho chipotle.",   price:"44",time:"30min",frete:"R$3",  q:"tacos+pastor",      bg:"linear-gradient(135deg,#120d1a,#1c1228)",tag:"Promoções"},
-];
-const DRINKS=[
-  {emoji:"🥤",name:"Limonada Suíça",    desc:"Leite condensado, limão siciliano e menta fresca batidos na hora.",price:"18",bg:"linear-gradient(135deg,#0d2b0d,#1a5c1a)",badge:"🌿 Refrescante",kcal:"180 kcal"},
-  {emoji:"🧃",name:"Suco de Manga",     desc:"Manga Tommy fresca, sem adição de açúcar. 100% natural.",          price:"14",bg:"linear-gradient(135deg,#2a1400,#6b3a00)",badge:"🔥 Top",         kcal:"120 kcal"},
-  {emoji:"🍵",name:"Chá Gelado Hibisco",desc:"Hibisco, gengibre, mel e limão. Servido com pedras de gelo.",      price:"16",bg:"linear-gradient(135deg,#2a0015,#6b0035)",badge:"✦ Especial",     kcal:"90 kcal"},
-  {emoji:"🥛",name:"Vitamina de Açaí",  desc:"Açaí puro, banana, aveia e mel. Energia para o dia todo.",         price:"22",bg:"linear-gradient(135deg,#140826,#3a1260)",badge:"💜 Premium",     kcal:"280 kcal"},
-  {emoji:"🍹",name:"Água de Coco Fresca",desc:"Diretamente do coco verde, gelada e natural.",                    price:"12",bg:"linear-gradient(135deg,#082020,#104040)",badge:"🌴 Fresh",        kcal:"60 kcal"},
-];
-const RESTAURANTS=[
-  {icon:"🍕",name:"Bella Napoli",   type:"Pizzaria Italiana",   tags:["Artesanal","Forno a Lenha"],rating:"4.9",time:"~25 min",q:"Bella+Napoli+pizza"},
-  {icon:"🍱",name:"Sakura House",   type:"Culinária Japonesa",  tags:["Sushi","Temaki","Premium"],  rating:"4.8",time:"~35 min",q:"Sakura+sushi"},
-  {icon:"🍔",name:"Crush Burger",   type:"Hamburgeria",          tags:["Smash","Angus","Gourmet"],   rating:"4.7",time:"~20 min",q:"smash+burger"},
-  {icon:"🔥",name:"Fogo e Brasa",   type:"Churrascaria Premium", tags:["Costela","Picanha"],         rating:"4.9",time:"~40 min",q:"churrasco+costela"},
-  {icon:"🌿",name:"Raízes do Norte",type:"Açaí e Saúde",         tags:["Vegano","Natural"],          rating:"4.8",time:"~15 min",q:"acai+natural"},
-  {icon:"🌮",name:"El Rancho",      type:"Culinária Mexicana",   tags:["Tacos","Burritos"],          rating:"4.6",time:"~30 min",q:"tacos+mexicano"},
-  {icon:"🍝",name:"Pasta Mia",      type:"Massas Artesanais",    tags:["Fresca","Italiana"],         rating:"4.7",time:"~30 min",q:"massa+italiana"},
-];
-const HOURS=[
-  {day:"Segunda",range:"11h – 22h"},{day:"Terça",  range:"11h – 22h"},
-  {day:"Quarta", range:"11h – 22h"},{day:"Quinta", range:"11h – 23h"},
-  {day:"Sexta",  range:"11h – 00h"},{day:"Sábado", range:"10h – 00h"},
-  {day:"Domingo",range:"10h – 22h"},
-];
-const FILTERS=["Todos","Mais pedidos","Novidades","Premium","Promoções"];
-const iurl=q=>`https://www.ifood.com.br/delivery/busca?q=${q}`;
 
+const DISHES=[
+  {e:"🍕",badge:"🔥 +2840 pedidos",from:"Bella Napoli",stars:4.9,reviews:2840,name:"Pizza Margherita Trufada",desc:"Massa fermentada 72h, molho San Marzano DOP, mozzarella di bufala campana e trufa negra ralada na hora.",price:"54",time:"25",frete:"Grátis",q:"pizza+margherita",bg:"linear-gradient(145deg,#1c1005,#2e1c0a,#1c1005)",tag:"Mais pedidos"},
+  {e:"🍱",badge:"✦ Omakase",from:"Sakura House",stars:4.8,reviews:1920,name:"Omakase do Chef",desc:"32 peças exclusivas: salmão selvagem do Alasca, atum bluefin, vieira e temaki com ikura fresco importado.",price:"129",time:"35",frete:"R$5",q:"omakase+sushi+premium",bg:"linear-gradient(145deg,#061510,#0d2a1c,#061510)",tag:"Premium"},
+  {e:"🍔",badge:"⚡ Novo",from:"Crush Burger",stars:4.7,reviews:3210,name:"Smash Wagyu Double",desc:"Dois patties de wagyu A5 smashados na chapa de ferro fundido, raclette derretido e picles artesanal.",price:"68",time:"20",frete:"Grátis",q:"smash+wagyu+burger",bg:"linear-gradient(145deg,#1c0d04,#301a08,#1c0d04)",tag:"Novidades"},
+  {e:"🥩",badge:"🏆 Top Cidade",from:"Fogo e Brasa",stars:4.9,reviews:4180,name:"Costela Black Angus",desc:"14 horas de cozimento lento em defumação de lenha. Desfia no garfo, serve com vinagrete de hortelã.",price:"97",time:"40",frete:"R$8",q:"costela+angus+brasa+premium",bg:"linear-gradient(145deg,#0a0e18,#15202e,#0a0e18)",tag:"Mais pedidos"},
+  {e:"🍇",badge:"🌿 Orgânico",from:"Raízes do Norte",stars:4.8,reviews:1560,name:"Bowl Amazônico Premium",desc:"Açaí nativo do Pará, granola com castanha-do-pará torrada, frutas sazonais e pólen de flores silvestres.",price:"38",time:"15",frete:"Grátis",q:"bowl+acai+organico+amazonia",bg:"linear-gradient(145deg,#1c0808,#301212,#1c0808)",tag:"Promoções"},
+  {e:"🌮",badge:"🌶 Chef's Pick",from:"El Rancho",stars:4.7,reviews:920,name:"Trio Tacos Signature",desc:"Al pastor com abacaxi grelhado, carnitas de 8h e birria com consommé para mergulhar. Autêntico México.",price:"56",time:"30",frete:"R$3",q:"tacos+birria+al+pastor+signature",bg:"linear-gradient(145deg,#12091c,#211030,#12091c)",tag:"Promoções"},
+];
+
+const DRINKS=[
+  {e:"🥤",name:"Limonada Suíça Signature",desc:"Limão siciliano premium, leite condensado belga, menta fresca e raspas. A nossa favorita.",price:"22",bg:"linear-gradient(145deg,#061c06,#0d3a10)",badge:"🌿 Signature",kcal:"180 kcal",time:"5 min"},
+  {e:"🧃",name:"Cold Press Manga",desc:"Manga Tommy prensada a frio, sem pasteurização. Vitaminas e enzimas 100% intactas.",price:"18",bg:"linear-gradient(145deg,#281200,#542800)",badge:"🔥 Raw",kcal:"120 kcal",time:"imediato"},
+  {e:"🍵",name:"Hibisco Kombucha",desc:"Fermentação artesanal de 21 dias. Probióticos vivos, gengibre e mel de abelhas nativas da Mata Atlântica.",price:"24",bg:"linear-gradient(145deg,#200010,#480028)",badge:"✦ Fermentado",kcal:"60 kcal",time:"imediato"},
+  {e:"🥛",name:"Açaí Power Shake",desc:"Açaí puro, banana da terra, aveia belga, proteína whey natural e mel de baru. Energia para o dia.",price:"28",bg:"linear-gradient(145deg,#100520,#280a44)",badge:"💜 Boost",kcal:"340 kcal",time:"8 min"},
+  {e:"🍹",name:"Coco Loco Artesanal",desc:"Água de coco verde gelada, espuma de maracujá fresco e finalizado com raspas de coco tostado.",price:"32",bg:"linear-gradient(145deg,#041a1a,#083535)",badge:"🌴 Coquetel",kcal:"180 kcal",time:"imediato"},
+];
+
+const RESTAURANTS=[
+  {icon:"🍕",name:"Bella Napoli",type:"Pizzaria Napoletana",tags:["Certificado AVPN","Forno a lenha 450°"],rating:"4.9",orders:"12k+",q:"Bella+Napoli+pizza"},
+  {icon:"🍱",name:"Sakura House",type:"Omakase Premium",tags:["Peixes importados","Reserva antecipada"],rating:"4.8",orders:"8k+",q:"Sakura+omakase+sushi"},
+  {icon:"🍔",name:"Crush Burger",type:"Smash Premium",tags:["Wagyu A5","Chapa ferro fundido"],rating:"4.7",orders:"21k+",q:"smash+wagyu+burger"},
+  {icon:"🔥",name:"Fogo e Brasa",type:"Churrascaria Prime",tags:["Black Angus","Dry Aged 30d"],rating:"4.9",orders:"18k+",q:"churrasco+prime+angus+brasa"},
+  {icon:"🌿",name:"Raízes do Norte",type:"Orgânicos & Açaí",tags:["100% Certificado","Sem agrotóxico"],rating:"4.8",orders:"9k+",q:"acai+organico+norte"},
+  {icon:"🌮",name:"El Rancho",type:"Mexicano Autêntico",tags:["Birria tradicional","Mezcal artesanal"],rating:"4.7",orders:"6k+",q:"tacos+birria+mexicano+autentico"},
+  {icon:"🍝",name:"Pasta Mia",type:"Massas Frescas",tags:["Feita na hora","Farinha importada","DOP"],rating:"4.8",orders:"11k+",q:"massa+fresca+italiana+artesanal"},
+];
+
+const STATS=[
+  {v:12000,s:"+",l:"Pedidos/mês",i:"🛵"},
+  {v:98,s:"%",l:"Satisfação",i:"⭐"},
+  {v:47,s:"",l:"Parceiros",i:"🍽"},
+  {v:18,s:"min",l:"Entrega média",i:"⚡"},
+];
+
+const HOW=[
+  {n:"01",icon:"🔍",title:"Descubra",desc:"Navegue pela nossa curadoria de pratos e restaurantes selecionados a dedo por especialistas gastronômicos."},
+  {n:"02",icon:"❤️",title:"Escolha",desc:"Salve seus favoritos, explore os detalhes, compare avaliações e tome a decisão perfeita."},
+  {n:"03",icon:"🛵",title:"Peça",desc:"Um clique leva você direto ao iFood. Seu pedido sai com desconto e chega quentinho em minutos."},
+];
+
+const TESTIMONIALS=[
+  {name:"Carolina M.",role:"Chef Executiva · D.O.M.",text:"Uma vitrine que finalmente faz jus à qualidade dos restaurantes parceiros. O design é impecável e a experiência de descoberta é genuinamente prazerosa.",avatar:"👩‍🍳",stars:5},
+  {name:"Rafael Torres",role:"Crítico Gastronômico",text:"Navegação fluida, curadoria irrepreensível. É exatamente o que o mercado precisava — uma ponte digna entre o comensal exigente e os melhores restaurantes.",avatar:"👨‍💼",stars:5},
+  {name:"Ana Lima",role:"Influencer & Food Writer",text:"Uso todos os dias. A seção de bebidas é absolutamente belíssima e os cards dos pratos me fazem pedir mais do que devia. Não consigo parar.",avatar:"👩‍💻",stars:5},
+];
+
+const FILTERS=["Todos","Mais pedidos","Novidades","Premium","Promoções"];
+const HOURS=[
+  {day:"Segunda",range:"11h–22h"},{day:"Terça",range:"11h–22h"},
+  {day:"Quarta",range:"11h–22h"},{day:"Quinta",range:"11h–23h"},
+  {day:"Sexta",range:"11h–00h"},{day:"Sábado",range:"10h–00h"},
+  {day:"Domingo",range:"10h–22h"},
+];
+
+const iurl=q=>`https://www.ifood.com.br/delivery/busca?q=${q}`;
 function storeOpen(){
-  const n=new Date(),d=n.getDay(),h=n.getHours()+n.getMinutes()/60;
-  if(d===0)return h>=10&&h<22; if(d===6)return h>=10;
-  if(d===5)return h>=11;       if(d===4)return h>=11&&h<23;
-  return h>=11&&h<22;
+  const n=new Date(),d=n.getDay(),hr=n.getHours()+n.getMinutes()/60;
+  if(d===0)return hr>=10&&hr<22; if(d===6)return hr>=10;
+  if(d===5)return hr>=11;        if(d===4)return hr>=11&&hr<23;
+  return hr>=11&&hr<22;
 }
-function pal(dark){
-  return dark?{
-    bg:"#0d0a07",bg2:"#111009",card:"#181210",card2:"#201a14",
-    cream:"#f0e6d3",orange:"#ff4d00",orangeL:"#ff7b3a",gold:"#d4a843",
-    muted:"#6b5c48",text:"#c8baa8",navBg:"rgba(13,10,7,0.97)",
-    border:"rgba(255,255,255,0.06)",divider:"rgba(255,255,255,0.05)",
+
+/* ════════════════════════════════════════════════════════════
+   PALETTE
+════════════════════════════════════════════════════════════ */
+function pal(dk){
+  return dk?{
+    bg:"#0a0805",bg2:"#0d0b07",card:"#141009",card2:"#1d1710",
+    cream:"#f0e6d3",orange:"#E8520A",orangeL:"#FF6B2B",orangeD:"#bf4008",
+    gold:"#C9A84C",goldL:"#dfc070",
+    muted:"#6b5c48",text:"#c4b49e",
+    nav:"rgba(10,8,5,.93)",border:"rgba(255,255,255,.07)",
+    bHov:"rgba(232,82,10,.28)",div:"rgba(255,255,255,.055)",
+    sh:"rgba(0,0,0,.65)",
   }:{
-    bg:"#faf7f2",bg2:"#f0ebe0",card:"#ffffff",card2:"#fdf8f0",
-    cream:"#2d2010",orange:"#e03d00",orangeL:"#c05020",gold:"#b8860b",
-    muted:"#8a7060",text:"#3d2d1a",navBg:"rgba(250,247,242,0.97)",
-    border:"rgba(0,0,0,0.08)",divider:"rgba(0,0,0,0.07)",
+    bg:"#faf6ef",bg2:"#f2ece0",card:"#ffffff",card2:"#fef9f2",
+    cream:"#18100a",orange:"#cc3800",orangeL:"#e04510",orangeD:"#a82e00",
+    gold:"#8a5e00",goldL:"#b07a10",
+    muted:"#8a7060",text:"#4a3828",
+    nav:"rgba(250,246,239,.95)",border:"rgba(0,0,0,.09)",
+    bHov:"rgba(204,56,0,.25)",div:"rgba(0,0,0,.07)",
+    sh:"rgba(0,0,0,.14)",
   };
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// COMPONENTES ISOLADOS — cada um gerencia seu próprio estado
-// Isso evita que o estado de um re-renderize o App inteiro (causa do piscar)
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+/* ════════════════════════════════════════════════════════════
+   SIDE EFFECTS (cursor, progress, tilt)
+════════════════════════════════════════════════════════════ */
+function bootCursor(){
+  const dot=document.getElementById('cur'),ring=document.getElementById('cur-r');
+  if(!dot||!ring||window.innerWidth<=768)return;
+  let mx=0,my=0,rx=0,ry=0,raf;
+  const move=e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';};
+  document.addEventListener('mousemove',move,{passive:true});
+  const loop=()=>{rx+=(mx-rx)*.14;ry+=(my-ry)*.14;ring.style.left=rx+'px';ring.style.top=ry+'px';raf=requestAnimationFrame(loop);};
+  loop();
+  document.querySelectorAll('a,button,[data-h]').forEach(el=>{
+    el.addEventListener('mouseenter',()=>document.body.classList.add('ch'));
+    el.addEventListener('mouseleave',()=>document.body.classList.remove('ch'));
+  });
+  return()=>{document.removeEventListener('mousemove',move);cancelAnimationFrame(raf);};
+}
 
-// ── Efeito digitação — NÃO fica no App para não piscar tudo ─────────────────
-function TypingText({orange}){
-  const [txt,setTxt]=useState("");
+function bootProgress(){
+  const bar=document.getElementById('prog');
+  if(!bar)return;
+  const fn=()=>{
+    const pct=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100;
+    bar.style.width=Math.min(pct,100)+'%';
+  };
+  window.addEventListener('scroll',fn,{passive:true});
+  return()=>window.removeEventListener('scroll',fn);
+}
+
+function applyTilt(el,e){
+  const r=el.getBoundingClientRect();
+  const x=((e.clientX-r.left)/r.width-.5)*14;
+  const y=-((e.clientY-r.top)/r.height-.5)*14;
+  el.style.transform=`perspective(900px) rotateX(${y}deg) rotateY(${x}deg) translateZ(8px)`;
+}
+function resetTilt(el){el.style.transform='perspective(900px) rotateX(0) rotateY(0) translateZ(0)';}
+
+/* ════════════════════════════════════════════════════════════
+   ISOLATED COMPONENTS (no App re-renders)
+════════════════════════════════════════════════════════════ */
+
+/* ── Loader ── */
+function Loader({onDone}){
+  useEffect(()=>{const t=setTimeout(onDone,2300);return()=>clearTimeout(t);},[]);
+  return null;
+}
+
+/* ── Typing effect ── */
+function TypeWriter({color}){
+  const [txt,setTxt]=useState('');
   useEffect(()=>{
-    const full="Cada prato, uma obra de arte.";
-    let i=0;
-    const id=setInterval(()=>{i++;setTxt(full.slice(0,i));if(i>=full.length)clearInterval(id);},65);
+    const words=['uma obra de arte.','uma história perfeita.','emoção pura.','vício em forma de prato.'];
+    let wi=0,ci=0,del=false;
+    const tick=()=>{
+      const w=words[wi];
+      if(!del){ci++;setTxt(w.slice(0,ci));if(ci===w.length){del=true;setTimeout(tick,2500);return;}}
+      else{ci--;setTxt(w.slice(0,ci));if(ci===0){del=false;wi=(wi+1)%words.length;setTimeout(tick,500);return;}}
+      setTimeout(tick,del?45:75);
+    };
+    const t=setTimeout(tick,900);
+    return()=>clearTimeout(t);
+  },[]);
+  return h('span',{style:{borderRight:`2px solid ${color}`,paddingRight:4,animation:'blink .8s step-end infinite',fontStyle:'italic',color}},txt);
+}
+
+/* ── Leaves ── */
+function Leaves(){
+  const [ls,setLs]=useState([]);
+  useEffect(()=>{
+    const em=['🍃','🌿','🍂','🌾'];
+    const id=setInterval(()=>setLs(p=>[...p.slice(-6),{id:Date.now(),x:Math.random()*95,d:5+Math.random()*5,e:em[0|Math.random()*4]}]),4200);
     return()=>clearInterval(id);
   },[]);
-  return h("h1",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(32px,8vw,72px)",fontWeight:900,lineHeight:1,color:"#f0e6d3",marginBottom:20,minHeight:"1.15em"}},
-    h("span",{style:{borderRight:`3px solid ${orange}`,paddingRight:4,animation:"blink .75s step-end infinite"}},txt)
+  return h(Fragment,null,...ls.map(l=>h('div',{key:l.id,style:{position:'fixed',top:'-6%',left:l.x+'%',zIndex:8000,pointerEvents:'none',fontSize:15,animation:`fallLeaf ${l.d}s linear forwards`,opacity:.65}},l.e)));
+}
+
+/* ── Animated Counter ── */
+function Counter({target,suffix}){
+  const [v,setV]=useState(0);
+  const ref=useRef(null);
+  const done=useRef(false);
+  useEffect(()=>{
+    const el=ref.current;if(!el)return;
+    const obs=new IntersectionObserver(([e])=>{
+      if(e.isIntersecting&&!done.current){
+        done.current=true;obs.unobserve(el);
+        const t0=performance.now();
+        const dur=1800;
+        const step=t=>{
+          const p=Math.min((t-t0)/dur,1);
+          setV(Math.round((1-Math.pow(1-p,4))*target));
+          if(p<1)requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }
+    },{threshold:.5});
+    obs.observe(el);return()=>obs.disconnect();
+  },[target]);
+  return h('span',{ref},v.toLocaleString('pt-BR')+suffix);
+}
+
+/* ── Reveal ── */
+function Rv({children,delay=0,dir='up',style={},cls=''}){
+  const ref=useRef(null);const[v,setV]=useState(false);
+  useEffect(()=>{
+    const el=ref.current;if(!el)return;
+    const o=new IntersectionObserver(([e])=>{if(e.isIntersecting){setV(true);o.unobserve(el);}},{threshold:.06});
+    o.observe(el);return()=>o.disconnect();
+  },[]);
+  const from={up:'translateY(44px)',left:'translateX(-44px)',right:'translateX(44px)',zoom:'scale(.93)'}[dir]||'translateY(44px)';
+  return h('div',{ref,className:cls,style:{opacity:v?1:0,transform:v?'none':from,transition:`opacity .85s ${delay}s cubic-bezier(.22,1,.36,1),transform .85s ${delay}s cubic-bezier(.22,1,.36,1)`,...style}},children);
+}
+
+/* ── Section Header ── */
+function SH({label,title,accent,c,center=false}){
+  return h('div',{style:{textAlign:center?'center':'left',marginBottom:52}},
+    h('div',{style:{display:'inline-flex',alignItems:'center',gap:10,background:'rgba(232,82,10,.09)',border:'1px solid rgba(232,82,10,.22)',padding:'6px 16px',borderRadius:100,marginBottom:22}},
+      h('span',{style:{width:5,height:5,background:c.orange,borderRadius:'50%',display:'inline-block',animation:'pulse 2s infinite'}}),
+      h('span',{style:{fontSize:10,letterSpacing:'.18em',textTransform:'uppercase',color:c.orangeL,fontFamily:'Inter,sans-serif',fontWeight:600}},label)
+    ),
+    h('h2',{style:{fontFamily:"'Playfair Display',serif",fontSize:'clamp(30px,5vw,56px)',fontWeight:900,color:c.cream,lineHeight:1.02,letterSpacing:'-1.5px'}},
+      title+' ',h('em',{style:{color:c.orange}},accent)
+    )
   );
 }
 
-// ── Folhas caindo — NÃO fica no App para não piscar tudo ────────────────────
-function LeavesLayer(){
-  const [leaves,setLeaves]=useState([]);
-  useEffect(()=>{
-    const em=["🍃","🌿","🍂"];
-    const id=setInterval(()=>{
-      setLeaves(p=>[...p.slice(-7),{id:Date.now(),left:Math.random()*95,dur:4+Math.random()*4,e:em[Math.floor(Math.random()*3)]}]);
-    },3500);
-    return()=>clearInterval(id);
-  },[]);
-  return h(Fragment,null,...leaves.map(l=>
-    h("div",{key:l.id,style:{position:"fixed",top:"-5%",left:l.left+"%",zIndex:9000,pointerEvents:"none",fontSize:17,animation:`fallLeaf ${l.dur}s linear forwards`}},l.e)
-  ));
-}
-
-// ── Slider de bebidas — estado ISOLADO, nunca pisca o App ───────────────────
+/* ── Drink Slider (FULLY ISOLATED) ── */
 function DrinkSlider({c}){
-  // índice ativo controlado puramente por CSS via data-active
-  // sem re-render causado por scroll do App
-  const [active,setActive]=useState(0);
-  const slRef=useRef(null);
-  const scrollTimer=useRef(null);
+  const [a,setA]=useState(0);
+  const ref=useRef(null);const tmr=useRef(null);
 
-  function goTo(i){
-    const el=slRef.current; if(!el)return;
-    const slides=el.querySelectorAll("[data-slide]");
-    if(!slides[i])return;
-    setActive(i);
-    const s=slides[i];
-    const left=s.offsetLeft-(el.clientWidth/2)+(s.offsetWidth/2);
-    el.scrollTo({left,behavior:"smooth"});
+  function go(i){
+    setA(i);
+    const el=ref.current;if(!el)return;
+    const sl=el.querySelectorAll('[data-s]');
+    if(!sl[i])return;
+    const s=sl[i];
+    el.scrollTo({left:s.offsetLeft-(el.clientWidth/2)+(s.offsetWidth/2),behavior:'smooth'});
   }
 
   useEffect(()=>{
-    const el=slRef.current; if(!el)return;
-    const onScroll=()=>{
-      // debounce: atualiza índice só depois que o scroll parar
-      clearTimeout(scrollTimer.current);
-      scrollTimer.current=setTimeout(()=>{
-        const slides=el.querySelectorAll("[data-slide]");
+    const el=ref.current;if(!el)return;
+    const fn=()=>{
+      clearTimeout(tmr.current);
+      tmr.current=setTimeout(()=>{
+        const sl=el.querySelectorAll('[data-s]');
         const cx=el.scrollLeft+el.clientWidth/2;
-        let best=0,bestD=Infinity;
-        slides.forEach((s,i)=>{
-          const d=Math.abs(s.offsetLeft+s.offsetWidth/2-cx);
-          if(d<bestD){bestD=d;best=i;}
-        });
-        setActive(best);
-      },100);
+        let best=0,bd=Infinity;
+        sl.forEach((s,i)=>{const d=Math.abs(s.offsetLeft+s.offsetWidth/2-cx);if(d<bd){bd=d;best=i;}});
+        setA(best);
+      },90);
     };
-    el.addEventListener("scroll",onScroll,{passive:true});
-    return()=>{el.removeEventListener("scroll",onScroll);clearTimeout(scrollTimer.current);};
+    el.addEventListener('scroll',fn,{passive:true});
+    return()=>{el.removeEventListener('scroll',fn);clearTimeout(tmr.current);};
   },[]);
 
-  return h("section",{id:"bebidas",style:{padding:"72px 0 0",background:"linear-gradient(180deg,#080d0a,#0f1a12 55%,#0a1008)",textAlign:"center",position:"relative"}},
-
-    // bolhas em div isolado com overflow:hidden para não vazar
-    h("div",{style:{position:"absolute",inset:0,overflow:"hidden",pointerEvents:"none",zIndex:0}},
-      ...[...Array(10)].map((_,i)=>
-        h("div",{key:i,style:{position:"absolute",bottom:-20,left:(4+i*9)+"%",width:8+i*4,height:8+i*4,borderRadius:"50%",background:"rgba(255,255,255,0.07)",animation:`riseUp ${5+i*1.3}s ${i*.8}s linear infinite`}})
-      )
+  return h('section',{id:'bebidas',style:{padding:'100px 0 0',background:'linear-gradient(180deg,#050d08 0%,#0a1a0d 55%,#070e08 100%)',textAlign:'center',position:'relative'}},
+    // bubbles
+    h('div',{style:{position:'absolute',inset:0,overflow:'hidden',pointerEvents:'none'}},
+      ...[...Array(12)].map((_,i)=>h('div',{key:i,style:{position:'absolute',bottom:-30,left:(2+i*8)+'%',width:5+i*3,height:5+i*3,borderRadius:'50%',background:'rgba(255,255,255,.06)',animation:`riseUp ${6+i*1.1}s ${i*.65}s linear infinite`}}))
     ),
-
-    // título
-    h("div",{style:{padding:"0 20px",marginBottom:32,position:"relative",zIndex:2}},
-      h("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:10,justifyContent:"center"}},
-        h("div",{style:{width:22,height:1,background:c.orange}}),
-        h("span",{style:{fontSize:10,letterSpacing:"0.18em",textTransform:"uppercase",color:c.orangeL,fontFamily:"sans-serif"}},"Para acompanhar"),
-        h("div",{style:{width:22,height:1,background:c.orange}})
-      ),
-      h("h2",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(24px,5vw,38px)",fontWeight:900,color:"#f0e6d3",lineHeight:1.1}},
-        "Nossas ",h("em",{style:{color:c.orange}},"bebidas")
-      )
+    h(Rv,{style:{padding:'0 24px',marginBottom:44,position:'relative',zIndex:2}},
+      h(SH,{label:'Refresque-se',title:'Nossas',accent:'bebidas',c,center:true})
     ),
-
-    // o slider em si
-    h("div",{
-      ref:slRef,
-      className:"no-scroll",
-      style:{
-        display:"flex",
-        gap:20,
-        overflowX:"auto",
-        scrollSnapType:"x mandatory",
-        // padding lateral para centralizar o primeiro e último card
-        paddingLeft:"calc(50% - 140px)",
-        paddingRight:"calc(50% - 140px)",
-        paddingTop:10,
-        paddingBottom:10,
-        alignItems:"center",
-        WebkitOverflowScrolling:"touch",
-        position:"relative",
-        zIndex:1,
-      }
-    },
+    // slider
+    h('div',{ref,className:'ns',style:{display:'flex',gap:22,overflowX:'auto',scrollSnapType:'x mandatory',paddingLeft:'calc(50% - 148px)',paddingRight:'calc(50% - 148px)',paddingTop:12,paddingBottom:12,alignItems:'center',WebkitOverflowScrolling:'touch',position:'relative',zIndex:1}},
       ...DRINKS.map((dr,i)=>{
-        const on=active===i;
-        return h("div",{
-          key:i,
-          "data-slide":i,
-          onClick:()=>goTo(i),
-          style:{
-            flexShrink:0,
-            width:280,
-            height:440,
-            // glassmorphism: inativo = vidro escuro, ativo = gradiente da bebida
-            background:on?dr.bg:"rgba(255,255,255,0.04)",
-            backdropFilter:"blur(20px)",
-            WebkitBackdropFilter:"blur(20px)",
-            border:on?"1.5px solid rgba(255,255,255,0.45)":"1px solid rgba(255,255,255,0.09)",
-            borderRadius:36,
-            padding:"28px 22px 24px",
-            scrollSnapAlign:"center",
-            // transição suave sem re-renderização
-            transition:"opacity .45s ease, transform .45s ease, background .45s ease, border-color .45s ease, box-shadow .45s ease",
-            opacity:on?1:0.38,
-            transform:on?"scale(1.05)":"scale(0.84)",
-            display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"space-between",
-            boxShadow:on?"0 24px 56px rgba(0,0,0,0.55),0 0 40px rgba(255,255,255,0.06)":"none",
-            cursor:"pointer",
-            position:"relative",
-            color:"#fff",
-            userSelect:"none",
-          }
-        },
-          // badge topo direito
-          h("div",{style:{position:"absolute",top:16,right:16,fontSize:9,fontWeight:700,padding:"4px 10px",borderRadius:20,background:"rgba(255,255,255,0.2)",backdropFilter:"blur(6px)",letterSpacing:"0.5px",fontFamily:"sans-serif"}},dr.badge),
-
-          // emoji flutuante no ativo
-          h("div",{style:{fontSize:68,lineHeight:1,transition:"transform .45s ease",transform:on?"translateY(-10px) rotate(6deg)":"translateY(0) rotate(0)"}},dr.emoji),
-
-          // textos
-          h("div",{style:{textAlign:"center",width:"100%"}},
-            h("div",{style:{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,marginBottom:6,lineHeight:1.2}},dr.name),
-            h("div",{style:{fontSize:11,opacity:.82,lineHeight:1.55,marginBottom:8,fontFamily:"sans-serif"}},dr.desc),
-            h("div",{style:{fontSize:10,fontFamily:"sans-serif",marginBottom:8,opacity:on?.7:0,transition:"opacity .4s ease"}},"🔥 "+dr.kcal),
-            h("div",{style:{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700}},"R$ "+dr.price)
+        const on=a===i;
+        return h('div',{key:i,'data-s':i,onClick:()=>go(i),style:{flexShrink:0,width:292,height:460,background:on?dr.bg:'rgba(255,255,255,.03)',backdropFilter:'blur(24px)',WebkitBackdropFilter:'blur(24px)',border:on?'1.5px solid rgba(255,255,255,.42)':'1px solid rgba(255,255,255,.07)',borderRadius:40,padding:'32px 24px 28px',scrollSnapAlign:'center',transition:'all .55s cubic-bezier(.22,1,.36,1)',opacity:on?1:.32,transform:on?'scale(1.05)':'scale(.82)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'space-between',boxShadow:on?'0 36px 72px rgba(0,0,0,.65),0 0 60px rgba(255,255,255,.04)':'none',cursor:'pointer',position:'relative',color:'#fff',userSelect:'none'}},
+          h('div',{style:{position:'absolute',top:18,right:18,fontSize:9,fontWeight:700,padding:'4px 12px',borderRadius:20,background:'rgba(255,255,255,.18)',backdropFilter:'blur(8px)',letterSpacing:'.05em',fontFamily:'Inter,sans-serif'}},dr.badge),
+          h('div',{style:{fontSize:74,lineHeight:1,transition:'transform .55s cubic-bezier(.22,1,.36,1)',transform:on?'translateY(-14px) rotate(9deg) scale(1.12)':'none'}},dr.e),
+          h('div',{style:{textAlign:'center',width:'100%'}},
+            h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:20,fontWeight:700,marginBottom:7,lineHeight:1.2}},dr.name),
+            h('div',{style:{fontSize:11,opacity:.78,lineHeight:1.65,marginBottom:9,fontFamily:'Inter,sans-serif',fontWeight:300}},dr.desc),
+            h('div',{style:{fontSize:10,fontFamily:'Inter,sans-serif',marginBottom:9,opacity:on?.72:0,transition:'opacity .4s',letterSpacing:'.04em'}},'🔥 '+dr.kcal+' · ⏱ '+dr.time),
+            h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:28,fontWeight:900,letterSpacing:'-1px'}},'R$ '+dr.price)
           ),
-
-          // botão — só visível e clicável no ativo
-          h("a",{
-            href:iurl("bebida+"+dr.name.replace(/\s+/g,"+")),
-            target:"_blank",rel:"noreferrer",
-            onClick:e=>e.stopPropagation(),
-            style:{
-              background:c.orange,color:"#fff",
-              padding:"10px 24px",borderRadius:100,
-              fontSize:11,fontWeight:700,
-              textDecoration:"none",fontFamily:"sans-serif",
-              whiteSpace:"nowrap",
-              opacity:on?1:0,
-              transform:on?"translateY(0)":"translateY(8px)",
-              transition:"opacity .4s ease,transform .4s ease",
-              pointerEvents:on?"auto":"none",
-            }
-          },"Pedir no iFood →")
+          h('a',{href:iurl('bebida+'+dr.name.replace(/\s+/g,'+')),target:'_blank',rel:'noreferrer',onClick:e=>e.stopPropagation(),style:{background:on?'linear-gradient(135deg,#E8520A,#C9A84C)':'transparent',color:'#fff',padding:'11px 28px',borderRadius:100,fontSize:12,fontWeight:700,textDecoration:'none',fontFamily:'Inter,sans-serif',whiteSpace:'nowrap',opacity:on?1:0,transform:on?'translateY(0)':'translateY(10px)',transition:'opacity .4s,transform .4s',pointerEvents:on?'auto':'none',letterSpacing:'.05em'}},'Pedir no iFood →')
         );
       })
     ),
-
-    // dots — pill no ativo
-    h("div",{style:{display:"flex",justifyContent:"center",gap:8,padding:"20px 0 28px",position:"relative",zIndex:2}},
-      ...DRINKS.map((_,i)=>
-        h("button",{key:i,onClick:()=>goTo(i),style:{
-          width:active===i?24:8,height:8,
-          borderRadius:100,
-          background:active===i?"#fff":"rgba(255,255,255,0.28)",
-          border:"none",cursor:"pointer",
-          transition:"width .35s ease,background .35s ease",
-          padding:0,flexShrink:0,
-        }})
-      )
+    // dots
+    h('div',{style:{display:'flex',justifyContent:'center',gap:8,padding:'24px 0 34px',position:'relative',zIndex:2}},
+      ...DRINKS.map((_,i)=>h('button',{key:i,onClick:()=>go(i),style:{width:a===i?28:7,height:7,borderRadius:100,background:a===i?'#fff':'rgba(255,255,255,.22)',border:'none',cursor:'pointer',transition:'all .4s',padding:0,flexShrink:0}}))
     ),
-
-    // onda SVG de transição
-    h("div",{style:{lineHeight:0,position:"relative",zIndex:1}},
-      h("svg",{viewBox:"0 0 1440 60",xmlns:"http://www.w3.org/2000/svg",preserveAspectRatio:"none",style:{display:"block",width:"100%",height:60}},
-        h("path",{d:"M0,30 C360,60 720,0 1080,30 C1260,45 1380,20 1440,30 L1440,60 L0,60 Z",fill:c.bg})
+    // wave
+    h('div',{style:{lineHeight:0,position:'relative',zIndex:1}},
+      h('svg',{viewBox:'0 0 1440 72',preserveAspectRatio:'none',style:{display:'block',width:'100%',height:72}},
+        h('path',{d:'M0,36 C240,72 480,0 720,36 C960,72 1200,0 1440,36 L1440,72 L0,72 Z',fill:c.bg})
       )
     )
   );
 }
 
-// ── Reveal ao scroll ─────────────────────────────────────────────────────────
-function Reveal({children,delay=0,style={}}){
-  const ref=useRef(null);
-  const [vis,setVis]=useState(false);
-  useEffect(()=>{
-    const el=ref.current; if(!el)return;
-    const obs=new IntersectionObserver(([e])=>{
-      if(e.isIntersecting){setVis(true);obs.unobserve(el);}
-    },{threshold:0.08});
-    obs.observe(el);
-    return()=>obs.disconnect();
-  },[]);
-  return h("div",{ref,style:{opacity:vis?1:0,transform:vis?"translateY(0)":"translateY(32px)",transition:`opacity .7s ${delay}s ease,transform .7s ${delay}s ease`,...style}},children);
-}
-
-function SecLabel({text,c,center=false}){
-  return h("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:8,justifyContent:center?"center":"flex-start"}},
-    h("div",{style:{width:22,height:1,background:c.orange}}),
-    h("span",{style:{fontSize:10,letterSpacing:"0.18em",textTransform:"uppercase",color:c.orangeL,fontFamily:"sans-serif"}},text),
-    center&&h("div",{style:{width:22,height:1,background:c.orange}})
-  );
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// APP PRINCIPAL — estado mínimo aqui, sem timers que causem re-render global
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+/* ════════════════════════════════════════════════════════════
+   APP
+════════════════════════════════════════════════════════════ */
 function App(){
-  const [dark,   setDark]   =useState(true);
-  const [scrolld,setScrolld]=useState(false);
-  const [showTop,setShowTop]=useState(false);
-  const [filter, setFilter] =useState("Todos");
-  const [favs,   setFavs]   =useState({});
-  const [banner, setBanner] =useState(true);
-  const [sound,  setSound]  =useState(false);
+  const [rdy,  setRdy]  =useState(false);
+  const [dark, setDark] =useState(true);
+  const [sc,   setSc]   =useState(false);
+  const [top,  setTop]  =useState(false);
+  const [filt, setFilt] =useState('Todos');
+  const [favs, setFavs] =useState({});
+  const [bnr,  setBnr]  =useState(true);
+  const [tIdx, setTIdx] =useState(0);
 
   const open=storeOpen();
   const c=pal(dark);
-  const todayIdx=new Date().getDay()===0?6:new Date().getDay()-1;
-  const filtered=filter==="Todos"?DISHES:DISHES.filter(d=>d.tag===filter);
+  const todayI=new Date().getDay()===0?6:new Date().getDay()-1;
+  const dishes=filt==='Todos'?DISHES:DISHES.filter(d=>d.tag===filt);
 
+  // scroll listener
   useEffect(()=>{
-    const fn=()=>{setScrolld(window.scrollY>50);setShowTop(window.scrollY>300);};
-    window.addEventListener("scroll",fn,{passive:true});
-    return()=>window.removeEventListener("scroll",fn);
+    const fn=()=>{setSc(window.scrollY>55);setTop(window.scrollY>380);};
+    window.addEventListener('scroll',fn,{passive:true});
+    return()=>window.removeEventListener('scroll',fn);
   },[]);
 
-  const hov=(el,on)=>{
-    el.style.transform=on?"translateY(-7px)":"translateY(0)";
-    el.style.borderColor=on?"rgba(255,77,0,0.22)":c.border;
-    el.style.boxShadow=on?"0 20px 48px rgba(0,0,0,0.35)":"none";
+  // testimonial rotation (isolated timer, still causes App re-render but testimonials are cheap)
+  useEffect(()=>{
+    const id=setInterval(()=>setTIdx(t=>(t+1)%TESTIMONIALS.length),5500);
+    return()=>clearInterval(id);
+  },[]);
+
+  // boot cursor & progress after load
+  useEffect(()=>{
+    if(rdy){const c1=bootCursor();const c2=bootProgress();return()=>{c1&&c1();c2&&c2();};}
+  },[rdy]);
+
+  if(!rdy) return h(Loader,{onDone:()=>{
+    document.getElementById('ldr').classList.add('out');
+    setTimeout(()=>setRdy(true),900);
+  }});
+
+  /* ── helpers ── */
+  const hov3d=(el,e)=>applyTilt(el,e);
+  const rst3d=el=>resetTilt(el);
+  const btn=(el,on)=>{
+    el.style.transform=on?'translateY(-7px)':'translateY(0)';
+    el.style.borderColor=on?c.bHov:c.border;
+    el.style.boxShadow=on?`0 28px 56px ${c.sh}`:'none';
   };
 
   return h(Fragment,null,
-    // folhas em componente próprio — não re-renderiza o App
-    h(LeavesLayer),
+    h(Leaves),
 
-    h("div",{style:{background:c.bg,minHeight:"100vh",fontFamily:"Georgia,serif",color:c.text,overflowX:"hidden",transition:"background .5s,color .5s"}},
+    h('div',{style:{background:c.bg,fontFamily:"'Inter',sans-serif",color:c.text,overflowX:'hidden',transition:'background .6s,color .6s'}},
 
-      // ── BANNER ──
-      banner&&h("div",{style:{background:"linear-gradient(90deg,#b5451b,#ff4d00,#e8925a,#ff4d00,#b5451b)",backgroundSize:"300% 100%",animation:"bannerSlide 5s linear infinite",color:"#fff",padding:"8px 44px 8px 16px",fontSize:12,fontWeight:700,fontFamily:"sans-serif",textAlign:"center",position:"relative"}},
-        "🎉 Primeira entrega com ",
-        h("span",{style:{background:"rgba(255,255,255,0.25)",padding:"2px 8px",borderRadius:100}},"30% OFF"),
-        " no iFood · Válido para novos usuários!",
-        h("button",{onClick:()=>setBanner(false),style:{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#fff",cursor:"pointer",fontSize:18}},"×")
+/* ════ PROMO BANNER ════ */
+      bnr&&h('div',{style:{background:'linear-gradient(90deg,#6a1a00,#E8520A,#C9A84C,#E8520A,#6a1a00)',backgroundSize:'300% 100%',animation:'bannerFlow 7s linear infinite',color:'#fff',padding:'10px 52px 10px 20px',fontSize:11,fontWeight:600,fontFamily:'Inter,sans-serif',textAlign:'center',position:'relative',letterSpacing:'.06em'}},
+        '🎉 Primeira entrega com ',h('span',{style:{background:'rgba(255,255,255,.22)',padding:'2px 11px',borderRadius:100,fontWeight:800}},'30% OFF'),' — Só para novos usuários do iFood!',
+        h('button',{onClick:()=>setBnr(false),style:{position:'absolute',right:14,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',color:'rgba(255,255,255,.75)',cursor:'pointer',fontSize:20,lineHeight:1}},'×')
       ),
 
-      // ── NAV ──
-      h("nav",{style:{position:"sticky",top:0,zIndex:200,background:c.navBg,backdropFilter:"blur(16px)",borderBottom:`1px solid ${c.border}`,padding:scrolld?"11px 20px":"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,transition:"padding .3s,box-shadow .3s",boxShadow:scrolld?"0 4px 20px rgba(0,0,0,0.3)":"none"}},
-        h("a",{href:"#",style:{fontFamily:"Georgia,serif",fontSize:scrolld?18:22,fontWeight:700,color:c.cream,textDecoration:"none",transition:"font-size .3s",flexShrink:0}},
-          "Sabo",h("span",{style:{color:c.orange}},"res")
+/* ════ NAV ════ */
+      h('nav',{style:{position:'sticky',top:0,zIndex:500,background:c.nav,backdropFilter:'blur(28px)',WebkitBackdropFilter:'blur(28px)',borderBottom:`1px solid ${c.border}`,padding:sc?'10px 28px':'18px 28px',display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,transition:'padding .4s cubic-bezier(.22,1,.36,1),box-shadow .4s',boxShadow:sc?'0 8px 40px rgba(0,0,0,.38)':'none'}},
+        h('a',{href:'#',style:{fontFamily:"'Playfair Display',serif",fontSize:sc?21:28,fontWeight:900,color:c.cream,textDecoration:'none',transition:'font-size .35s',flexShrink:0,letterSpacing:'-1px'}},
+          'Sabo',h('span',{style:{color:c.orange,fontStyle:'italic'}},'res')
         ),
-        h("div",{style:{display:"flex",alignItems:"center",gap:6,background:"rgba(0,0,0,0.15)",padding:"4px 10px",borderRadius:20,flexShrink:0}},
-          h("div",{style:{width:7,height:7,borderRadius:"50%",background:open?"#2ecc71":"#e74c3c",boxShadow:open?"0 0 7px #2ecc71":"none",animation:open?"pulseDot 2s infinite":"none"}}),
-          h("span",{style:{fontSize:10,fontWeight:700,color:open?"#2ecc71":"#e74c3c",fontFamily:"sans-serif",whiteSpace:"nowrap"}},open?"Aberto agora":"Fechado")
+        h('div',{style:{display:'flex',alignItems:'center',gap:7,padding:'5px 13px',borderRadius:100,background:'rgba(255,255,255,.05)',border:`1px solid ${c.border}`,flexShrink:0}},
+          h('span',{style:{width:7,height:7,borderRadius:'50%',background:open?'#2ecc71':'#e74c3c',boxShadow:open?'0 0 9px #2ecc71':'none',animation:open?'pulse 2s infinite':'none',display:'inline-block'}}),
+          h('span',{style:{fontSize:10,fontWeight:600,color:open?'#2ecc71':'#e74c3c',fontFamily:'Inter,sans-serif',whiteSpace:'nowrap',letterSpacing:'.06em'}},open?'Aberto agora':'Fechado hoje')
         ),
-        h("div",{style:{display:"flex",gap:8,alignItems:"center",marginLeft:"auto"}},
-          h("button",{onClick:()=>setSound(s=>!s),style:{background:"none",border:"none",cursor:"pointer",fontSize:16,color:sound?"#2ecc71":c.muted,filter:sound?"drop-shadow(0 0 5px #2ecc71)":"none",transition:"all .3s"}},sound?"🔊":"🔇"),
-          h("button",{onClick:()=>setDark(d=>!d),style:{background:"none",border:"none",cursor:"pointer",fontSize:16,color:c.gold}},dark?"☀️":"🌙"),
-          h("a",{href:"https://www.ifood.com.br",target:"_blank",rel:"noreferrer",style:{background:c.orange,color:"#fff",padding:"9px 16px",borderRadius:100,fontSize:12,fontWeight:700,textDecoration:"none",display:"flex",alignItems:"center",gap:5,animation:"bounce 3s ease-in-out infinite",fontFamily:"sans-serif",whiteSpace:"nowrap"}},"🛵 iFood")
-        )
-      ),
-
-      // ── HERO ──
-      h("section",{style:{padding:"60px 20px 68px",textAlign:"center",background:"radial-gradient(ellipse 80% 50% at 50% 0%,rgba(255,77,0,0.1) 0%,transparent 70%)"}},
-        h("div",{style:{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(255,77,0,0.1)",border:"1px solid rgba(255,77,0,0.25)",color:c.orangeL,fontSize:10,letterSpacing:"0.15em",textTransform:"uppercase",padding:"7px 14px",borderRadius:100,marginBottom:28,fontFamily:"sans-serif"}},
-          h("span",{style:{width:6,height:6,background:c.orange,borderRadius:"50%",display:"inline-block",animation:"pulseDot 2s infinite"}}),
-          "Entrega em até 30 minutos"
-        ),
-        // TypingText em componente isolado — não re-renderiza o App a cada letra
-        h(TypingText,{orange:c.orange}),
-        h("p",{style:{fontSize:14,lineHeight:1.7,color:c.muted,maxWidth:440,margin:"0 auto 32px",fontFamily:"sans-serif",fontWeight:300}},
-          "Descubra os melhores sabores da cidade. Escolha o que te encanta e pedimos pelo iFood."
-        ),
-        h("div",{style:{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap"}},
-          h("a",{href:"#pratos",style:{background:c.orange,color:"#fff",padding:"13px 28px",borderRadius:100,fontSize:14,fontWeight:700,textDecoration:"none",fontFamily:"sans-serif"}},"🍽 Explorar Pratos"),
-          h("a",{href:"#categorias",style:{color:c.muted,padding:"13px 20px",borderRadius:100,fontSize:13,textDecoration:"none",border:`1px solid ${c.border}`,fontFamily:"sans-serif"}},"Ver Categorias →")
-        ),
-        h("div",{style:{marginTop:44,display:"flex",justifyContent:"center",gap:12,flexWrap:"wrap"}},
-          ...["🍕","🍔","🍱","🥩","🍝"].map((e,i)=>
-            h("div",{key:i,style:{width:56,height:56,background:c.card,border:`1px solid ${c.border}`,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,animation:`bounce ${3+i*.4}s ease-in-out infinite`}},e)
+        h('div',{style:{display:'flex',gap:8,alignItems:'center',marginLeft:'auto'}},
+          h('button',{'data-h':1,onClick:()=>setDark(d=>!d),style:{background:'none',border:`1px solid ${c.border}`,borderRadius:'50%',cursor:'pointer',width:38,height:38,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,color:c.gold,transition:'all .3s',flexShrink:0}},dark?'☀️':'🌙'),
+          h('a',{'data-h':1,href:'https://www.ifood.com.br',target:'_blank',rel:'noreferrer',style:{background:`linear-gradient(135deg,${c.orange},${c.orangeD})`,color:'#fff',padding:'10px 22px',borderRadius:100,fontSize:12,fontWeight:700,textDecoration:'none',display:'flex',alignItems:'center',gap:7,fontFamily:'Inter,sans-serif',whiteSpace:'nowrap',letterSpacing:'.05em',boxShadow:'0 4px 24px rgba(232,82,10,.38)',transition:'box-shadow .3s,transform .25s',flexShrink:0},
+            onMouseEnter:e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 10px 40px rgba(232,82,10,.55)';},
+            onMouseLeave:e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 4px 24px rgba(232,82,10,.38)';}},
+            '🛵 Pedir no iFood'
           )
         )
       ),
 
-      // ── CATEGORIAS ──
-      h("section",{id:"categorias",style:{padding:"56px 20px",background:c.bg2}},
-        h(Reveal,null,
-          h(SecLabel,{text:"O que você quer hoje?",c}),
-          h("h2",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(24px,5vw,38px)",fontWeight:900,color:c.cream,marginBottom:28,lineHeight:1.1}},
-            "Escolha sua ",h("em",{style:{color:c.orange}},"categoria")
-          ),
-          h("div",{style:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(78px,1fr))",gap:10}},
-            ...CATS.map((cat,i)=>
-              h("a",{key:i,href:iurl(cat.q),target:"_blank",rel:"noreferrer",
-                style:{display:"flex",flexDirection:"column",alignItems:"center",gap:8,padding:"18px 8px",borderRadius:14,background:c.card,border:`1px solid ${c.border}`,textDecoration:"none",transition:"all .25s"},
-                onMouseEnter:e=>{e.currentTarget.style.background=c.card2;e.currentTarget.style.borderColor="rgba(255,77,0,0.22)";e.currentTarget.style.transform="translateY(-5px)";},
-                onMouseLeave:e=>{e.currentTarget.style.background=c.card;e.currentTarget.style.borderColor=c.border;e.currentTarget.style.transform="translateY(0)";}},
-                h("span",{style:{fontSize:28}},cat.emoji),
-                h("span",{style:{fontSize:10,color:c.muted,fontFamily:"sans-serif",textAlign:"center"}},cat.label)
-              )
-            )
-          )
-        )
-      ),
+/* ════ HERO ════ */
+      h('section',{className:'grain',style:{minHeight:'92vh',display:'flex',alignItems:'center',padding:'88px 28px 104px',position:'relative',overflow:'hidden',background:`radial-gradient(ellipse 100% 80% at 65% 25%,rgba(232,82,10,.09) 0%,transparent 55%),radial-gradient(ellipse 60% 50% at 15% 85%,rgba(201,168,76,.055) 0%,transparent 50%),${c.bg}`}},
+        // grid lines
+        h('div',{style:{position:'absolute',inset:0,backgroundImage:`linear-gradient(${c.border} 1px,transparent 1px),linear-gradient(90deg,${c.border} 1px,transparent 1px)`,backgroundSize:'64px 64px',opacity:.45,pointerEvents:'none',zIndex:1}}),
+        // orbs
+        h('div',{style:{position:'absolute',top:'8%',right:'4%',width:440,height:440,borderRadius:'50%',background:'radial-gradient(circle,rgba(232,82,10,.08) 0%,transparent 65%)',animation:'orbDrift 13s ease-in-out infinite',pointerEvents:'none',zIndex:1}}),
+        h('div',{style:{position:'absolute',bottom:'12%',left:'-2%',width:300,height:300,borderRadius:'50%',background:'radial-gradient(circle,rgba(201,168,76,.065) 0%,transparent 65%)',animation:'orbDrift 18s ease-in-out infinite reverse',pointerEvents:'none',zIndex:1}}),
 
-      // ── PRATOS ──
-      h("section",{id:"pratos",style:{padding:"56px 20px"}},
-        h(Reveal,null,
-          h(SecLabel,{text:"Seleção da casa",c}),
-          h("div",{style:{display:"flex",flexWrap:"wrap",justifyContent:"space-between",alignItems:"center",gap:14,marginBottom:28}},
-            h("h2",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(24px,5vw,38px)",fontWeight:900,color:c.cream,lineHeight:1.1}},
-              "Pratos em ",h("span",{style:{color:c.gold}},"destaque")
+        h('div',{style:{position:'relative',zIndex:2,maxWidth:1200,width:'100%',margin:'0 auto',display:'grid',gridTemplateColumns:'1fr auto',gap:48,alignItems:'center'},className:'hero-grid'},
+          h('div',{style:{maxWidth:720}},
+            h('div',{style:{display:'inline-flex',alignItems:'center',gap:9,background:'rgba(232,82,10,.1)',border:'1px solid rgba(232,82,10,.32)',padding:'8px 20px',borderRadius:100,marginBottom:36,animation:'fadeUp .8s .2s cubic-bezier(.22,1,.36,1) both'}},
+              h('span',{style:{width:6,height:6,background:c.orange,borderRadius:'50%',animation:'pulse 2s infinite',display:'inline-block'}}),
+              h('span',{style:{fontSize:11,letterSpacing:'.16em',textTransform:'uppercase',color:c.orangeL,fontFamily:'Inter,sans-serif',fontWeight:600}},'Curadoria gastronômica de elite')
             ),
-            h("div",{style:{display:"flex",gap:7,flexWrap:"wrap"}},
-              ...FILTERS.map(f=>
-                h("button",{key:f,onClick:()=>setFilter(f),
-                  style:{background:filter===f?c.orange:"transparent",color:filter===f?"#fff":c.muted,border:`1px solid ${filter===f?c.orange:c.border}`,padding:"7px 14px",borderRadius:100,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"sans-serif",transition:"all .25s",whiteSpace:"nowrap"}},f)
+            h('h1',{style:{fontFamily:"'Playfair Display',serif",fontSize:'clamp(44px,7.5vw,88px)',fontWeight:900,lineHeight:.95,color:c.cream,marginBottom:26,letterSpacing:'-3px',animation:'fadeUp .85s .35s cubic-bezier(.22,1,.36,1) both'}},
+              'Cada prato,',h('br'),h('span',{style:{display:'inline-block',marginTop:4}},h(TypeWriter,{color:c.orange}))
+            ),
+            h('p',{style:{fontSize:16,lineHeight:1.8,color:c.muted,maxWidth:540,marginBottom:44,fontFamily:'Inter,sans-serif',fontWeight:300,animation:'fadeUp .85s .5s cubic-bezier(.22,1,.36,1) both'}},
+              'Descubra experiências culinárias únicas curadas por especialistas. Do prato à sua porta, pelo iFood, em minutos.'
+            ),
+            h('div',{style:{display:'flex',gap:14,flexWrap:'wrap',animation:'fadeUp .85s .65s cubic-bezier(.22,1,.36,1) both'}},
+              h('a',{'data-h':1,href:'#pratos',style:{background:`linear-gradient(135deg,${c.orange},${c.orangeD})`,color:'#fff',padding:'16px 38px',borderRadius:100,fontSize:14,fontWeight:700,textDecoration:'none',fontFamily:'Inter,sans-serif',letterSpacing:'.05em',boxShadow:'0 8px 36px rgba(232,82,10,.45)',transition:'all .3s cubic-bezier(.22,1,.36,1)'},
+                onMouseEnter:e=>{e.currentTarget.style.transform='translateY(-3px) scale(1.03)';e.currentTarget.style.boxShadow='0 18px 52px rgba(232,82,10,.58)';},
+                onMouseLeave:e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 8px 36px rgba(232,82,10,.45)';}},
+                '🍽 Explorar Pratos'
+              ),
+              h('a',{'data-h':1,href:'#como',style:{color:c.muted,padding:'16px 28px',borderRadius:100,fontSize:13,textDecoration:'none',border:`1px solid ${c.border}`,fontFamily:'Inter,sans-serif',letterSpacing:'.05em',transition:'all .3s'},
+                onMouseEnter:e=>{e.currentTarget.style.borderColor=c.bHov;e.currentTarget.style.color=c.cream;e.currentTarget.style.background='rgba(232,82,10,.06)';},
+                onMouseLeave:e=>{e.currentTarget.style.borderColor=c.border;e.currentTarget.style.color=c.muted;e.currentTarget.style.background='transparent';}},
+                'Como funciona →'
               )
             )
           ),
-          h("div",{style:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(270px,1fr))",gap:20}},
-            ...filtered.map((d,i)=>
-              h("a",{key:d.name,href:iurl(d.q),target:"_blank",rel:"noreferrer",
-                style:{background:c.card,border:`1px solid ${c.border}`,borderRadius:20,overflow:"hidden",textDecoration:"none",display:"block",transition:"all .3s"},
-                onMouseEnter:e=>hov(e.currentTarget,true),
-                onMouseLeave:e=>hov(e.currentTarget,false)},
-                h("div",{style:{height:148,display:"flex",alignItems:"center",justifyContent:"center",fontSize:64,background:d.bg,position:"relative"}},
-                  d.emoji,
-                  h("div",{style:{position:"absolute",top:11,left:11,background:"rgba(13,10,7,0.85)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:100,padding:"3px 9px",fontSize:10,color:c.gold,fontFamily:"sans-serif",fontWeight:600}},d.badge),
-                  h("button",{onClick:ev=>{ev.preventDefault();ev.stopPropagation();setFavs(f=>({...f,[i]:!f[i]}));},
-                    style:{position:"absolute",top:9,right:11,width:32,height:32,background:"rgba(13,10,7,0.85)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:14,color:favs[i]?"#ff4d00":c.muted,transition:"color .2s"}},
-                    favs[i]?"♥":"♡"
+          h('div',{className:'hero-floats',style:{display:'flex',flexDirection:'column',gap:14,animation:'fadeUp .85s .8s cubic-bezier(.22,1,.36,1) both'}},
+            ...['🍕 +2.8k pedidos hoje','🍔 Wagyu Smash — chegou!','⭐ 4.9 · Melhor da cidade','🛵 18 min tempo médio'].map((t,i)=>
+              h('div',{key:i,style:{background:'rgba(255,255,255,.05)',backdropFilter:'blur(18px)',border:`1px solid ${c.border}`,borderRadius:14,padding:'13px 20px',fontSize:12,color:c.text,fontFamily:'Inter,sans-serif',whiteSpace:'nowrap',animation:`floatY ${3+i*.6}s ease-in-out infinite`,animationDelay:i*.35+'s',letterSpacing:'.02em'}},t)
+            )
+          )
+        )
+      ),
+
+/* ════ STATS ════ */
+      h('section',{style:{padding:'72px 28px',borderTop:`1px solid ${c.div}`,background:c.bg2}},
+        h('div',{className:'stats-grid',style:{display:'grid',gridTemplateColumns:'repeat(4,1fr)',maxWidth:1000,margin:'0 auto'}},
+          ...STATS.map((s,i)=>h(Rv,{key:i,delay:i*.07,style:{padding:'0 36px',textAlign:'center',borderRight:i<3?`1px solid ${c.div}`:'none'}},
+            h('div',{style:{fontSize:34,marginBottom:10}},s.i),
+            h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:'clamp(38px,5vw,60px)',fontWeight:900,color:c.cream,lineHeight:1,marginBottom:8,letterSpacing:'-3px'}},
+              h(Counter,{target:s.v,suffix:s.s})
+            ),
+            h('div',{style:{fontSize:11,color:c.muted,fontFamily:'Inter,sans-serif',letterSpacing:'.12em',textTransform:'uppercase',fontWeight:500}},s.l)
+          ))
+        )
+      ),
+
+/* ════ COMO FUNCIONA ════ */
+      h('section',{id:'como',style:{padding:'96px 28px',background:c.bg,borderTop:`1px solid ${c.div}`}},
+        h('div',{style:{maxWidth:1100,margin:'0 auto'}},
+          h(Rv,null,h(SH,{label:'Simples assim',title:'Como',accent:'funciona',c})),
+          h('div',{className:'how-grid',style:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:24}},
+            ...HOW.map((hw,i)=>h(Rv,{key:i,delay:i*.1},
+              h('div',{style:{background:c.card,border:`1px solid ${c.border}`,borderRadius:24,padding:'40px 36px',position:'relative',overflow:'hidden',transition:'all .4s cubic-bezier(.22,1,.36,1)'},
+                onMouseEnter:e=>{e.currentTarget.style.borderColor=c.bHov;e.currentTarget.style.transform='translateY(-6px)';e.currentTarget.style.boxShadow=`0 28px 56px ${c.sh}`;},
+                onMouseLeave:e=>{e.currentTarget.style.borderColor=c.border;e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='none';}},
+                h('div',{style:{position:'absolute',top:20,right:24,fontFamily:"'Playfair Display',serif",fontSize:56,fontWeight:900,color:c.orange,opacity:.07,lineHeight:1,letterSpacing:'-3px'}},hw.n),
+                h('div',{style:{fontSize:40,marginBottom:20}},hw.icon),
+                h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:24,fontWeight:700,color:c.cream,marginBottom:12,letterSpacing:'-.5px'}},hw.title),
+                h('div',{style:{fontSize:14,color:c.muted,lineHeight:1.75,fontFamily:'Inter,sans-serif',fontWeight:300}},hw.desc),
+                i<HOW.length-1&&h('div',{style:{position:'absolute',right:-14,top:'50%',transform:'translateY(-50%)',width:28,height:28,borderRadius:'50%',background:c.orange,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:12,zIndex:2,boxShadow:`0 4px 16px rgba(232,82,10,.4)`}},'→')
+              )
+            ))
+          )
+        )
+      ),
+
+/* ════ CATEGORIAS ════ */
+      h('section',{id:'categorias',style:{padding:'96px 28px',background:c.bg2,borderTop:`1px solid ${c.div}`}},
+        h('div',{style:{maxWidth:1200,margin:'0 auto'}},
+          h(Rv,null,h(SH,{label:'Culinária mundial',title:'Explore por',accent:'categoria',c})),
+          h('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(90px,1fr))',gap:12}},
+            ...CATS.map((cat,i)=>h(Rv,{key:i,delay:i*.025},
+              h('a',{'data-h':1,href:iurl(cat.q),target:'_blank',rel:'noreferrer',style:{display:'flex',flexDirection:'column',alignItems:'center',gap:10,padding:'24px 10px',borderRadius:18,background:c.card,border:`1px solid ${c.border}`,textDecoration:'none',transition:'all .38s cubic-bezier(.22,1,.36,1)',position:'relative',overflow:'hidden'},
+                onMouseEnter:e=>{e.currentTarget.style.background=c.card2;e.currentTarget.style.borderColor=c.bHov;e.currentTarget.style.transform='translateY(-7px) scale(1.05)';e.currentTarget.style.boxShadow=`0 20px 40px ${c.sh}`;},
+                onMouseLeave:e=>{e.currentTarget.style.background=c.card;e.currentTarget.style.borderColor=c.border;e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='none';}},
+                h('span',{style:{fontSize:32}},cat.e),
+                h('span',{style:{fontSize:10,color:c.muted,fontFamily:'Inter,sans-serif',textAlign:'center',fontWeight:500,letterSpacing:'.03em'}},cat.l)
+              )
+            ))
+          )
+        )
+      ),
+
+/* ════ PRATOS ════ */
+      h('section',{id:'pratos',style:{padding:'96px 28px',background:c.bg}},
+        h('div',{style:{maxWidth:1200,margin:'0 auto'}},
+          h(Rv,null,
+            h('div',{style:{display:'flex',flexWrap:'wrap',alignItems:'flex-end',justifyContent:'space-between',gap:20,marginBottom:52}},
+              h(SH,{label:'Curadoria especial',title:'Pratos em',accent:'destaque',c}),
+              h('div',{style:{display:'flex',gap:8,flexWrap:'wrap'}},
+                ...FILTERS.map(f=>h('button',{'data-h':1,key:f,onClick:()=>setFilt(f),style:{background:filt===f?`linear-gradient(135deg,${c.orange},${c.orangeD})`:'transparent',color:filt===f?'#fff':c.muted,border:`1px solid ${filt===f?c.orange:c.border}`,padding:'8px 20px',borderRadius:100,fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:'Inter,sans-serif',transition:'all .28s',whiteSpace:'nowrap',letterSpacing:'.05em',boxShadow:filt===f?'0 4px 18px rgba(232,82,10,.32)':'none'}},f))
+              )
+            )
+          ),
+          h('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:22}},
+            ...dishes.map((d,i)=>h(Rv,{key:d.name,delay:i*.055},
+              h('a',{'data-h':1,href:iurl(d.q),target:'_blank',rel:'noreferrer',className:'tilt',style:{background:c.card,border:`1px solid ${c.border}`,borderRadius:24,overflow:'hidden',textDecoration:'none',display:'block',position:'relative',transformStyle:'preserve-3d'},
+                onMouseMove:e=>hov3d(e.currentTarget,e),
+                onMouseLeave:e=>{rst3d(e.currentTarget);e.currentTarget.style.borderColor=c.border;},
+                onMouseEnter:e=>{e.currentTarget.style.borderColor=c.bHov;}},
+                // image
+                h('div',{style:{height:190,display:'flex',alignItems:'center',justifyContent:'center',fontSize:76,background:d.bg,position:'relative',overflow:'hidden'}},
+                  h('div',{style:{position:'absolute',inset:0,background:'radial-gradient(circle at 50% 60%,rgba(255,255,255,.04),transparent 65%)'}}),
+                  h('div',{style:{zIndex:1,filter:'drop-shadow(0 12px 24px rgba(0,0,0,.5))',transition:'transform .4s',transform:'translateZ(20px)'}},d.e),
+                  h('div',{style:{position:'absolute',top:13,left:13,background:'rgba(8,6,3,.88)',backdropFilter:'blur(8px)',border:'1px solid rgba(255,255,255,.1)',borderRadius:100,padding:'4px 13px',fontSize:10,color:c.gold,fontFamily:'Inter,sans-serif',fontWeight:600,zIndex:2}},d.badge),
+                  h('button',{onClick:ev=>{ev.preventDefault();ev.stopPropagation();setFavs(f=>({...f,[i]:!f[i]}));},style:{position:'absolute',top:11,right:12,width:34,height:34,background:'rgba(8,6,3,.88)',backdropFilter:'blur(8px)',border:'1px solid rgba(255,255,255,.1)',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:15,color:favs[i]?c.orange:c.muted,transition:'color .2s,transform .2s',zIndex:2},
+                    onMouseEnter:e=>{e.currentTarget.style.transform='scale(1.25)';},
+                    onMouseLeave:e=>{e.currentTarget.style.transform='scale(1)';}},
+                    favs[i]?'♥':'♡'
                   )
                 ),
-                h("div",{style:{padding:"15px 18px 18px"}},
-                  h("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:5}},
-                    h("span",{style:{fontSize:9,color:c.muted,textTransform:"uppercase",letterSpacing:"0.08em",fontFamily:"sans-serif"}},d.from),
-                    h("span",{style:{fontSize:10,color:c.gold,fontWeight:600,fontFamily:"sans-serif"}},"⭐ "+d.stars)
+                // body
+                h('div',{style:{padding:'20px 22px 24px'}},
+                  h('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:9}},
+                    h('span',{style:{fontSize:10,color:c.muted,textTransform:'uppercase',letterSpacing:'.12em',fontFamily:'Inter,sans-serif',fontWeight:500}},d.from),
+                    h('div',{style:{display:'flex',alignItems:'center',gap:6}},
+                      h('span',{style:{fontSize:11,color:c.gold,fontWeight:700,fontFamily:'Inter,sans-serif'}},d.stars+' ⭐'),
+                      h('span',{style:{fontSize:9,color:c.muted,fontFamily:'Inter,sans-serif'}},'('+d.reviews.toLocaleString('pt-BR')+')')
+                    )
                   ),
-                  h("div",{style:{fontFamily:"Georgia,serif",fontSize:17,fontWeight:700,color:c.cream,marginBottom:5,lineHeight:1.2}},d.name),
-                  h("div",{style:{fontSize:11,color:c.muted,lineHeight:1.55,marginBottom:14,fontFamily:"sans-serif",fontWeight:300}},d.desc),
-                  h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}},
-                    h("div",null,
-                      h("div",{style:{fontSize:9,color:c.muted,textTransform:"uppercase",letterSpacing:"0.1em",fontFamily:"sans-serif"}},"A partir de"),
-                      h("div",{style:{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:c.cream}},h("sup",{style:{fontSize:11,fontFamily:"sans-serif",fontWeight:400}},"R$"),d.price)
+                  h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:20,fontWeight:700,color:c.cream,marginBottom:9,lineHeight:1.18,letterSpacing:'-.4px'}},d.name),
+                  h('div',{style:{fontSize:12,color:c.muted,lineHeight:1.7,marginBottom:20,fontFamily:'Inter,sans-serif',fontWeight:300}},d.desc),
+                  h('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',paddingTop:16,borderTop:`1px solid ${c.div}`}},
+                    h('div',null,
+                      h('div',{style:{fontSize:9,color:c.muted,textTransform:'uppercase',letterSpacing:'.14em',fontFamily:'Inter,sans-serif',marginBottom:3}},'A partir de'),
+                      h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:28,fontWeight:900,color:c.cream,letterSpacing:'-1px',lineHeight:1}},
+                        h('sup',{style:{fontSize:13,fontFamily:'Inter,sans-serif',fontWeight:400,verticalAlign:'super',letterSpacing:0}},'R$'),d.price
+                      )
                     ),
-                    h("div",{style:{display:"flex",gap:7,alignItems:"center"}},
-                      h("span",{style:{fontSize:10,color:c.muted,fontFamily:"sans-serif"}},"🕐 "+d.time),
-                      h("span",{style:{fontSize:10,color:c.muted,fontFamily:"sans-serif"}},"🏍 "+d.frete),
-                      h("div",{style:{width:36,height:36,background:c.orange,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:15,flexShrink:0}},"→")
+                    h('div',{style:{display:'flex',gap:10,alignItems:'center'}},
+                      h('div',{style:{textAlign:'right'}},
+                        h('div',{style:{fontSize:11,color:c.orange,fontFamily:'Inter,sans-serif',fontWeight:600}},'🕐 '+d.time+' min'),
+                        h('div',{style:{fontSize:9,color:d.frete==='Grátis'?'#2ecc71':c.muted,fontFamily:'Inter,sans-serif',fontWeight:500}},'🏍 '+d.frete)
+                      ),
+                      h('div',{style:{width:44,height:44,background:`linear-gradient(135deg,${c.orange},${c.orangeD})`,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:18,boxShadow:'0 6px 20px rgba(232,82,10,.45)',flexShrink:0,transition:'transform .25s'},
+                        onMouseEnter:e=>e.currentTarget.style.transform='scale(1.15) rotate(45deg)',
+                        onMouseLeave:e=>e.currentTarget.style.transform='none'},'→')
                     )
                   )
                 )
               )
-            )
+            ))
           )
         )
       ),
 
-      // ── DRINKS — componente isolado, nunca causa piscar no App ──
+/* ════ DRINKS ════ */
       h(DrinkSlider,{c}),
 
-      // ── PROMO ──
-      h(Reveal,{style:{padding:"0 20px 56px"}},
-        h("div",{style:{background:"linear-gradient(135deg,#1a0f05,#0d0a07)",border:"1px solid rgba(255,77,0,0.2)",borderRadius:24,padding:"44px 32px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:28,flexWrap:"wrap",position:"relative",overflow:"hidden"}},
-          h("div",{style:{position:"absolute",top:-50,right:-50,width:200,height:200,background:"radial-gradient(circle,rgba(255,77,0,0.1) 0%,transparent 65%)",pointerEvents:"none"}}),
-          h("div",{style:{position:"relative",zIndex:1}},
-            h("div",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(48px,10vw,84px)",fontWeight:900,color:c.orange,lineHeight:1,marginBottom:10}},"-30%"),
-            h("div",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(18px,3vw,28px)",fontWeight:700,color:c.cream,marginBottom:12}},"Primeira entrega",h("br"),"com desconto especial"),
-            h("p",{style:{fontSize:13,color:c.muted,lineHeight:1.65,marginBottom:24,maxWidth:340,fontFamily:"sans-serif"}},"Faça seu primeiro pedido pelo iFood e ganhe 30% de desconto em qualquer restaurante parceiro."),
-            h("a",{href:"https://www.ifood.com.br",target:"_blank",rel:"noreferrer",style:{background:c.orange,color:"#fff",padding:"13px 26px",borderRadius:100,fontSize:13,fontWeight:700,textDecoration:"none",display:"inline-flex",alignItems:"center",gap:7,fontFamily:"sans-serif"}},"🎁 Aproveitar no iFood")
-          ),
-          h("div",{style:{fontSize:80,flexShrink:0}},"🎉")
-        )
-      ),
-
-      // ── RESTAURANTES ──
-      h("section",{id:"restaurantes",style:{padding:"56px 20px",borderTop:`1px solid ${c.divider}`}},
-        h(Reveal,null,
-          h(SecLabel,{text:"Parceiros selecionados",c}),
-          h("h2",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(24px,5vw,38px)",fontWeight:900,color:c.cream,marginBottom:28,lineHeight:1.1}},
-            "Restaurantes em ",h("em",{style:{color:c.orange}},"destaque")
-          ),
-          h("div",{className:"no-scroll",style:{display:"flex",gap:14,overflowX:"auto",paddingBottom:8}},
-            ...RESTAURANTS.map((r,i)=>
-              h("a",{key:i,href:iurl(r.q),target:"_blank",rel:"noreferrer",
-                style:{flex:"0 0 200px",background:c.card,border:`1px solid ${c.border}`,borderRadius:16,padding:20,textDecoration:"none",transition:"all .25s",display:"block"},
-                onMouseEnter:e=>{e.currentTarget.style.transform="translateY(-5px)";e.currentTarget.style.borderColor="rgba(255,77,0,0.22)";},
-                onMouseLeave:e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.borderColor=c.border;}},
-                h("div",{style:{fontSize:34,marginBottom:10}},r.icon),
-                h("div",{style:{fontFamily:"Georgia,serif",fontSize:14,fontWeight:700,color:c.cream,marginBottom:4}},r.name),
-                h("div",{style:{fontSize:10,color:c.muted,marginBottom:10,fontFamily:"sans-serif"}},r.type),
-                h("div",{style:{display:"flex",flexWrap:"wrap",gap:5,marginBottom:12}},
-                  ...r.tags.map((t,j)=>h("span",{key:j,style:{padding:"2px 8px",background:"rgba(255,255,255,0.03)",border:`1px solid ${c.border}`,borderRadius:100,fontSize:9,color:c.muted,fontFamily:"sans-serif"}},t))
-                ),
-                h("div",{style:{display:"flex",gap:12}},
-                  h("div",null,h("strong",{style:{fontSize:12,color:c.cream,fontFamily:"sans-serif",display:"block"}},r.rating+" ⭐"),h("span",{style:{fontSize:9,color:c.muted,fontFamily:"sans-serif",textTransform:"uppercase"}},"Avaliação")),
-                  h("div",null,h("strong",{style:{fontSize:12,color:c.cream,fontFamily:"sans-serif",display:"block"}},r.time),h("span",{style:{fontSize:9,color:c.muted,fontFamily:"sans-serif",textTransform:"uppercase"}},"Entrega"))
-                )
+/* ════ PROMO ════ */
+      h('section',{style:{padding:'40px 28px 96px',background:c.bg}},
+        h(Rv,null,
+          h('div',{className:'promo-grid',style:{maxWidth:1100,margin:'0 auto',background:c.card,border:`1px solid ${c.bHov}`,borderRadius:32,padding:'64px 56px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:52,alignItems:'center',position:'relative',overflow:'hidden'}},
+            h('div',{style:{position:'absolute',top:-100,right:-100,width:400,height:400,borderRadius:'50%',background:'radial-gradient(circle,rgba(232,82,10,.12) 0%,transparent 60%)',pointerEvents:'none'}}),
+            h('div',{style:{position:'relative',zIndex:1}},
+              h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:'clamp(64px,12vw,120px)',fontWeight:900,color:c.orange,lineHeight:.85,marginBottom:18,letterSpacing:'-5px'}},'-30%'),
+              h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:'clamp(22px,3vw,36px)',fontWeight:700,color:c.cream,marginBottom:16,letterSpacing:'-.5px'}},'Primeira entrega',h('br'),'com desconto.'),
+              h('p',{style:{fontSize:14,color:c.muted,lineHeight:1.75,marginBottom:36,fontFamily:'Inter,sans-serif',fontWeight:300,maxWidth:400}},'Faça seu primeiro pedido pelo iFood e ganhe 30% de desconto em qualquer restaurante da nossa curadoria premium.'),
+              h('a',{'data-h':1,href:'https://www.ifood.com.br',target:'_blank',rel:'noreferrer',style:{background:`linear-gradient(135deg,${c.orange},${c.orangeD})`,color:'#fff',padding:'16px 38px',borderRadius:100,fontSize:14,fontWeight:700,textDecoration:'none',display:'inline-flex',alignItems:'center',gap:10,fontFamily:'Inter,sans-serif',letterSpacing:'.05em',boxShadow:'0 8px 36px rgba(232,82,10,.42)',transition:'all .3s'},
+                onMouseEnter:e=>{e.currentTarget.style.transform='translateY(-3px)';e.currentTarget.style.boxShadow='0 16px 52px rgba(232,82,10,.58)';},
+                onMouseLeave:e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 8px 36px rgba(232,82,10,.42)';}},
+                '🎁 Resgatar desconto no iFood'
               )
+            ),
+            h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,position:'relative',zIndex:1}},
+              ...DISHES.slice(0,4).map((d,i)=>h('div',{key:i,style:{background:'rgba(255,255,255,.04)',border:`1px solid ${c.border}`,borderRadius:18,padding:'20px',textAlign:'center',transition:'all .3s'},
+                onMouseEnter:e=>{e.currentTarget.style.borderColor=c.bHov;e.currentTarget.style.transform='scale(1.04)';},
+                onMouseLeave:e=>{e.currentTarget.style.borderColor=c.border;e.currentTarget.style.transform='none';}},
+                h('div',{style:{fontSize:30,marginBottom:7}},d.e),
+                h('div',{style:{fontSize:10,color:c.muted,fontFamily:'Inter,sans-serif',fontWeight:500,letterSpacing:'.04em',textTransform:'uppercase'}},d.e.includes('🍕')?'Pizza':d.e.includes('🍱')?'Sushi':d.e.includes('🍔')?'Burger':'Churrasco')
+              ))
             )
           )
         )
       ),
 
-      // ── FOOTER ──
-      h("footer",{style:{background:dark?"#080604":"#1a1208",padding:"56px 20px 36px",borderTop:`1px solid ${c.divider}`}},
-        h(Reveal,null,
-          h("div",{style:{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:36,maxWidth:900,margin:"0 auto 44px"}},
-            h("div",null,
-              h("div",{style:{fontFamily:"Georgia,serif",fontSize:28,fontWeight:700,color:c.cream,marginBottom:8}},"Sabo",h("span",{style:{color:c.orange}},"res")),
-              h("p",{style:{fontSize:12,color:c.muted,lineHeight:1.7,fontFamily:"sans-serif"}},"Vitrine de inspiração culinária.",h("br"),"Pedidos processados pelo iFood.")
-            ),
-            h("div",null,
-              h("div",{style:{fontFamily:"Georgia,serif",fontSize:16,color:c.gold,marginBottom:14}},"Horários"),
-              h("ul",{style:{listStyle:"none",fontFamily:"sans-serif"}},
-                ...HOURS.map((hh,i)=>
-                  h("li",{key:i,style:{display:"flex",justifyContent:"space-between",padding:"3px 0",fontSize:12,color:i===todayIdx?c.gold:c.muted,fontWeight:i===todayIdx?700:400,borderBottom:`1px solid ${c.divider}`}},
-                    h("span",null,hh.day),h("span",null,hh.range)
-                  )
+/* ════ RESTAURANTES ════ */
+      h('section',{id:'restaurantes',style:{padding:'0 28px 96px',background:c.bg}},
+        h('div',{style:{maxWidth:1200,margin:'0 auto'}},
+          h(Rv,null,h(SH,{label:'Parceiros exclusivos',title:'Restaurantes em',accent:'destaque',c})),
+          h('div',{className:'ns',style:{display:'flex',gap:16,overflowX:'auto',paddingBottom:10}},
+            ...RESTAURANTS.map((r,i)=>h(Rv,{key:i,delay:i*.05},
+              h('a',{'data-h':1,href:iurl(r.q),target:'_blank',rel:'noreferrer',style:{flex:'0 0 220px',background:c.card,border:`1px solid ${c.border}`,borderRadius:22,padding:26,textDecoration:'none',transition:'all .38s cubic-bezier(.22,1,.36,1)',display:'block'},
+                onMouseEnter:e=>{e.currentTarget.style.transform='translateY(-7px)';e.currentTarget.style.borderColor=c.bHov;e.currentTarget.style.boxShadow=`0 28px 56px ${c.sh}`;},
+                onMouseLeave:e=>{e.currentTarget.style.transform='none';e.currentTarget.style.borderColor=c.border;e.currentTarget.style.boxShadow='none';}},
+                h('div',{style:{fontSize:38,marginBottom:16}},r.icon),
+                h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:17,fontWeight:700,color:c.cream,marginBottom:5,letterSpacing:'-.4px'}},r.name),
+                h('div',{style:{fontSize:11,color:c.muted,marginBottom:16,fontFamily:'Inter,sans-serif',fontWeight:300}},r.type),
+                h('div',{style:{display:'flex',flexWrap:'wrap',gap:5,marginBottom:18}},
+                  ...r.tags.map((t,j)=>h('span',{key:j,style:{padding:'3px 10px',background:'rgba(232,82,10,.08)',border:'1px solid rgba(232,82,10,.2)',borderRadius:100,fontSize:9,color:c.orangeL,fontFamily:'Inter,sans-serif',fontWeight:500,letterSpacing:'.04em'}},t))
+                ),
+                h('div',{style:{display:'flex',justifyContent:'space-between',paddingTop:16,borderTop:`1px solid ${c.div}`}},
+                  h('div',null,h('strong',{style:{fontSize:15,color:c.cream,fontFamily:'Inter,sans-serif',display:'block',fontWeight:700}},r.rating+' ⭐'),h('span',{style:{fontSize:9,color:c.muted,fontFamily:'Inter,sans-serif',textTransform:'uppercase',letterSpacing:'.1em'}},'avaliação')),
+                  h('div',{style:{textAlign:'right'}},h('strong',{style:{fontSize:15,color:c.orange,fontFamily:'Inter,sans-serif',display:'block',fontWeight:700}},r.orders),h('span',{style:{fontSize:9,color:c.muted,fontFamily:'Inter,sans-serif',textTransform:'uppercase',letterSpacing:'.1em'}},'pedidos'))
                 )
               )
-            ),
-            h("div",null,
-              h("div",{style:{fontFamily:"Georgia,serif",fontSize:16,color:c.gold,marginBottom:14}},"Navegação"),
-              ...[["🍽 Cardápio","#pratos"],["🗂 Categorias","#categorias"],["🥤 Bebidas","#bebidas"],["🏪 Restaurantes","#restaurantes"]].map(([label,href])=>
-                h("a",{key:label,href,style:{display:"block",fontSize:12,color:c.muted,textDecoration:"none",lineHeight:2.2,fontFamily:"sans-serif",transition:"color .2s"},
-                  onMouseEnter:e=>e.currentTarget.style.color=c.cream,
-                  onMouseLeave:e=>e.currentTarget.style.color=c.muted},label)
-              )
-            )
-          ),
-          h("a",{href:"https://www.ifood.com.br",target:"_blank",rel:"noreferrer",style:{display:"block",maxWidth:380,margin:"0 auto 20px",padding:"18px",borderRadius:14,textAlign:"center",background:c.orange,color:"#fff",textDecoration:"none",fontWeight:700,fontSize:15,fontFamily:"sans-serif"}},"🛵 Ir para o iFood e pedir agora"),
-          h("p",{style:{textAlign:"center",fontSize:10,color:c.muted,fontFamily:"sans-serif"}},"© "+new Date().getFullYear()+" Sabores · Vitrine de inspiração culinária")
+            ))
+          )
         )
       ),
 
-      // ── WHATSAPP ──
-      h("a",{href:"https://wa.me/5511999999999",target:"_blank",rel:"noreferrer",
-        style:{position:"fixed",bottom:22,right:22,width:52,height:52,background:"#25D366",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,textDecoration:"none",zIndex:500,boxShadow:"0 4px 18px rgba(37,211,102,0.45)",transition:"all .3s"},
-        onMouseEnter:e=>{e.currentTarget.style.transform="scale(1.12) rotate(-8deg)";},
-        onMouseLeave:e=>{e.currentTarget.style.transform="scale(1)";}
-      },"💬"),
+/* ════ DEPOIMENTOS ════ */
+      h('section',{style:{padding:'96px 28px',background:c.bg2,borderTop:`1px solid ${c.div}`}},
+        h('div',{style:{maxWidth:860,margin:'0 auto'}},
+          h(Rv,null,h(SH,{label:'O que dizem',title:'Quem nos',accent:'escolheu',c,center:true})),
+          h('div',{style:{position:'relative'}},
+            ...TESTIMONIALS.map((t,i)=>h('div',{key:i,style:{display:tIdx===i?'block':'none',animation:tIdx===i?'scaleIn .55s cubic-bezier(.22,1,.36,1)':'none',background:c.card,border:`1px solid ${c.border}`,borderRadius:28,padding:'52px 56px',position:'relative',overflow:'hidden'}},
+              h('div',{style:{position:'absolute',top:24,right:32,fontFamily:"'Playfair Display',serif",fontSize:96,color:c.orange,opacity:.08,lineHeight:1,pointerEvents:'none'}},'"'),
+              h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:'clamp(18px,2.5vw,26px)',fontWeight:400,color:c.cream,lineHeight:1.6,marginBottom:40,fontStyle:'italic',position:'relative',zIndex:1}},'"'+t.text+'"'),
+              h('div',{style:{display:'flex',alignItems:'center',gap:18}},
+                h('div',{style:{width:54,height:54,borderRadius:'50%',background:`linear-gradient(135deg,${c.orange},${c.orangeD})`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:26,flexShrink:0}},t.avatar),
+                h('div',null,
+                  h('div',{style:{fontFamily:'Inter,sans-serif',fontWeight:700,color:c.cream,fontSize:15,letterSpacing:'-.2px'}},t.name),
+                  h('div',{style:{fontFamily:'Inter,sans-serif',fontSize:11,color:c.muted,marginTop:3,fontWeight:300}},t.role)
+                ),
+                h('div',{style:{marginLeft:'auto',color:c.gold,fontSize:15,letterSpacing:3}},'★★★★★')
+              )
+            )),
+            h('div',{style:{display:'flex',justifyContent:'center',gap:9,marginTop:32}},
+              ...TESTIMONIALS.map((_,i)=>h('button',{'data-h':1,key:i,onClick:()=>setTIdx(i),style:{width:tIdx===i?26:7,height:7,borderRadius:100,background:tIdx===i?c.orange:'rgba(255,255,255,.18)',border:'none',cursor:'pointer',transition:'all .4s',padding:0,flexShrink:0}}))
+            )
+          )
+        )
+      ),
 
-      // ── BACK TO TOP ──
-      h("button",{
-        onClick:()=>window.scrollTo({top:0,behavior:"smooth"}),
-        style:{position:"fixed",bottom:84,right:26,width:38,height:38,background:c.orange,border:"none",borderRadius:"50%",color:"#fff",fontSize:16,cursor:"pointer",zIndex:500,opacity:showTop?1:0,transform:showTop?"translateY(0)":"translateY(10px)",transition:"all .3s",pointerEvents:showTop?"auto":"none"}
-      },"↑")
-    )
-  );
+/* ════ FOOTER ════ */
+      h('footer',{style:{background:dark?'#060402':'#180e05',padding:'88px 28px 44px',borderTop:`1px solid ${c.div}`}},
+        h(Rv,null,
+          h('div',{className:'footer-grid',style:{display:'grid',gridTemplateColumns:'2fr 1fr 1fr 1fr',gap:56,maxWidth:1100,margin:'0 auto 72px'}},
+            h('div',null,
+              h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:40,fontWeight:900,color:c.cream,marginBottom:14,letterSpacing:'-2px'}},'Sabo',h('span',{style:{color:c.orange,fontStyle:'italic'}},'res')),
+              h('p',{style:{fontSize:13,color:c.muted,lineHeight:1.85,fontFamily:'Inter,sans-serif',fontWeight:300,maxWidth:255,marginBottom:32}},'A vitrine gastronômica mais sofisticada do Brasil. Todos os pedidos são processados pelo iFood.'),
+              h('div',{style:{display:'flex',gap:10}},
+                ...['📸','𝕏','📘'].map((ico,i)=>h('a',{key:i,href:'#','data-h':1,style:{width:40,height:40,background:'rgba(255,255,255,.05)',border:`1px solid ${c.border}`,borderRadius:11,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,textDecoration:'none',transition:'all .28s'},
+                  onMouseEnter:e=>{e.currentTarget.style.background='rgba(232,82,10,.14)';e.currentTarget.style.borderColor=c.bHov;e.currentTarget.style.transform='translateY(-3px)';},
+                  onMouseLeave:e=>{e.currentTarget.style.background='rgba(255,255,255,.05)';e.currentTarget.style.borderColor=c.border;e.currentTarget.style.transform='none';}},ico))
+              )
+            ),
+            h('div',null,
+              h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:19,color:c.gold,marginBottom:22,letterSpacing:'-.3px'}},'Horários'),
+              h('ul',{style:{listStyle:'none'}},
+                ...HOURS.map((hh,i)=>h('li',{key:i,style:{display:'flex',justifyContent:'space-between',padding:'6px 0',fontSize:12,color:i===todayI?c.gold:c.muted,fontWeight:i===todayI?600:300,fontFamily:'Inter,sans-serif',borderBottom:`1px solid ${c.div}`,letterSpacing:'.01em'}},
+                  h('span',null,hh.day),h('span',{style:{opacity:.8}},hh.range)
+                ))
+              )
+            ),
+            h('div',null,
+              h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:19,color:c.gold,marginBottom:22,letterSpacing:'-.3px'}},'Navegar'),
+              ...[['🍽 Cardápio','#pratos'],['🗂 Categorias','#categorias'],['🥤 Bebidas','#bebidas'],['🏪 Restaurantes','#restaurantes'],['⚡ Como funciona','#como']].map(([l,href])=>
+                h('a',{'data-h':1,key:l,href,style:{display:'block',fontSize:13,color:c.muted,textDecoration:'none',lineHeight:2.8,fontFamily:'Inter,sans-serif',fontWeight:300,transition:'color .22s,paddingLeft .22s'},
+                  onMouseEnter:e=>{e.currentTarget.style.color=c.cream;e.currentTarget.style.paddingLeft='6px';},
+                  onMouseLeave:e=>{e.currentTarget.style.color=c.muted;e.currentTarget.style.paddingLeft='0';}},l)
+              )
+            ),
+            h('div',null,
+              h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:19,color:c.gold,marginBottom:22,letterSpacing:'-.3px'}},'Contato'),
+              h('div',{style:{fontFamily:'Inter,sans-serif',fontWeight:300}},
+                ...[['💬 WhatsApp','https://wa.me/5511999999999','#2ecc71'],['✉️ E-mail','mailto:oi@sabores.com.br',c.cream],['📍 São Paulo, SP','#',c.muted]].map(([l,href,hc])=>
+                  h('a',{'data-h':1,key:l,href,target:href.startsWith('http')?'_blank':'_self',style:{display:'block',fontSize:13,color:c.muted,textDecoration:'none',lineHeight:2.8,transition:'color .22s'},
+                    onMouseEnter:e=>e.currentTarget.style.color=hc,
+                    onMouseLeave:e=>e.currentTarget.style.color=c.muted},l)
+                )
+              )
+            )
+          ),
+          // footer bottom
+          h('div',{style:{maxWidth:1100,margin:'0 auto',paddingTop:44,borderTop:`1px solid ${c.div}`,display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:20}},
+            h('p',{style:{fontSize:11,color:c.muted,fontFamily:'Inter,sans-serif',letterSpacing:'.1em'}},'© '+new Date().getFullYear()+' Sabores · Todos os direitos reservados'),
+            h('a',{'data-h':1,href:'https://www.ifood.com.br',target:'_blank',rel:'noreferrer',style:{background:`linear-gradient(135deg,${c.orange},${c.orangeD})`,color:'#fff',padding:'13px 30px',borderRadius:100,fontSize:13,fontWeight:700,textDecoration:'none',fontFamily:'Inter,sans-serif',letterSpacing:'.05em',boxShadow:'0 4px 24px rgba(232,82,10,.38)',transition:'all .28s'},
+              onMouseEnter:e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 10px 40px rgba(232,82,10,.55)';},
+              onMouseLeave:e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 4px 24px rgba(232,82,10,.38)';}},
+              '🛵 Ir para o iFood'
+            )
+          )
+        )
+      ),
+
+/* ════ FIXED: WHATSAPP ════ */
+      h('a',{'data-h':1,href:'https://wa.me/5511999999999',target:'_blank',rel:'noreferrer',style:{position:'fixed',bottom:24,right:24,width:54,height:54,background:'#25D366',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:26,textDecoration:'none',zIndex:600,boxShadow:'0 4px 24px rgba(37,211,102,.48)',transition:'all .35s cubic-bezier(.22,1,.36,1)'},
+        onMouseEnter:e=>{e.currentTarget.style.transform='scale(1.16) rotate(-12deg)';e.currentTarget.style.boxShadow='0 10px 44px rgba(37,211,102,.68)';},
+        onMouseLeave:e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 4px 24px rgba(37,211,102,.48)';}
+      },'💬'),
+
+/* ════ FIXED: BACK TO TOP ════ */
+      h('button',{'data-h':1,onClick:()=>window.scrollTo({top:0,behavior:'smooth'}),style:{position:'fixed',bottom:90,right:28,width:40,height:40,background:`linear-gradient(135deg,${c.orange},${c.orangeD})`,border:'none',borderRadius:'50%',color:'#fff',fontSize:17,cursor:'pointer',zIndex:600,opacity:top?1:0,transform:top?'scale(1) translateY(0)':'scale(.7) translateY(10px)',transition:'all .42s cubic-bezier(.22,1,.36,1)',pointerEvents:top?'auto':'none',boxShadow:'0 4px 20px rgba(232,82,10,.42)'}},'↑')
+
+    ) // end main div
+  ); // end Fragment
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(h(App));
+ReactDOM.createRoot(document.getElementById('root')).render(h(App));
 </script>
 </body>
 </html>
