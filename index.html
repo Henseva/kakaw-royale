@@ -1,484 +1,529 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sabores — Vitrine iFood</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+import { useState, useEffect, useRef } from "react";
 
-:root {
-  --bg: #0d0a07;
-  --bg2: #111009;
-  --card: #181210;
-  --card2: #201a14;
-  --cream: #f0e6d3;
-  --orange: #ff4d00;
-  --orange-light: #ff7b3a;
-  --gold: #d4a843;
-  --muted: #6b5c48;
-  --text: #c8baa8;
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const categories = [
+  { emoji: "🍕", label: "Pizza",     q: "pizza" },
+  { emoji: "🍔", label: "Burger",    q: "burger" },
+  { emoji: "🍣", label: "Japonês",   q: "sushi" },
+  { emoji: "🥩", label: "Churrasco", q: "churrasco" },
+  { emoji: "🍝", label: "Massas",    q: "massa+italiana" },
+  { emoji: "🌮", label: "Mexicano",  q: "tacos+mexicano" },
+  { emoji: "🍇", label: "Açaí",      q: "acai" },
+  { emoji: "🥗", label: "Saudável",  q: "saudavel+salada" },
+  { emoji: "🍗", label: "Frango",    q: "frango+frito" },
+  { emoji: "🍰", label: "Doces",     q: "sobremesa+doce" },
+  { emoji: "🥦", label: "Vegano",    q: "vegano" },
+  { emoji: "🧃", label: "Bebidas",   q: "bebida+suco" },
+];
+
+const dishes = [
+  { emoji:"🍕", badge:"🔥 Mais pedido", from:"Bella Napoli",   stars:"4.9", name:"Pizza Margherita Trufada",  desc:"Massa artesanal fermentada, molho San Marzano, mozzarella de búfala e trufa negra.", price:"54", time:"25min", frete:"Grátis", q:"pizza+margherita+artesanal",     bg:"linear-gradient(135deg,#1a0f05,#2a1809)", tag:"Mais pedidos" },
+  { emoji:"🍱", badge:"✦ Premium",     from:"Sakura House",    stars:"4.8", name:"Combinado do Chef",          desc:"30 peças com salmão premium, atum fresco, polvinho e temaki especial da casa.",  price:"89", time:"35min", frete:"R$5",    q:"combinado+sushi+especial",       bg:"linear-gradient(135deg,#091a11,#0c2516)", tag:"Premium" },
+  { emoji:"🍔", badge:"⚡ Novo",        from:"Crush Burger",    stars:"4.7", name:"Smash Double Crispy",        desc:"Dois smash patties de angus, queijo americano derretido, pickles e molho especial.", price:"38", time:"20min", frete:"Grátis", q:"smash+burger+duplo",             bg:"linear-gradient(135deg,#1a0c04,#2b1508)", tag:"Novidades" },
+  { emoji:"🥩", badge:"🏆 Top avaliado",from:"Fogo e Brasa",   stars:"4.9", name:"Costela Bovina na Brasa",    desc:"Cozida por 12 horas, desfiando no garfo, com vinagrete especial e farofa.",       price:"67", time:"40min", frete:"R$8",    q:"costela+bovina+churrasco",       bg:"linear-gradient(135deg,#0a1018,#101a28)", tag:"Mais pedidos" },
+  { emoji:"🍇", badge:"🌿 Saudável",   from:"Raízes do Norte", stars:"4.8", name:"Bowl de Açaí Amazônico",     desc:"Açaí puro do Pará, granola artesanal, banana, morango e mel silvestre.",         price:"26", time:"15min", frete:"Grátis", q:"bowl+acai+para",                 bg:"linear-gradient(135deg,#1a0a0a,#2b1212)", tag:"Promoções" },
+  { emoji:"🌮", badge:"🌶 Picante",    from:"El Rancho",       stars:"4.6", name:"Combo Tacos al Pastor",      desc:"4 tacos com carne marinada, abacaxi grelhado, cebola roxa e molho chipotle.",   price:"44", time:"30min", frete:"R$3",    q:"tacos+al+pastor",                bg:"linear-gradient(135deg,#120d1a,#1c1228)", tag:"Promoções" },
+];
+
+const drinks = [
+  { emoji:"🥤", name:"Limonada Suíça",   desc:"Leite condensado, limão siciliano e menta fresca batidos na hora.",    price:"18", color:"linear-gradient(135deg,#1a3a1a,#2d6b2d)", badge:"🌿 Refrescante", kcal:"180 kcal" },
+  { emoji:"🧃", name:"Suco de Manga",     desc:"Manga Tommy fresca, sem adição de açúcar. 100% natural.",              price:"14", color:"linear-gradient(135deg,#3a2000,#7a4500)", badge:"🔥 Top",         kcal:"120 kcal" },
+  { emoji:"🍵", name:"Chá Gelado Hibisco",desc:"Hibisco, gengibre, mel e limão. Servido com pedras de gelo.",          price:"16", color:"linear-gradient(135deg,#3a001a,#7a0040)", badge:"✦ Especial",     kcal:"90 kcal"  },
+  { emoji:"🥛", name:"Vitamina de Açaí",  desc:"Açaí puro, banana, aveia e mel. Energia para o dia todo.",             price:"22", color:"linear-gradient(135deg,#1a0a2e,#3d1460)", badge:"💜 Premium",     kcal:"280 kcal" },
+  { emoji:"🍹", name:"Água de Coco Fresca",desc:"Diretamente do coco verde, gelada e natural.",                        price:"12", color:"linear-gradient(135deg,#0a2e2e,#145050)", badge:"🌴 Fresh",        kcal:"60 kcal"  },
+];
+
+const restaurants = [
+  { icon:"🍕", name:"Bella Napoli",    type:"Pizzaria Italiana",   tags:["Artesanal","Forno a Lenha"], rating:"4.9", time:"~25 min", q:"Bella+Napoli+pizza" },
+  { icon:"🍱", name:"Sakura House",    type:"Culinária Japonesa",  tags:["Sushi","Temaki","Premium"],  rating:"4.8", time:"~35 min", q:"Sakura+House+sushi" },
+  { icon:"🍔", name:"Crush Burger",    type:"Hamburgeria",          tags:["Smash","Angus","Gourmet"],   rating:"4.7", time:"~20 min", q:"smash+burger+artesanal" },
+  { icon:"🔥", name:"Fogo e Brasa",    type:"Churrascaria Premium", tags:["Costela","Picanha"],         rating:"4.9", time:"~40 min", q:"churrasco+costela+brasa" },
+  { icon:"🌿", name:"Raízes do Norte", type:"Açaí e Saúde",         tags:["Vegano","Natural"],          rating:"4.8", time:"~15 min", q:"acai+natural+saudavel" },
+  { icon:"🌮", name:"El Rancho",       type:"Culinária Mexicana",   tags:["Tacos","Burritos"],          rating:"4.6", time:"~30 min", q:"tacos+burritos+mexicano" },
+  { icon:"🍝", name:"Pasta Mia",       type:"Massas Artesanais",    tags:["Fresca","Italiana"],         rating:"4.7", time:"~30 min", q:"massa+italiana+pasta+fresca" },
+];
+
+const hours = [
+  { day:"Segunda",  range:"11h – 22h" },
+  { day:"Terça",    range:"11h – 22h" },
+  { day:"Quarta",   range:"11h – 22h" },
+  { day:"Quinta",   range:"11h – 23h" },
+  { day:"Sexta",    range:"11h – 00h" },
+  { day:"Sábado",   range:"10h – 00h" },
+  { day:"Domingo",  range:"10h – 22h" },
+];
+
+const FILTER_TABS = ["Todos","Mais pedidos","Novidades","Premium","Promoções"];
+const ifoodUrl = (q) => `https://www.ifood.com.br/delivery/busca?q=${q}`;
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function isOpen() {
+  const now  = new Date();
+  const day  = now.getDay();          // 0 = Sun
+  const hour = now.getHours() + now.getMinutes() / 60;
+  if (day === 0)            return hour >= 10 && hour < 22;
+  if (day === 6)            return hour >= 10 && hour < 24;
+  if (day === 5)            return hour >= 11;          // sexta fecha meia-noite
+  if (day === 4)            return hour >= 11 && hour < 23;
+  return                           hour >= 11 && hour < 22;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
-
-/* NAV */
-nav {
-  position: sticky; top: 0; z-index: 200;
-  background: rgba(13,10,7,0.97);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  padding: 16px 32px;
-  display: flex; justify-content: space-between; align-items: center; gap: 16px;
-}
-.logo { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--cream); text-decoration: none; flex-shrink: 0; }
-.logo span { color: var(--orange); }
-.nav-ifood {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: var(--orange); color: white;
-  padding: 10px 20px; border-radius: 100px;
-  font-size: 13px; font-weight: 600; text-decoration: none;
-  transition: all 0.25s; white-space: nowrap;
-}
-.nav-ifood:hover { background: #e63d00; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,77,0,0.35); }
-
-/* HERO */
-.hero {
-  padding: 64px 32px 72px;
-  text-align: center; position: relative; overflow: hidden;
-}
-.hero::before {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,77,0,0.1) 0%, transparent 70%);
-  pointer-events: none;
-}
-.hero-badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(255,77,0,0.08); border: 1px solid rgba(255,77,0,0.2);
-  color: var(--orange-light); font-size: 11px; letter-spacing: 0.15em;
-  text-transform: uppercase; padding: 7px 16px; border-radius: 100px; margin-bottom: 28px;
-}
-.dot { width: 6px; height: 6px; background: var(--orange); border-radius: 50%; display: inline-block; animation: blink 2s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-.hero h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(40px, 8vw, 80px); font-weight: 900; line-height: 1;
-  color: var(--cream); margin-bottom: 20px;
-}
-.hero h1 em { font-style: italic; color: var(--orange); display: block; }
-.hero h1 .gold { color: var(--gold); }
-.hero p { font-size: 15px; line-height: 1.7; color: var(--muted); max-width: 480px; margin: 0 auto 36px; font-weight: 300; }
-.hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-.btn-main {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: var(--orange); color: white; padding: 15px 32px; border-radius: 100px;
-  font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.25s;
-}
-.btn-main:hover { background: #e63d00; transform: translateY(-2px); box-shadow: 0 16px 40px rgba(255,77,0,0.4); }
-.btn-ghost {
-  display: inline-flex; align-items: center; gap: 8px;
-  color: var(--muted); padding: 15px 24px; border-radius: 100px;
-  font-size: 14px; text-decoration: none;
-  border: 1px solid rgba(255,255,255,0.08); transition: all 0.25s;
-}
-.btn-ghost:hover { color: var(--cream); border-color: rgba(255,255,255,0.2); }
-.hero-emojis { margin-top: 48px; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
-.emoji-float {
-  width: 64px; height: 64px;
-  background: var(--card); border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  font-size: 28px; animation: float 4s ease-in-out infinite;
-}
-.emoji-float:nth-child(2){animation-delay:-1s}
-.emoji-float:nth-child(3){animation-delay:-2s}
-.emoji-float:nth-child(4){animation-delay:-0.5s}
-.emoji-float:nth-child(5){animation-delay:-1.5s}
-@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-
-/* SECTIONS */
-.sec { padding: 64px 32px; }
-.sec.dark { background: var(--bg2); }
-.sec-label { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-.sec-label::before { content:''; width:24px; height:1px; background: var(--orange); }
-.sec-label span { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--orange-light); font-weight: 500; }
-.sec-title { font-family: 'Playfair Display', serif; font-size: clamp(28px,5vw,44px); font-weight: 900; color: var(--cream); line-height: 1.1; margin-bottom: 36px; }
-.sec-title em { font-style: italic; color: var(--orange); }
-.sec-title .gold { color: var(--gold); }
-
-/* CATEGORIES */
-.cats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-.cat {
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-  padding: 22px 12px; border-radius: 16px;
-  background: var(--card); border: 1px solid rgba(255,255,255,0.04);
-  text-decoration: none; transition: all 0.25s; position: relative; overflow: hidden;
-}
-.cat::after {
-  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-  height: 2px; background: linear-gradient(90deg, var(--orange), var(--gold));
-  transform: scaleX(0); transition: transform 0.3s; transform-origin: left;
-}
-.cat:hover { transform: translateY(-5px); border-color: rgba(255,77,0,0.18); background: var(--card2); }
-.cat:hover::after { transform: scaleX(1); }
-.cat .ico { font-size: 32px; transition: transform 0.25s; }
-.cat:hover .ico { transform: scale(1.2) rotate(-5deg); }
-.cat .lbl { font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: 0.05em; transition: color 0.25s; text-align: center; }
-.cat:hover .lbl { color: var(--cream); }
-
-/* DISH CARDS */
-.cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.dish {
-  background: var(--card); border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 20px; overflow: hidden; text-decoration: none; display: block; transition: all 0.3s;
-}
-.dish:hover { transform: translateY(-8px); border-color: rgba(255,77,0,0.15); box-shadow: 0 30px 60px rgba(0,0,0,0.35); }
-.dish-img {
-  height: 160px; display: flex; align-items: center; justify-content: center;
-  font-size: 72px; position: relative; overflow: hidden; transition: transform 0.3s;
-}
-.dish:hover .dish-img { transform: scale(1.06); }
-.dish-img::after {
-  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-  height: 50px; background: linear-gradient(to top, var(--card), transparent);
-}
-.badge {
-  position: absolute; top: 12px; left: 12px; z-index: 2;
-  background: rgba(13,10,7,0.85); border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 100px; padding: 4px 10px; font-size: 10px; color: var(--gold); font-weight: 600;
-}
-.dish-body { padding: 16px 20px 20px; }
-.dish-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.dish-from { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-.dish-stars { font-size: 11px; color: var(--gold); font-weight: 600; }
-.dish-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--cream); margin-bottom: 6px; line-height: 1.2; }
-.dish-desc { font-size: 12px; color: var(--muted); line-height: 1.55; margin-bottom: 16px; font-weight: 300; }
-.dish-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.dish-price .from { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; display: block; }
-.dish-price .val { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--cream); }
-.dish-price .val sup { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 400; }
-.dish-chips { display: flex; gap: 8px; }
-.chip { font-size: 11px; color: var(--muted); }
-.arrow {
-  width: 40px; height: 40px; background: var(--orange); border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  color: white; font-size: 16px; flex-shrink: 0; transition: all 0.25s;
-}
-.dish:hover .arrow { transform: scale(1.12); box-shadow: 0 8px 20px rgba(255,77,0,0.45); }
-
-.t1{background:linear-gradient(135deg,#1a0f05,#2a1809)}
-.t2{background:linear-gradient(135deg,#091a11,#0c2516)}
-.t3{background:linear-gradient(135deg,#1a0c04,#2b1508)}
-.t4{background:linear-gradient(135deg,#0a1018,#101a28)}
-.t5{background:linear-gradient(135deg,#1a0a0a,#2b1212)}
-.t6{background:linear-gradient(135deg,#120d1a,#1c1228)}
-
-/* PROMO */
-.promo-wrap { padding: 0 32px 64px; }
-.promo-card {
-  background: linear-gradient(135deg,#1a0f05,#0d0a07,#150e05);
-  border: 1px solid rgba(255,77,0,0.18); border-radius: 28px;
-  padding: 52px 48px;
-  display: flex; align-items: center; justify-content: space-between; gap: 40px;
-  position: relative; overflow: hidden;
-}
-.promo-card::before {
-  content:''; position:absolute; top:-80px; right:-80px;
-  width:300px; height:300px;
-  background: radial-gradient(circle,rgba(255,77,0,0.12) 0%,transparent 65%);
-  pointer-events:none;
-}
-.promo-pct { font-family:'Playfair Display',serif; font-size:clamp(56px,8vw,90px); font-weight:900; color:var(--orange); line-height:1; margin-bottom:10px; }
-.promo-title { font-family:'Playfair Display',serif; font-size:clamp(22px,3vw,32px); font-weight:700; color:var(--cream); margin-bottom:12px; line-height:1.15; }
-.promo-desc { font-size:14px; color:var(--muted); line-height:1.65; margin-bottom:32px; max-width:380px; }
-.promo-emoji { font-size:100px; flex-shrink:0; animation:float 5s ease-in-out infinite; }
-
-/* RESTAURANTS */
-.rest-scroll { display:flex; gap:16px; overflow-x:auto; padding-bottom:12px; scroll-snap-type:x mandatory; scrollbar-width:none; }
-.rest-scroll::-webkit-scrollbar{display:none}
-.rest-card {
-  flex:0 0 220px; scroll-snap-align:start;
-  background:var(--card); border:1px solid rgba(255,255,255,0.05);
-  border-radius:18px; padding:24px; text-decoration:none; transition:all 0.25s;
-}
-.rest-card:hover{border-color:rgba(255,77,0,0.2);transform:translateY(-5px)}
-.rest-icon{font-size:38px;margin-bottom:14px;display:block}
-.rest-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--cream);margin-bottom:4px}
-.rest-type{font-size:11px;color:var(--muted);margin-bottom:14px}
-.rest-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px}
-.rest-tag{padding:3px 9px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:100px;font-size:9px;color:var(--muted);letter-spacing:0.05em}
-.rest-meta{display:flex;gap:14px}
-.rmi{display:flex;flex-direction:column}
-.rmi strong{font-size:13px;color:var(--cream);font-weight:600}
-.rmi span{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:1px}
-
-/* FOOTER */
-footer {
-  padding:40px 32px;
-  border-top:1px solid rgba(255,255,255,0.05);
-  display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;
-}
-.footer-logo{font-family:'Playfair Display',serif;font-size:24px;color:var(--cream)}
-.footer-logo span{color:var(--orange)}
-.footer-note{font-size:12px;color:var(--muted);line-height:1.6}
-.footer-link{
-  display:inline-flex;align-items:center;gap:8px;
-  background:var(--card);border:1px solid rgba(255,255,255,0.06);
-  border-radius:100px;padding:12px 28px;text-decoration:none;
-  font-size:13px;color:var(--cream);transition:all 0.25s;
-}
-.footer-link:hover{border-color:rgba(255,77,0,0.3);background:rgba(255,77,0,0.1)}
-.red{font-weight:700;color:#ea1d2c}
-
-/* DIVIDER */
-.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.05),transparent);margin:0 32px}
-
-/* RESPONSIVE */
-@media(max-width:900px){
-  .cards-grid{grid-template-columns:repeat(2,1fr)}
-  .promo-emoji{display:none}
-  .promo-card{padding:40px 32px}
-}
-@media(max-width:600px){
-  nav{padding:14px 20px}
-  .sec{padding:48px 20px}
-  .hero{padding:48px 20px 56px}
-  .divider{margin:0 20px}
-  .promo-wrap{padding:0 20px 48px}
-  .cats-grid{grid-template-columns:repeat(3,1fr);gap:10px}
-  .cards-grid{grid-template-columns:1fr}
-  .promo-card{padding:32px 24px}
-  .hero-emojis{gap:10px}
-  .emoji-float{width:52px;height:52px;font-size:22px}
-  .nav-ifood{padding:9px 16px;font-size:12px}
+// ── REVEAL HOOK ───────────────────────────────────────────────────────────────
+function useReveal() {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.unobserve(el); } }, { threshold: 0.1 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, visible];
 }
 
-/* REVEAL */
-.reveal{opacity:0;transform:translateY(32px);transition:opacity 0.6s ease,transform 0.6s ease}
-.reveal.on{opacity:1;transform:translateY(0)}
-</style>
-</head>
-<body>
-
-<nav>
-  <a href="#" class="logo">Sabo<span>res</span></a>
-  <a href="https://www.ifood.com.br" target="_blank" class="nav-ifood">🛵 Abrir iFood</a>
-</nav>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-badge"><span class="dot"></span> Entrega em até 30 minutos</div>
-  <h1>
-    Cada prato,<br>
-    <em>uma obra</em>
-    <span class="gold">de arte.</span>
-  </h1>
-  <p>Descubra os melhores sabores da cidade, selecionados com carinho. Escolha o que te encanta e pedimos pelo iFood.</p>
-  <div class="hero-cta">
-    <a href="#pratos" class="btn-main">🍽 Explorar Pratos</a>
-    <a href="#categorias" class="btn-ghost">Ver Categorias →</a>
-  </div>
-  <div class="hero-emojis">
-    <div class="emoji-float">🍕</div>
-    <div class="emoji-float">🍔</div>
-    <div class="emoji-float">🍱</div>
-    <div class="emoji-float">🥩</div>
-    <div class="emoji-float">🍝</div>
-  </div>
-</section>
-
-<!-- CATEGORIES -->
-<section class="sec dark reveal" id="categorias">
-  <div class="sec-label"><span>O que você quer hoje?</span></div>
-  <h2 class="sec-title">Escolha sua <em>categoria</em></h2>
-  <div class="cats-grid">
-    <a href="https://www.ifood.com.br/delivery/busca?q=pizza" target="_blank" class="cat"><span class="ico">🍕</span><span class="lbl">Pizza</span></a>
-    <a href="https://www.ifood.com.br/delivery/busca?q=burger" target="_blank" class="cat"><span class="ico">🍔</span><span class="lbl">Burger</span></a>
-    <a href="https://www.ifood.com.br/delivery/busca?q=sushi" target="_blank" class="cat"><span class="ico">🍣</span><span class="lbl">Japonês</span></a>
-    <a href="https://www.ifood.com.br/delivery/busca?q=churrasco" target="_blank" class="cat"><span class="ico">🥩</span><span class="lbl">Churrasco</span></a>
-    <a href="https://www.ifood.com.br/delivery/busca?q=massa+italiana" target="_blank" class="cat"><span class="ico">🍝</span><span class="lbl">Massas</span></a>
-    <a href="https://www.ifood.com.br/delivery/busca?q=tacos+mexicano" target="_blank" class="cat"><span class="ico">🌮</span><span class="lbl">Mexicano</span></a>
-    <a href="https://www.ifood.com.br/delivery/busca?q=acai" target="_blank" class="cat"><span class="ico">🍇</span><span class="lbl">Açaí</span></a>
-    <a href="https://www.ifood.com.br/delivery/busca?q=saudavel+salada" target="_blank" class="cat"><span class="ico">🥗</span><span class="lbl">Saudável</span></a>
-    <a href="https://www.ifood.com.br/delivery/busca?q=frango+frito" target="_blank" class="cat"><span class="ico">🍗</span><span class="lbl">Frango</span></a>
-    <a href="https://www.ifood.com.br/delivery/busca?q=sobremesa+doce" target="_blank" class="cat"><span class="ico">🍰</span><span class="lbl">Doces</span></a>
-    <a href="https://www.ifood.com.br/delivery/busca?q=vegano" target="_blank" class="cat"><span class="ico">🥦</span><span class="lbl">Vegano</span></a>
-    <a href="https://www.ifood.com.br/delivery/busca?q=bebida+suco" target="_blank" class="cat"><span class="ico">🧃</span><span class="lbl">Bebidas</span></a>
-  </div>
-</section>
-
-<div class="divider"></div>
-
-<!-- FEATURED DISHES -->
-<section class="sec reveal" id="pratos">
-  <div class="sec-label"><span>Seleção da casa</span></div>
-  <h2 class="sec-title">Pratos em <span class="gold">destaque</span></h2>
-  <div class="cards-grid">
-
-    <a href="https://www.ifood.com.br/delivery/busca?q=pizza+margherita+artesanal" target="_blank" class="dish">
-      <div class="dish-img t1">🍕<div class="badge">🔥 Mais pedido</div></div>
-      <div class="dish-body">
-        <div class="dish-top"><span class="dish-from">Bella Napoli</span><span class="dish-stars">⭐ 4.9</span></div>
-        <div class="dish-name">Pizza Margherita Trufada</div>
-        <div class="dish-desc">Massa artesanal fermentada, molho San Marzano, buffalo mozzarella e toque de trufa negra.</div>
-        <div class="dish-foot">
-          <div class="dish-price"><span class="from">A partir de</span><span class="val"><sup>R$</sup>54</span></div>
-          <div class="dish-chips"><span class="chip">🕐 25min</span><span class="chip">🏍 Grátis</span></div>
-          <div class="arrow">→</div>
-        </div>
-      </div>
-    </a>
-
-    <a href="https://www.ifood.com.br/delivery/busca?q=combinado+sushi+especial" target="_blank" class="dish">
-      <div class="dish-img t2">🍱<div class="badge">✦ Premium</div></div>
-      <div class="dish-body">
-        <div class="dish-top"><span class="dish-from">Sakura House</span><span class="dish-stars">⭐ 4.8</span></div>
-        <div class="dish-name">Combinado do Chef</div>
-        <div class="dish-desc">30 peças com salmão premium, atum, polvinho e temaki especial da casa.</div>
-        <div class="dish-foot">
-          <div class="dish-price"><span class="from">A partir de</span><span class="val"><sup>R$</sup>89</span></div>
-          <div class="dish-chips"><span class="chip">🕐 35min</span><span class="chip">🏍 R$5</span></div>
-          <div class="arrow">→</div>
-        </div>
-      </div>
-    </a>
-
-    <a href="https://www.ifood.com.br/delivery/busca?q=smash+burger+duplo" target="_blank" class="dish">
-      <div class="dish-img t3">🍔<div class="badge">⚡ Novo</div></div>
-      <div class="dish-body">
-        <div class="dish-top"><span class="dish-from">Crush Burger</span><span class="dish-stars">⭐ 4.7</span></div>
-        <div class="dish-name">Smash Double Crispy</div>
-        <div class="dish-desc">Dois smash patties de angus, queijo americano derretido, pickles e molho especial.</div>
-        <div class="dish-foot">
-          <div class="dish-price"><span class="from">A partir de</span><span class="val"><sup>R$</sup>38</span></div>
-          <div class="dish-chips"><span class="chip">🕐 20min</span><span class="chip">🏍 Grátis</span></div>
-          <div class="arrow">→</div>
-        </div>
-      </div>
-    </a>
-
-    <a href="https://www.ifood.com.br/delivery/busca?q=costela+bovina+churrasco" target="_blank" class="dish">
-      <div class="dish-img t4">🥩<div class="badge">🏆 Top avaliado</div></div>
-      <div class="dish-body">
-        <div class="dish-top"><span class="dish-from">Fogo e Brasa</span><span class="dish-stars">⭐ 4.9</span></div>
-        <div class="dish-name">Costela Bovina na Brasa</div>
-        <div class="dish-desc">Cozida por 12 horas, desfiando no garfo, com vinagrete especial e farofa crocante.</div>
-        <div class="dish-foot">
-          <div class="dish-price"><span class="from">A partir de</span><span class="val"><sup>R$</sup>67</span></div>
-          <div class="dish-chips"><span class="chip">🕐 40min</span><span class="chip">🏍 R$8</span></div>
-          <div class="arrow">→</div>
-        </div>
-      </div>
-    </a>
-
-    <a href="https://www.ifood.com.br/delivery/busca?q=bowl+acai+para" target="_blank" class="dish">
-      <div class="dish-img t5">🍇<div class="badge">🌿 Saudável</div></div>
-      <div class="dish-body">
-        <div class="dish-top"><span class="dish-from">Raízes do Norte</span><span class="dish-stars">⭐ 4.8</span></div>
-        <div class="dish-name">Bowl de Açaí Amazônico</div>
-        <div class="dish-desc">Açaí puro do Pará, granola artesanal, banana, morango e mel silvestre do cerrado.</div>
-        <div class="dish-foot">
-          <div class="dish-price"><span class="from">A partir de</span><span class="val"><sup>R$</sup>26</span></div>
-          <div class="dish-chips"><span class="chip">🕐 15min</span><span class="chip">🏍 Grátis</span></div>
-          <div class="arrow">→</div>
-        </div>
-      </div>
-    </a>
-
-    <a href="https://www.ifood.com.br/delivery/busca?q=tacos+al+pastor" target="_blank" class="dish">
-      <div class="dish-img t6">🌮<div class="badge">🌶 Picante</div></div>
-      <div class="dish-body">
-        <div class="dish-top"><span class="dish-from">El Rancho</span><span class="dish-stars">⭐ 4.6</span></div>
-        <div class="dish-name">Combo Tacos al Pastor</div>
-        <div class="dish-desc">4 tacos com carne marinada, abacaxi grelhado, coentro, cebola roxa e chipotle.</div>
-        <div class="dish-foot">
-          <div class="dish-price"><span class="from">A partir de</span><span class="val"><sup>R$</sup>44</span></div>
-          <div class="dish-chips"><span class="chip">🕐 30min</span><span class="chip">🏍 R$3</span></div>
-          <div class="arrow">→</div>
-        </div>
-      </div>
-    </a>
-
-  </div>
-</section>
-
-<!-- PROMO -->
-<div class="promo-wrap reveal">
-  <div class="promo-card">
-    <div>
-      <div class="promo-pct">-30%</div>
-      <div class="promo-title">Primeira entrega<br>com desconto especial</div>
-      <p class="promo-desc">Faça seu primeiro pedido pelo iFood e ganhe 30% de desconto em qualquer restaurante parceiro. Válido para novos usuários.</p>
-      <a href="https://www.ifood.com.br" target="_blank" class="btn-main" style="font-size:14px;padding:14px 28px">🎁 Aproveitar no iFood</a>
+// ── COMPONENTS ────────────────────────────────────────────────────────────────
+function RevealDiv({ children, style = {}, delay = 0 }) {
+  const [ref, vis] = useReveal();
+  return (
+    <div ref={ref} style={{ opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(36px)", transition: `opacity .7s ${delay}s ease, transform .7s ${delay}s ease`, ...style }}>
+      {children}
     </div>
-    <div class="promo-emoji">🎉</div>
-  </div>
-</div>
+  );
+}
 
-<div class="divider"></div>
+// ── MAIN APP ──────────────────────────────────────────────────────────────────
+export default function App() {
+  const [darkMode,   setDarkMode]   = useState(true);
+  const [scrolled,   setScrolled]   = useState(false);
+  const [showTop,    setShowTop]    = useState(false);
+  const [filter,     setFilter]     = useState("Todos");
+  const [favs,       setFavs]       = useState({});
+  const [drinkIdx,   setDrinkIdx]   = useState(0);
+  const [leaves,     setLeaves]     = useState([]);
+  const [soundOn,    setSoundOn]    = useState(false);
+  const [typedText,  setTypedText]  = useState("");
+  const [bannerOn,   setBannerOn]   = useState(true);
+  const sliderRef = useRef(null);
+  const open = isOpen();
 
-<!-- RESTAURANTS -->
-<section class="sec reveal" id="restaurantes">
-  <div class="sec-label"><span>Parceiros selecionados</span></div>
-  <h2 class="sec-title">Restaurantes em <em>destaque</em></h2>
-  <div class="rest-scroll">
-    <a href="https://www.ifood.com.br/delivery/busca?q=Bella+Napoli+pizza" target="_blank" class="rest-card">
-      <span class="rest-icon">🍕</span>
-      <div class="rest-name">Bella Napoli</div><div class="rest-type">Pizzaria Italiana</div>
-      <div class="rest-tags"><span class="rest-tag">Artesanal</span><span class="rest-tag">Forno a Lenha</span><span class="rest-tag">Premium</span></div>
-      <div class="rest-meta"><div class="rmi"><strong>4.9 ⭐</strong><span>Avaliação</span></div><div class="rmi"><strong>~25 min</strong><span>Entrega</span></div></div>
-    </a>
-    <a href="https://www.ifood.com.br/delivery/busca?q=Sakura+House+sushi" target="_blank" class="rest-card">
-      <span class="rest-icon">🍱</span>
-      <div class="rest-name">Sakura House</div><div class="rest-type">Culinária Japonesa</div>
-      <div class="rest-tags"><span class="rest-tag">Sushi</span><span class="rest-tag">Temaki</span><span class="rest-tag">Premium</span></div>
-      <div class="rest-meta"><div class="rmi"><strong>4.8 ⭐</strong><span>Avaliação</span></div><div class="rmi"><strong>~35 min</strong><span>Entrega</span></div></div>
-    </a>
-    <a href="https://www.ifood.com.br/delivery/busca?q=smash+burger+artesanal" target="_blank" class="rest-card">
-      <span class="rest-icon">🍔</span>
-      <div class="rest-name">Crush Burger</div><div class="rest-type">Hamburgeria Artesanal</div>
-      <div class="rest-tags"><span class="rest-tag">Smash</span><span class="rest-tag">Angus</span><span class="rest-tag">Gourmet</span></div>
-      <div class="rest-meta"><div class="rmi"><strong>4.7 ⭐</strong><span>Avaliação</span></div><div class="rmi"><strong>~20 min</strong><span>Entrega</span></div></div>
-    </a>
-    <a href="https://www.ifood.com.br/delivery/busca?q=churrasco+costela+brasa" target="_blank" class="rest-card">
-      <span class="rest-icon">🔥</span>
-      <div class="rest-name">Fogo e Brasa</div><div class="rest-type">Churrascaria Premium</div>
-      <div class="rest-tags"><span class="rest-tag">Costela</span><span class="rest-tag">Picanha</span><span class="rest-tag">12h lento</span></div>
-      <div class="rest-meta"><div class="rmi"><strong>4.9 ⭐</strong><span>Avaliação</span></div><div class="rmi"><strong>~40 min</strong><span>Entrega</span></div></div>
-    </a>
-    <a href="https://www.ifood.com.br/delivery/busca?q=acai+natural+saudavel" target="_blank" class="rest-card">
-      <span class="rest-icon">🌿</span>
-      <div class="rest-name">Raízes do Norte</div><div class="rest-type">Açaí e Saúde</div>
-      <div class="rest-tags"><span class="rest-tag">Vegano</span><span class="rest-tag">Natural</span><span class="rest-tag">Paraense</span></div>
-      <div class="rest-meta"><div class="rmi"><strong>4.8 ⭐</strong><span>Avaliação</span></div><div class="rmi"><strong>~15 min</strong><span>Entrega</span></div></div>
-    </a>
-    <a href="https://www.ifood.com.br/delivery/busca?q=tacos+burritos+mexicano" target="_blank" class="rest-card">
-      <span class="rest-icon">🌮</span>
-      <div class="rest-name">El Rancho</div><div class="rest-type">Culinária Mexicana</div>
-      <div class="rest-tags"><span class="rest-tag">Tacos</span><span class="rest-tag">Burritos</span><span class="rest-tag">Picante</span></div>
-      <div class="rest-meta"><div class="rmi"><strong>4.6 ⭐</strong><span>Avaliação</span></div><div class="rmi"><strong>~30 min</strong><span>Entrega</span></div></div>
-    </a>
-    <a href="https://www.ifood.com.br/delivery/busca?q=massa+italiana+pasta+fresca" target="_blank" class="rest-card">
-      <span class="rest-icon">🍝</span>
-      <div class="rest-name">Pasta Mia</div><div class="rest-type">Massas Artesanais</div>
-      <div class="rest-tags"><span class="rest-tag">Fresca</span><span class="rest-tag">Italiana</span><span class="rest-tag">Clássico</span></div>
-      <div class="rest-meta"><div class="rmi"><strong>4.7 ⭐</strong><span>Avaliação</span></div><div class="rmi"><strong>~30 min</strong><span>Entrega</span></div></div>
-    </a>
-  </div>
-</section>
+  // dark / light colours
+  const c = darkMode ? {
+    bg:"#0d0a07", bg2:"#111009", card:"#181210", card2:"#201a14",
+    cream:"#f0e6d3", orange:"#ff4d00", orangeL:"#ff7b3a", gold:"#d4a843",
+    muted:"#6b5c48", text:"#c8baa8", nav:"rgba(13,10,7,0.97)", border:"rgba(255,255,255,0.06)",
+    divider:"rgba(255,255,255,0.05)", shadow:"rgba(0,0,0,0.5)",
+  } : {
+    bg:"#faf7f2", bg2:"#f0ebe0", card:"#ffffff", card2:"#fdf8f0",
+    cream:"#2d2010", orange:"#e03d00", orangeL:"#d06030", gold:"#b8860b",
+    muted:"#8a7060", text:"#3d2d1a", nav:"rgba(250,247,242,0.97)", border:"rgba(0,0,0,0.08)",
+    divider:"rgba(0,0,0,0.07)", shadow:"rgba(0,0,0,0.12)",
+  };
 
-<footer class="reveal">
-  <div class="footer-logo">Sabo<span>res</span></div>
-  <p class="footer-note">Vitrine de inspiração culinária. Todos os pedidos são processados pelo iFood.</p>
-  <a href="https://www.ifood.com.br" target="_blank" class="footer-link">Ir para o <span class="red">iFood</span> →</a>
-</footer>
+  // ── typing effect ────────────────────────────────────────────────────────
+  const fullText = "Cada prato, uma obra de arte.";
+  useEffect(() => {
+    let i = 0; setTypedText("");
+    const id = setInterval(() => {
+      i++; setTypedText(fullText.slice(0, i));
+      if (i >= fullText.length) clearInterval(id);
+    }, 60);
+    return () => clearInterval(id);
+  }, []);
 
-<script>
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); obs.unobserve(e.target); } });
-  }, { threshold: 0.08 });
-  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-</script>
-</body>
-</html>
+  // ── scroll events ────────────────────────────────────────────────────────
+  useEffect(() => {
+    const fn = () => { setScrolled(window.scrollY > 50); setShowTop(window.scrollY > 300); };
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  // ── leaves ───────────────────────────────────────────────────────────────
+  useEffect(() => {
+    const id = setInterval(() => {
+      const leaf = { id: Date.now(), left: Math.random() * 100, dur: 4 + Math.random() * 4, emoji: ["🍃","🌿","🍂"][Math.floor(Math.random()*3)] };
+      setLeaves(p => [...p.slice(-8), leaf]);
+    }, 3000);
+    return () => clearInterval(id);
+  }, []);
+
+  // ── drink slider scroll sync ─────────────────────────────────────────────
+  useEffect(() => {
+    const el = sliderRef.current; if (!el) return;
+    const fn = () => {
+      const slides = el.querySelectorAll("[data-slide]");
+      const cx = el.scrollLeft + el.clientWidth / 2;
+      let best = 0, bestD = Infinity;
+      slides.forEach((s, i) => {
+        const d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - cx);
+        if (d < bestD) { bestD = d; best = i; }
+      });
+      setDrinkIdx(best);
+    };
+    el.addEventListener("scroll", fn, { passive: true });
+    return () => el.removeEventListener("scroll", fn);
+  }, []);
+
+  const scrollToDrink = (i) => {
+    const el = sliderRef.current; if (!el) return;
+    const slides = el.querySelectorAll("[data-slide]");
+    if (slides[i]) slides[i].scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    setDrinkIdx(i);
+  };
+
+  const toggleFav = (i) => setFavs(f => ({ ...f, [i]: !f[i] }));
+  const filteredDishes = filter === "Todos" ? dishes : dishes.filter(d => d.tag === filter);
+
+  // ── styles ───────────────────────────────────────────────────────────────
+  const S = {
+    app:    { background: c.bg, minHeight:"100vh", fontFamily:"'Georgia',serif", color: c.text, overflowX:"hidden", transition:"background .5s,color .5s" },
+    nav:    { position:"sticky", top:0, zIndex:200, background: c.nav, backdropFilter:"blur(16px)", borderBottom:`1px solid ${c.border}`, padding: scrolled ? "10px 24px" : "16px 24px", display:"flex", justifyContent:"space-between", alignItems:"center", transition:"padding .3s,box-shadow .3s", boxShadow: scrolled ? "0 4px 20px rgba(0,0,0,0.3)" : "none" },
+    logo:   { fontFamily:"Georgia,serif", fontSize: scrolled ? 18 : 22, fontWeight:700, color: c.cream, textDecoration:"none", transition:"font-size .3s" },
+    pill:   (active) => ({ background: active ? c.orange : "transparent", color: active ? "#fff" : c.muted, border:`1px solid ${active ? c.orange : c.border}`, padding:"8px 18px", borderRadius:100, fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:"sans-serif", transition:"all .25s", whiteSpace:"nowrap" }),
+  };
+
+  const todayIdx = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+
+  return (
+    <div style={S.app}>
+
+      {/* ── LEAVES ── */}
+      {leaves.map(l => (
+        <div key={l.id} style={{ position:"fixed", top:"-5%", left:`${l.left}%`, zIndex:9998, pointerEvents:"none", fontSize:20, animation:`fallLeaf ${l.dur}s linear forwards` }}>
+          {l.emoji}
+        </div>
+      ))}
+      <style>{`
+        @keyframes fallLeaf { to { transform: translateY(110vh) rotate(720deg); opacity:0; } }
+        @keyframes blink    { 0%,100%{border-color:currentColor} 50%{border-color:transparent} }
+        @keyframes pulseDot { 0%,100%{opacity:1} 50%{opacity:.3} }
+        @keyframes bannerSlide { 0%{background-position:0% 50%} 100%{background-position:300% 50%} }
+        @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+        ::-webkit-scrollbar { width:6px; height:6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,77,0,0.3); border-radius:3px; }
+      `}</style>
+
+      {/* ── PROMO BANNER ── */}
+      {bannerOn && (
+        <div style={{ background:"linear-gradient(90deg,#b5451b,#ff4d00,#e8925a,#ff4d00,#b5451b)", backgroundSize:"300% 100%", animation:"bannerSlide 5s linear infinite", color:"#fff", padding:"8px 48px 8px 16px", fontSize:12, fontWeight:600, fontFamily:"sans-serif", textAlign:"center", position:"relative" }}>
+          🎉 Primeira entrega com <span style={{ background:"rgba(255,255,255,0.25)", padding:"2px 8px", borderRadius:100, margin:"0 4px" }}>30% OFF</span> no iFood · Válido para novos usuários!
+          <button onClick={() => setBannerOn(false)} style={{ position:"absolute", right:12, top:"50%", transform:"translateY(-50%)", background:"none", border:"none", color:"#fff", cursor:"pointer", fontSize:16, lineHeight:1 }}>×</button>
+        </div>
+      )}
+
+      {/* ── NAV ── */}
+      <nav style={S.nav}>
+        <a href="#" style={S.logo}>Sabo<span style={{ color: c.orange }}>res</span></a>
+
+        {/* Status badge */}
+        <div style={{ display:"flex", alignItems:"center", gap:6, background:"rgba(0,0,0,0.2)", padding:"4px 10px", borderRadius:20, marginLeft:12 }}>
+          <div style={{ width:8, height:8, borderRadius:"50%", background: open ? "#2ecc71" : "#e74c3c", boxShadow: open ? "0 0 8px #2ecc71" : "none", animation: open ? "pulseDot 2s infinite" : "none" }} />
+          <span style={{ fontSize:11, fontWeight:700, color: open ? "#2ecc71" : "#e74c3c", fontFamily:"sans-serif", whiteSpace:"nowrap" }}>
+            {open ? "Aberto agora" : "Fechado"}
+          </span>
+        </div>
+
+        <div style={{ display:"flex", gap:10, alignItems:"center", marginLeft:"auto" }}>
+          {/* Sound */}
+          <button onClick={() => setSoundOn(s => !s)} title="Som" style={{ background:"none", border:"none", cursor:"pointer", fontSize:18, color: soundOn ? "#2ecc71" : c.muted, filter: soundOn ? "drop-shadow(0 0 6px #2ecc71)" : "none", transition:"all .3s" }}>
+            {soundOn ? "🔊" : "🔇"}
+          </button>
+          {/* Dark/light */}
+          <button onClick={() => setDarkMode(d => !d)} title="Tema" style={{ background:"none", border:"none", cursor:"pointer", fontSize:18, color: c.gold }}>
+            {darkMode ? "☀️" : "🌙"}
+          </button>
+          {/* iFood CTA */}
+          <a href="https://www.ifood.com.br" target="_blank" rel="noreferrer"
+            style={{ background: c.orange, color:"#fff", padding:"9px 18px", borderRadius:100, fontSize:13, fontWeight:700, textDecoration:"none", display:"flex", alignItems:"center", gap:6, animation:"bounce 3s ease-in-out infinite", fontFamily:"sans-serif" }}>
+            🛵 iFood
+          </a>
+        </div>
+      </nav>
+
+      {/* ── HERO ── */}
+      <section style={{ padding:"64px 24px 72px", textAlign:"center", background:`radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255,77,0,0.1) 0%, transparent 70%)` }}>
+        <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"rgba(255,77,0,0.1)", border:`1px solid rgba(255,77,0,0.25)`, color: c.orangeL, fontSize:11, letterSpacing:"0.15em", textTransform:"uppercase", padding:"7px 16px", borderRadius:100, marginBottom:28, fontFamily:"sans-serif" }}>
+          <span style={{ width:6, height:6, background: c.orange, borderRadius:"50%", display:"inline-block", animation:"pulseDot 2s infinite" }} />
+          Entrega em até 30 minutos
+        </div>
+
+        <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(36px,8vw,76px)", fontWeight:900, lineHeight:1.0, color: c.cream, marginBottom:20, minHeight:"1.2em" }}>
+          <span style={{ borderRight:`3px solid ${c.orange}`, paddingRight:4, animation:"blink .75s step-end infinite" }}>
+            {typedText}
+          </span>
+        </h1>
+
+        <p style={{ fontSize:15, lineHeight:1.7, color: c.muted, maxWidth:460, margin:"0 auto 32px", fontFamily:"sans-serif", fontWeight:300 }}>
+          Descubra os melhores sabores da cidade. Escolha o que te encanta e pedimos pelo iFood.
+        </p>
+        <div style={{ display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap" }}>
+          <a href="#pratos" style={{ background: c.orange, color:"#fff", padding:"14px 30px", borderRadius:100, fontSize:14, fontWeight:700, textDecoration:"none", fontFamily:"sans-serif" }}>🍽 Explorar Pratos</a>
+          <a href="#categorias" style={{ color: c.muted, padding:"14px 22px", borderRadius:100, fontSize:13, textDecoration:"none", border:`1px solid ${c.border}`, fontFamily:"sans-serif" }}>Ver Categorias →</a>
+        </div>
+        <div style={{ marginTop:48, display:"flex", justifyContent:"center", gap:14, flexWrap:"wrap" }}>
+          {["🍕","🍔","🍱","🥩","🍝"].map((e,i) => (
+            <div key={i} style={{ width:60, height:60, background: c.card, border:`1px solid ${c.border}`, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:26, animation:`bounce ${3+i*0.4}s ease-in-out infinite` }}>{e}</div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── CATEGORIES ── */}
+      <section id="categorias" style={{ padding:"56px 24px", background: c.bg2 }}>
+        <RevealDiv>
+          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
+            <div style={{ width:24, height:1, background: c.orange }} />
+            <span style={{ fontSize:11, letterSpacing:"0.18em", textTransform:"uppercase", color: c.orangeL, fontFamily:"sans-serif" }}>O que você quer hoje?</span>
+          </div>
+          <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(26px,5vw,40px)", fontWeight:900, color: c.cream, marginBottom:32, lineHeight:1.1 }}>
+            Escolha sua <em style={{ color: c.orange }}>categoria</em>
+          </h2>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(90px,1fr))", gap:10 }}>
+            {categories.map((cat,i) => (
+              <a key={i} href={ifoodUrl(cat.q)} target="_blank" rel="noreferrer"
+                style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:8, padding:"20px 8px", borderRadius:14, background: c.card, border:`1px solid ${c.border}`, textDecoration:"none", transition:"all .25s" }}
+                onMouseEnter={e => { e.currentTarget.style.background = c.card2; e.currentTarget.style.borderColor = "rgba(255,77,0,0.2)"; e.currentTarget.style.transform = "translateY(-5px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = c.card;  e.currentTarget.style.borderColor = c.border;              e.currentTarget.style.transform = "translateY(0)"; }}>
+                <span style={{ fontSize:30 }}>{cat.emoji}</span>
+                <span style={{ fontSize:11, color: c.muted, fontFamily:"sans-serif", textAlign:"center" }}>{cat.label}</span>
+              </a>
+            ))}
+          </div>
+        </RevealDiv>
+      </section>
+
+      {/* ── DISHES ── */}
+      <section id="pratos" style={{ padding:"56px 24px" }}>
+        <RevealDiv>
+          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
+            <div style={{ width:24, height:1, background: c.orange }} />
+            <span style={{ fontSize:11, letterSpacing:"0.18em", textTransform:"uppercase", color: c.orangeL, fontFamily:"sans-serif" }}>Seleção da casa</span>
+          </div>
+          <div style={{ display:"flex", flexWrap:"wrap", justifyContent:"space-between", alignItems:"flex-end", marginBottom:28, gap:16 }}>
+            <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(26px,5vw,40px)", fontWeight:900, color: c.cream, lineHeight:1.1 }}>
+              Pratos em <span style={{ color: c.gold }}>destaque</span>
+            </h2>
+            {/* Filter tabs */}
+            <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+              {FILTER_TABS.map(tab => (
+                <button key={tab} onClick={() => setFilter(tab)} style={S.pill(filter === tab)}>{tab}</button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:20 }}>
+            {filteredDishes.map((d,i) => (
+              <div key={i} style={{ position:"relative" }}>
+                <a href={ifoodUrl(d.q)} target="_blank" rel="noreferrer"
+                  style={{ background: c.card, border:`1px solid ${c.border}`, borderRadius:20, overflow:"hidden", textDecoration:"none", display:"block", transition:"all .3s" }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-8px)"; e.currentTarget.style.borderColor = "rgba(255,77,0,0.18)"; e.currentTarget.style.boxShadow = `0 24px 48px ${c.shadow}`; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.borderColor = c.border; e.currentTarget.style.boxShadow = "none"; }}>
+                  {/* image */}
+                  <div style={{ height:150, display:"flex", alignItems:"center", justifyContent:"center", fontSize:68, background:d.bg, position:"relative", overflow:"hidden" }}>
+                    {d.emoji}
+                    <div style={{ position:"absolute", top:12, left:12, background:"rgba(13,10,7,0.85)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:100, padding:"3px 10px", fontSize:10, color: c.gold, fontFamily:"sans-serif", fontWeight:600 }}>{d.badge}</div>
+                    <button onClick={ev => { ev.preventDefault(); ev.stopPropagation(); toggleFav(i); }}
+                      style={{ position:"absolute", top:10, right:12, width:34, height:34, background:"rgba(13,10,7,0.85)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", fontSize:15, color: favs[i] ? "#ff4d00" : c.muted, transition:"color .2s" }}>
+                      {favs[i] ? "♥" : "♡"}
+                    </button>
+                  </div>
+                  {/* body */}
+                  <div style={{ padding:"16px 20px 20px" }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+                      <span style={{ fontSize:10, color: c.muted, textTransform:"uppercase", letterSpacing:"0.08em", fontFamily:"sans-serif" }}>{d.from}</span>
+                      <span style={{ fontSize:11, color: c.gold, fontWeight:600, fontFamily:"sans-serif" }}>⭐ {d.stars}</span>
+                    </div>
+                    <div style={{ fontFamily:"Georgia,serif", fontSize:18, fontWeight:700, color: c.cream, marginBottom:6, lineHeight:1.2 }}>{d.name}</div>
+                    <div style={{ fontSize:12, color: c.muted, lineHeight:1.55, marginBottom:16, fontFamily:"sans-serif", fontWeight:300 }}>{d.desc}</div>
+                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:8 }}>
+                      <div>
+                        <div style={{ fontSize:9, color: c.muted, textTransform:"uppercase", letterSpacing:"0.1em", fontFamily:"sans-serif" }}>A partir de</div>
+                        <div style={{ fontFamily:"Georgia,serif", fontSize:22, fontWeight:700, color: c.cream }}><sup style={{ fontSize:12, fontFamily:"sans-serif", fontWeight:400 }}>R$</sup>{d.price}</div>
+                      </div>
+                      <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                        <span style={{ fontSize:11, color: c.muted, fontFamily:"sans-serif" }}>🕐 {d.time}</span>
+                        <span style={{ fontSize:11, color: c.muted, fontFamily:"sans-serif" }}>🏍 {d.frete}</span>
+                        <div style={{ width:38, height:38, background: c.orange, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontSize:16, flexShrink:0 }}>→</div>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            ))}
+          </div>
+        </RevealDiv>
+      </section>
+
+      {/* ── DRINKS SLIDER ── */}
+      <section id="bebidas" style={{ padding:"72px 0", background: c.bg2, textAlign:"center", position:"relative", overflow:"hidden" }}>
+        {/* bubbles */}
+        {[...Array(8)].map((_,i) => (
+          <div key={i} style={{ position:"absolute", bottom:-20, left:`${10+i*11}%`, width: 6+i*4, height: 6+i*4, borderRadius:"50%", background:"rgba(255,255,255,0.05)", animation:`riseUp ${4+i*1.2}s ${i*0.6}s linear infinite` }} />
+        ))}
+        <style>{`@keyframes riseUp{0%{transform:translateY(0);opacity:0}10%{opacity:1}90%{opacity:.4}100%{transform:translateY(-120vh);opacity:0}}`}</style>
+
+        <RevealDiv style={{ padding:"0 24px", marginBottom:32 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10, justifyContent:"center" }}>
+            <div style={{ width:24, height:1, background: c.orange }} />
+            <span style={{ fontSize:11, letterSpacing:"0.18em", textTransform:"uppercase", color: c.orangeL, fontFamily:"sans-serif" }}>Para acompanhar</span>
+            <div style={{ width:24, height:1, background: c.orange }} />
+          </div>
+          <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(26px,5vw,40px)", fontWeight:900, color: c.cream, lineHeight:1.1 }}>
+            Nossas <em style={{ color: c.orange }}>bebidas</em>
+          </h2>
+        </RevealDiv>
+
+        {/* slider */}
+        <div ref={sliderRef} style={{ display:"flex", gap:20, padding:"10px 10%", overflowX:"auto", scrollSnapType:"x mandatory", alignItems:"center", scrollbarWidth:"none" }}>
+          {drinks.map((dr, i) => {
+            const active = drinkIdx === i;
+            return (
+              <div key={i} data-slide={i}
+                onClick={() => scrollToDrink(i)}
+                style={{
+                  minWidth:270, height:440,
+                  background: active ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.03)",
+                  backdropFilter:"blur(15px)", border: active ? `1.5px solid rgba(255,255,255,0.4)` : `1px solid rgba(255,255,255,0.08)`,
+                  borderRadius:36, padding:"28px 20px",
+                  scrollSnapAlign:"center", transition:"all .5s ease",
+                  opacity: active ? 1 : 0.45, transform: active ? "scale(1.05)" : "scale(0.87)",
+                  display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"space-between",
+                  background: active ? dr.color : c.card,
+                  boxShadow: active ? `0 20px 40px ${c.shadow}, 0 0 30px rgba(255,255,255,0.06)` : "none",
+                  cursor:"pointer", position:"relative",
+                }}>
+                {/* badge */}
+                <div style={{ position:"absolute", top:16, right:16, fontSize:10, fontWeight:700, padding:"4px 10px", borderRadius:20, background:"rgba(255,255,255,0.2)", backdropFilter:"blur(6px)", color:"#fff", letterSpacing:"0.5px", fontFamily:"sans-serif" }}>{dr.badge}</div>
+                <div style={{ fontSize:70, marginBottom:8, filter: active ? "drop-shadow(0 10px 15px rgba(0,0,0,0.4))" : "none", transition:"transform .5s", transform: active ? "translateY(-8px) rotate(5deg)" : "none" }}>{dr.emoji}</div>
+                <div style={{ textAlign:"center", color: active ? "#fff" : c.text }}>
+                  <div style={{ fontFamily:"Georgia,serif", fontSize:18, fontWeight:700, marginBottom:6 }}>{dr.name}</div>
+                  <div style={{ fontSize:12, opacity:0.8, lineHeight:1.5, marginBottom:8, fontFamily:"sans-serif" }}>{dr.desc}</div>
+                  <div style={{ fontSize:10, opacity: active ? 0.7 : 0, transition:"opacity .4s", fontFamily:"sans-serif", marginBottom:8 }}>🔥 {dr.kcal}</div>
+                  <div style={{ fontWeight:700, fontSize:22, fontFamily:"Georgia,serif" }}>R$ {dr.price}</div>
+                </div>
+                <a href={ifoodUrl("bebida+"+dr.name.replace(/\s+/g,"+"))} target="_blank" rel="noreferrer"
+                  onClick={e => e.stopPropagation()}
+                  style={{ background: c.orange, color:"#fff", padding:"10px 24px", borderRadius:100, fontSize:12, fontWeight:700, textDecoration:"none", fontFamily:"sans-serif", opacity: active ? 1 : 0, transition:"opacity .4s", pointerEvents: active ? "auto" : "none" }}>
+                  Pedir no iFood →
+                </a>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* dots */}
+        <div style={{ display:"flex", justifyContent:"center", gap:8, marginTop:24 }}>
+          {drinks.map((_,i) => (
+            <button key={i} onClick={() => scrollToDrink(i)} style={{ width:8, height:8, borderRadius:"50%", background: drinkIdx===i ? "#fff" : "rgba(255,255,255,0.3)", border:"none", cursor:"pointer", transform: drinkIdx===i ? "scale(1.3)" : "scale(1)", transition:"all .3s" }} />
+          ))}
+        </div>
+      </section>
+
+      {/* ── PROMO BANNER ── */}
+      <RevealDiv style={{ padding:"0 24px 56px" }}>
+        <div style={{ background:"linear-gradient(135deg,#1a0f05,#0d0a07,#150e05)", border:"1px solid rgba(255,77,0,0.2)", borderRadius:24, padding:"48px 36px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:32, flexWrap:"wrap", position:"relative", overflow:"hidden" }}>
+          <div style={{ position:"absolute", top:-60, right:-60, width:240, height:240, background:"radial-gradient(circle,rgba(255,77,0,0.1) 0%,transparent 65%)", pointerEvents:"none" }} />
+          <div style={{ position:"relative", zIndex:1 }}>
+            <div style={{ fontFamily:"Georgia,serif", fontSize:"clamp(52px,10vw,88px)", fontWeight:900, color: c.orange, lineHeight:1, marginBottom:10 }}>-30%</div>
+            <div style={{ fontFamily:"Georgia,serif", fontSize:"clamp(20px,3vw,30px)", fontWeight:700, color: c.cream, marginBottom:12 }}>Primeira entrega<br />com desconto especial</div>
+            <p style={{ fontSize:14, color: c.muted, lineHeight:1.65, marginBottom:28, maxWidth:360, fontFamily:"sans-serif" }}>Faça seu primeiro pedido pelo iFood e ganhe 30% de desconto em qualquer restaurante parceiro.</p>
+            <a href="https://www.ifood.com.br" target="_blank" rel="noreferrer"
+              style={{ background: c.orange, color:"#fff", padding:"14px 28px", borderRadius:100, fontSize:14, fontWeight:700, textDecoration:"none", display:"inline-flex", alignItems:"center", gap:8, fontFamily:"sans-serif" }}>
+              🎁 Aproveitar no iFood
+            </a>
+          </div>
+          <div style={{ fontSize:90, flexShrink:0 }}>🎉</div>
+        </div>
+      </RevealDiv>
+
+      {/* ── RESTAURANTS ── */}
+      <section id="restaurantes" style={{ padding:"56px 24px", borderTop:`1px solid ${c.divider}` }}>
+        <RevealDiv>
+          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
+            <div style={{ width:24, height:1, background: c.orange }} />
+            <span style={{ fontSize:11, letterSpacing:"0.18em", textTransform:"uppercase", color: c.orangeL, fontFamily:"sans-serif" }}>Parceiros selecionados</span>
+          </div>
+          <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(26px,5vw,40px)", fontWeight:900, color: c.cream, marginBottom:32, lineHeight:1.1 }}>
+            Restaurantes em <em style={{ color: c.orange }}>destaque</em>
+          </h2>
+          <div style={{ display:"flex", gap:14, overflowX:"auto", paddingBottom:10 }}>
+            {restaurants.map((r,i) => (
+              <a key={i} href={ifoodUrl(r.q)} target="_blank" rel="noreferrer"
+                style={{ flex:"0 0 210px", background: c.card, border:`1px solid ${c.border}`, borderRadius:16, padding:22, textDecoration:"none", transition:"all .25s", display:"block" }}
+                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-5px)"; e.currentTarget.style.borderColor = "rgba(255,77,0,0.2)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.borderColor = c.border; }}>
+                <div style={{ fontSize:36, marginBottom:12 }}>{r.icon}</div>
+                <div style={{ fontFamily:"Georgia,serif", fontSize:15, fontWeight:700, color: c.cream, marginBottom:4 }}>{r.name}</div>
+                <div style={{ fontSize:11, color: c.muted, marginBottom:12, fontFamily:"sans-serif" }}>{r.type}</div>
+                <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginBottom:14 }}>
+                  {r.tags.map((t,j) => <span key={j} style={{ padding:"3px 9px", background:"rgba(255,255,255,0.03)", border:`1px solid ${c.border}`, borderRadius:100, fontSize:9, color: c.muted, fontFamily:"sans-serif" }}>{t}</span>)}
+                </div>
+                <div style={{ display:"flex", gap:14 }}>
+                  <div><strong style={{ fontSize:13, color: c.cream, fontFamily:"sans-serif" }}>{r.rating} ⭐</strong><div style={{ fontSize:9, color: c.muted, fontFamily:"sans-serif", textTransform:"uppercase", letterSpacing:"0.08em" }}>Avaliação</div></div>
+                  <div><strong style={{ fontSize:13, color: c.cream, fontFamily:"sans-serif" }}>{r.time}</strong><div style={{ fontSize:9, color: c.muted, fontFamily:"sans-serif", textTransform:"uppercase", letterSpacing:"0.08em" }}>Entrega</div></div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </RevealDiv>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer style={{ background: darkMode ? "#080604" : "#1a1208", padding:"60px 24px 40px", borderTop:`1px solid ${c.divider}` }}>
+        <RevealDiv>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:40, maxWidth:960, margin:"0 auto 48px" }}>
+            {/* brand */}
+            <div>
+              <div style={{ fontFamily:"Georgia,serif", fontSize:32, fontWeight:700, color: c.cream, marginBottom:8 }}>Sabo<span style={{ color: c.orange }}>res</span></div>
+              <p style={{ fontSize:13, color: c.muted, lineHeight:1.7, fontFamily:"sans-serif" }}>Vitrine de inspiração culinária.<br />Todos os pedidos são processados pelo iFood.</p>
+            </div>
+            {/* hours */}
+            <div>
+              <div style={{ fontFamily:"Georgia,serif", fontSize:18, color: c.gold, marginBottom:16 }}>Horários</div>
+              <ul style={{ listStyle:"none", fontFamily:"sans-serif" }}>
+                {hours.map((h,i) => (
+                  <li key={i} style={{ display:"flex", justifyContent:"space-between", padding:"4px 0", fontSize:13, color: i === todayIdx ? c.gold : c.muted, fontWeight: i === todayIdx ? 700 : 400, borderBottom:`1px solid ${c.divider}` }}>
+                    <span>{h.day}</span><span>{h.range}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {/* links */}
+            <div>
+              <div style={{ fontFamily:"Georgia,serif", fontSize:18, color: c.gold, marginBottom:16 }}>Links</div>
+              {[["🍽 Cardápio","#pratos"],["🗂 Categorias","#categorias"],["🥤 Bebidas","#bebidas"],["🏪 Restaurantes","#restaurantes"]].map(([l,h]) => (
+                <a key={l} href={h} style={{ display:"block", fontSize:13, color: c.muted, textDecoration:"none", lineHeight:2.2, fontFamily:"sans-serif", transition:"color .2s" }}
+                  onMouseEnter={e => e.currentTarget.style.color = c.cream}
+                  onMouseLeave={e => e.currentTarget.style.color = c.muted}>{l}</a>
+              ))}
+            </div>
+          </div>
+
+          {/* big CTA */}
+          <a href="https://www.ifood.com.br" target="_blank" rel="noreferrer"
+            style={{ display:"block", maxWidth:400, margin:"0 auto 24px", padding:"20px", borderRadius:16, textAlign:"center", background: c.orange, color:"#fff", textDecoration:"none", fontWeight:700, fontSize:16, fontFamily:"sans-serif" }}>
+            🛵 Ir para o iFood e pedir agora
+          </a>
+
+          <p style={{ textAlign:"center", fontSize:11, color: c.muted, fontFamily:"sans-serif" }}>
+            © {new Date().getFullYear()} Sabores · Vitrine de inspiração culinária
+          </p>
+        </RevealDiv>
+      </footer>
+
+      {/* ── WHATSAPP FLOAT ── */}
+      <a href="https://wa.me/5511999999999" target="_blank" rel="noreferrer"
+        style={{ position:"fixed", bottom:24, right:24, width:56, height:56, background:"#25D366", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:30, textDecoration:"none", zIndex:500, boxShadow:"0 4px 20px rgba(37,211,102,0.45)", transition:"all .3s" }}
+        onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.12) rotate(-8deg)"; e.currentTarget.style.boxShadow = "0 8px 30px rgba(37,211,102,0.65)"; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = "scale(1) rotate(0)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(37,211,102,0.45)"; }}>
+        💬
+      </a>
+
+      {/* ── BACK TO TOP ── */}
+      <button onClick={() => window.scrollTo({ top:0, behavior:"smooth" })}
+        style={{ position:"fixed", bottom:92, right:28, width:40, height:40, background: c.orange, border:"none", borderRadius:"50%", color:"#fff", fontSize:18, cursor:"pointer", zIndex:500, opacity: showTop ? 1 : 0, transform: showTop ? "translateY(0)" : "translateY(10px)", transition:"all .3s", pointerEvents: showTop ? "auto" : "none" }}>
+        ↑
+      </button>
+
+    </div>
+  );
+}
