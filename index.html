@@ -15,87 +15,76 @@ body{overflow-x:hidden}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(255,77,0,.35);border-radius:3px}
-@keyframes fallLeaf{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
-@keyframes blink{0%,100%{border-color:currentColor}50%{border-color:transparent}}
-@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.3}}
-@keyframes bannerSlide{0%{background-position:0% 50%}100%{background-position:300% 50%}}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-@keyframes riseUp{0%{transform:translateY(0);opacity:0}10%{opacity:1}90%{opacity:.4}100%{transform:translateY(-120vh);opacity:0}}
+@keyframes fallLeaf  {to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+@keyframes blink     {0%,100%{border-color:currentColor}50%{border-color:transparent}}
+@keyframes pulseDot  {0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes bannerSlide{0%{background-position:0 50%}100%{background-position:300% 50%}}
+@keyframes bounce    {0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes riseUp    {0%{transform:translateY(0);opacity:0}10%{opacity:1}90%{opacity:.4}100%{transform:translateY(-120vh);opacity:0}}
+.no-scroll::-webkit-scrollbar{display:none}
+.no-scroll{-ms-overflow-style:none;scrollbar-width:none}
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script>
-const { createElement: h, useState, useEffect, useRef, Fragment } = React;
+const {createElement:h,useState,useEffect,useRef,memo,Fragment}=React;
 
-// ── DATA ──────────────────────────────────────────────────────────────────────
-const CATS = [
-  {emoji:"🍕",label:"Pizza",     q:"pizza"},
-  {emoji:"🍔",label:"Burger",    q:"burger"},
-  {emoji:"🍣",label:"Japonês",   q:"sushi"},
-  {emoji:"🥩",label:"Churrasco", q:"churrasco"},
-  {emoji:"🍝",label:"Massas",    q:"massa+italiana"},
-  {emoji:"🌮",label:"Mexicano",  q:"tacos+mexicano"},
-  {emoji:"🍇",label:"Açaí",      q:"acai"},
-  {emoji:"🥗",label:"Saudável",  q:"saudavel+salada"},
-  {emoji:"🍗",label:"Frango",    q:"frango+frito"},
-  {emoji:"🍰",label:"Doces",     q:"sobremesa+doce"},
-  {emoji:"🥦",label:"Vegano",    q:"vegano"},
-  {emoji:"🧃",label:"Bebidas",   q:"bebida+suco"},
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const CATS=[
+  {emoji:"🍕",label:"Pizza",q:"pizza"},{emoji:"🍔",label:"Burger",q:"burger"},
+  {emoji:"🍣",label:"Japonês",q:"sushi"},{emoji:"🥩",label:"Churrasco",q:"churrasco"},
+  {emoji:"🍝",label:"Massas",q:"massa+italiana"},{emoji:"🌮",label:"Mexicano",q:"tacos+mexicano"},
+  {emoji:"🍇",label:"Açaí",q:"acai"},{emoji:"🥗",label:"Saudável",q:"saudavel+salada"},
+  {emoji:"🍗",label:"Frango",q:"frango+frito"},{emoji:"🍰",label:"Doces",q:"sobremesa+doce"},
+  {emoji:"🥦",label:"Vegano",q:"vegano"},{emoji:"🧃",label:"Bebidas",q:"bebida+suco"},
 ];
-
-const DISHES = [
-  {emoji:"🍕",badge:"🔥 Mais pedido",  from:"Bella Napoli",    stars:"4.9",name:"Pizza Margherita Trufada",  desc:"Massa artesanal fermentada, molho San Marzano, mozzarella de búfala e trufa negra.",price:"54",time:"25min",frete:"Grátis",q:"pizza+margherita",      bg:"linear-gradient(135deg,#1a0f05,#2a1809)",tag:"Mais pedidos"},
-  {emoji:"🍱",badge:"✦ Premium",        from:"Sakura House",    stars:"4.8",name:"Combinado do Chef",          desc:"30 peças com salmão premium, atum fresco, polvinho e temaki especial da casa.",  price:"89",time:"35min",frete:"R$5",   q:"combinado+sushi",        bg:"linear-gradient(135deg,#091a11,#0c2516)",tag:"Premium"},
-  {emoji:"🍔",badge:"⚡ Novo",           from:"Crush Burger",    stars:"4.7",name:"Smash Double Crispy",        desc:"Dois smash patties de angus, queijo americano derretido, pickles e molho especial.",price:"38",time:"20min",frete:"Grátis",q:"smash+burger",           bg:"linear-gradient(135deg,#1a0c04,#2b1508)",tag:"Novidades"},
-  {emoji:"🥩",badge:"🏆 Top avaliado",  from:"Fogo e Brasa",    stars:"4.9",name:"Costela Bovina na Brasa",    desc:"Cozida por 12 horas, desfiando no garfo, com vinagrete especial e farofa.",       price:"67",time:"40min",frete:"R$8",   q:"costela+churrasco",      bg:"linear-gradient(135deg,#0a1018,#101a28)",tag:"Mais pedidos"},
-  {emoji:"🍇",badge:"🌿 Saudável",      from:"Raízes do Norte", stars:"4.8",name:"Bowl de Açaí Amazônico",     desc:"Açaí puro do Pará, granola artesanal, banana, morango e mel silvestre.",         price:"26",time:"15min",frete:"Grátis",q:"bowl+acai",               bg:"linear-gradient(135deg,#1a0a0a,#2b1212)",tag:"Promoções"},
-  {emoji:"🌮",badge:"🌶 Picante",       from:"El Rancho",       stars:"4.6",name:"Combo Tacos al Pastor",      desc:"4 tacos com carne marinada, abacaxi grelhado, cebola roxa e molho chipotle.",   price:"44",time:"30min",frete:"R$3",   q:"tacos+pastor",           bg:"linear-gradient(135deg,#120d1a,#1c1228)",tag:"Promoções"},
+const DISHES=[
+  {emoji:"🍕",badge:"🔥 Mais pedido", from:"Bella Napoli",   stars:"4.9",name:"Pizza Margherita Trufada", desc:"Massa artesanal fermentada, molho San Marzano, mozzarella de búfala e trufa negra.",price:"54",time:"25min",frete:"Grátis",q:"pizza+margherita",  bg:"linear-gradient(135deg,#1a0f05,#2a1809)",tag:"Mais pedidos"},
+  {emoji:"🍱",badge:"✦ Premium",       from:"Sakura House",  stars:"4.8",name:"Combinado do Chef",         desc:"30 peças com salmão premium, atum fresco, polvinho e temaki especial da casa.",  price:"89",time:"35min",frete:"R$5",  q:"combinado+sushi",   bg:"linear-gradient(135deg,#091a11,#0c2516)",tag:"Premium"},
+  {emoji:"🍔",badge:"⚡ Novo",          from:"Crush Burger",  stars:"4.7",name:"Smash Double Crispy",       desc:"Dois smash patties de angus, queijo americano derretido, pickles e molho especial.",price:"38",time:"20min",frete:"Grátis",q:"smash+burger",      bg:"linear-gradient(135deg,#1a0c04,#2b1508)",tag:"Novidades"},
+  {emoji:"🥩",badge:"🏆 Top avaliado", from:"Fogo e Brasa",  stars:"4.9",name:"Costela Bovina na Brasa",   desc:"Cozida por 12 horas, desfiando no garfo, com vinagrete especial e farofa.",       price:"67",time:"40min",frete:"R$8",  q:"costela+churrasco", bg:"linear-gradient(135deg,#0a1018,#101a28)",tag:"Mais pedidos"},
+  {emoji:"🍇",badge:"🌿 Saudável",     from:"Raízes do Norte",stars:"4.8",name:"Bowl de Açaí Amazônico",    desc:"Açaí puro do Pará, granola artesanal, banana, morango e mel silvestre.",         price:"26",time:"15min",frete:"Grátis",q:"bowl+acai",          bg:"linear-gradient(135deg,#1a0a0a,#2b1212)",tag:"Promoções"},
+  {emoji:"🌮",badge:"🌶 Picante",      from:"El Rancho",     stars:"4.6",name:"Combo Tacos al Pastor",      desc:"4 tacos com carne marinada, abacaxi grelhado, cebola roxa e molho chipotle.",   price:"44",time:"30min",frete:"R$3",  q:"tacos+pastor",      bg:"linear-gradient(135deg,#120d1a,#1c1228)",tag:"Promoções"},
 ];
-
-const DRINKS = [
-  {emoji:"🥤",name:"Limonada Suíça",    desc:"Leite condensado, limão siciliano e menta fresca batidos na hora.",price:"18",bg:"linear-gradient(135deg,#1a3a1a,#2d6b2d)",badge:"🌿 Refrescante",kcal:"180 kcal"},
-  {emoji:"🧃",name:"Suco de Manga",     desc:"Manga Tommy fresca, sem adição de açúcar. 100% natural.",          price:"14",bg:"linear-gradient(135deg,#3a2000,#7a4500)",badge:"🔥 Top",         kcal:"120 kcal"},
-  {emoji:"🍵",name:"Chá Gelado Hibisco",desc:"Hibisco, gengibre, mel e limão. Servido com pedras de gelo.",      price:"16",bg:"linear-gradient(135deg,#3a001a,#7a0040)",badge:"✦ Especial",     kcal:"90 kcal"},
-  {emoji:"🥛",name:"Vitamina de Açaí",  desc:"Açaí puro, banana, aveia e mel. Energia para o dia todo.",        price:"22",bg:"linear-gradient(135deg,#1a0a2e,#3d1460)",badge:"💜 Premium",     kcal:"280 kcal"},
-  {emoji:"🍹",name:"Água de Coco Fresca",desc:"Diretamente do coco verde, gelada e natural.",                    price:"12",bg:"linear-gradient(135deg,#0a2e2e,#145050)",badge:"🌴 Fresh",        kcal:"60 kcal"},
+const DRINKS=[
+  {emoji:"🥤",name:"Limonada Suíça",    desc:"Leite condensado, limão siciliano e menta fresca batidos na hora.",price:"18",bg:"linear-gradient(135deg,#0d2b0d,#1a5c1a)",badge:"🌿 Refrescante",kcal:"180 kcal"},
+  {emoji:"🧃",name:"Suco de Manga",     desc:"Manga Tommy fresca, sem adição de açúcar. 100% natural.",          price:"14",bg:"linear-gradient(135deg,#2a1400,#6b3a00)",badge:"🔥 Top",         kcal:"120 kcal"},
+  {emoji:"🍵",name:"Chá Gelado Hibisco",desc:"Hibisco, gengibre, mel e limão. Servido com pedras de gelo.",      price:"16",bg:"linear-gradient(135deg,#2a0015,#6b0035)",badge:"✦ Especial",     kcal:"90 kcal"},
+  {emoji:"🥛",name:"Vitamina de Açaí",  desc:"Açaí puro, banana, aveia e mel. Energia para o dia todo.",         price:"22",bg:"linear-gradient(135deg,#140826,#3a1260)",badge:"💜 Premium",     kcal:"280 kcal"},
+  {emoji:"🍹",name:"Água de Coco Fresca",desc:"Diretamente do coco verde, gelada e natural.",                    price:"12",bg:"linear-gradient(135deg,#082020,#104040)",badge:"🌴 Fresh",        kcal:"60 kcal"},
 ];
-
-const RESTAURANTS = [
-  {icon:"🍕",name:"Bella Napoli",    type:"Pizzaria Italiana",   tags:["Artesanal","Forno a Lenha"],rating:"4.9",time:"~25 min",q:"Bella+Napoli+pizza"},
-  {icon:"🍱",name:"Sakura House",    type:"Culinária Japonesa",  tags:["Sushi","Temaki","Premium"],  rating:"4.8",time:"~35 min",q:"Sakura+sushi"},
-  {icon:"🍔",name:"Crush Burger",    type:"Hamburgeria",          tags:["Smash","Angus","Gourmet"],   rating:"4.7",time:"~20 min",q:"smash+burger"},
-  {icon:"🔥",name:"Fogo e Brasa",    type:"Churrascaria Premium", tags:["Costela","Picanha"],         rating:"4.9",time:"~40 min",q:"churrasco+costela"},
-  {icon:"🌿",name:"Raízes do Norte", type:"Açaí e Saúde",         tags:["Vegano","Natural"],          rating:"4.8",time:"~15 min",q:"acai+natural"},
-  {icon:"🌮",name:"El Rancho",       type:"Culinária Mexicana",   tags:["Tacos","Burritos"],          rating:"4.6",time:"~30 min",q:"tacos+mexicano"},
-  {icon:"🍝",name:"Pasta Mia",       type:"Massas Artesanais",    tags:["Fresca","Italiana"],         rating:"4.7",time:"~30 min",q:"massa+italiana"},
+const RESTAURANTS=[
+  {icon:"🍕",name:"Bella Napoli",   type:"Pizzaria Italiana",   tags:["Artesanal","Forno a Lenha"],rating:"4.9",time:"~25 min",q:"Bella+Napoli+pizza"},
+  {icon:"🍱",name:"Sakura House",   type:"Culinária Japonesa",  tags:["Sushi","Temaki","Premium"],  rating:"4.8",time:"~35 min",q:"Sakura+sushi"},
+  {icon:"🍔",name:"Crush Burger",   type:"Hamburgeria",          tags:["Smash","Angus","Gourmet"],   rating:"4.7",time:"~20 min",q:"smash+burger"},
+  {icon:"🔥",name:"Fogo e Brasa",   type:"Churrascaria Premium", tags:["Costela","Picanha"],         rating:"4.9",time:"~40 min",q:"churrasco+costela"},
+  {icon:"🌿",name:"Raízes do Norte",type:"Açaí e Saúde",         tags:["Vegano","Natural"],          rating:"4.8",time:"~15 min",q:"acai+natural"},
+  {icon:"🌮",name:"El Rancho",      type:"Culinária Mexicana",   tags:["Tacos","Burritos"],          rating:"4.6",time:"~30 min",q:"tacos+mexicano"},
+  {icon:"🍝",name:"Pasta Mia",      type:"Massas Artesanais",    tags:["Fresca","Italiana"],         rating:"4.7",time:"~30 min",q:"massa+italiana"},
 ];
-
-const HOURS = [
-  {day:"Segunda",range:"11h – 22h"},{day:"Terça",range:"11h – 22h"},
-  {day:"Quarta", range:"11h – 22h"},{day:"Quinta",range:"11h – 23h"},
-  {day:"Sexta",  range:"11h – 00h"},{day:"Sábado",range:"10h – 00h"},
+const HOURS=[
+  {day:"Segunda",range:"11h – 22h"},{day:"Terça",  range:"11h – 22h"},
+  {day:"Quarta", range:"11h – 22h"},{day:"Quinta", range:"11h – 23h"},
+  {day:"Sexta",  range:"11h – 00h"},{day:"Sábado", range:"10h – 00h"},
   {day:"Domingo",range:"10h – 22h"},
 ];
-
-const FILTERS = ["Todos","Mais pedidos","Novidades","Premium","Promoções"];
-const iurl = q => `https://www.ifood.com.br/delivery/busca?q=${q}`;
+const FILTERS=["Todos","Mais pedidos","Novidades","Premium","Promoções"];
+const iurl=q=>`https://www.ifood.com.br/delivery/busca?q=${q}`;
 
 function storeOpen(){
-  const now=new Date(),day=now.getDay(),h=now.getHours()+now.getMinutes()/60;
-  if(day===0)return h>=10&&h<22; if(day===6)return h>=10;
-  if(day===5)return h>=11;       if(day===4)return h>=11&&h<23;
+  const n=new Date(),d=n.getDay(),h=n.getHours()+n.getMinutes()/60;
+  if(d===0)return h>=10&&h<22; if(d===6)return h>=10;
+  if(d===5)return h>=11;       if(d===4)return h>=11&&h<23;
   return h>=11&&h<22;
 }
-
-// ── PALETTE ──────────────────────────────────────────────────────────────────
-function palette(dark){
-  return dark ? {
+function pal(dark){
+  return dark?{
     bg:"#0d0a07",bg2:"#111009",card:"#181210",card2:"#201a14",
     cream:"#f0e6d3",orange:"#ff4d00",orangeL:"#ff7b3a",gold:"#d4a843",
     muted:"#6b5c48",text:"#c8baa8",navBg:"rgba(13,10,7,0.97)",
     border:"rgba(255,255,255,0.06)",divider:"rgba(255,255,255,0.05)",
-  } : {
+  }:{
     bg:"#faf7f2",bg2:"#f0ebe0",card:"#ffffff",card2:"#fdf8f0",
     cream:"#2d2010",orange:"#e03d00",orangeL:"#c05020",gold:"#b8860b",
     muted:"#8a7060",text:"#3d2d1a",navBg:"rgba(250,247,242,0.97)",
@@ -103,8 +92,209 @@ function palette(dark){
   };
 }
 
-// ── REVEAL ───────────────────────────────────────────────────────────────────
-function Reveal({children, delay=0, style={}}){
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// COMPONENTES ISOLADOS — cada um gerencia seu próprio estado
+// Isso evita que o estado de um re-renderize o App inteiro (causa do piscar)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// ── Efeito digitação — NÃO fica no App para não piscar tudo ─────────────────
+function TypingText({orange}){
+  const [txt,setTxt]=useState("");
+  useEffect(()=>{
+    const full="Cada prato, uma obra de arte.";
+    let i=0;
+    const id=setInterval(()=>{i++;setTxt(full.slice(0,i));if(i>=full.length)clearInterval(id);},65);
+    return()=>clearInterval(id);
+  },[]);
+  return h("h1",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(32px,8vw,72px)",fontWeight:900,lineHeight:1,color:"#f0e6d3",marginBottom:20,minHeight:"1.15em"}},
+    h("span",{style:{borderRight:`3px solid ${orange}`,paddingRight:4,animation:"blink .75s step-end infinite"}},txt)
+  );
+}
+
+// ── Folhas caindo — NÃO fica no App para não piscar tudo ────────────────────
+function LeavesLayer(){
+  const [leaves,setLeaves]=useState([]);
+  useEffect(()=>{
+    const em=["🍃","🌿","🍂"];
+    const id=setInterval(()=>{
+      setLeaves(p=>[...p.slice(-7),{id:Date.now(),left:Math.random()*95,dur:4+Math.random()*4,e:em[Math.floor(Math.random()*3)]}]);
+    },3500);
+    return()=>clearInterval(id);
+  },[]);
+  return h(Fragment,null,...leaves.map(l=>
+    h("div",{key:l.id,style:{position:"fixed",top:"-5%",left:l.left+"%",zIndex:9000,pointerEvents:"none",fontSize:17,animation:`fallLeaf ${l.dur}s linear forwards`}},l.e)
+  ));
+}
+
+// ── Slider de bebidas — estado ISOLADO, nunca pisca o App ───────────────────
+function DrinkSlider({c}){
+  // índice ativo controlado puramente por CSS via data-active
+  // sem re-render causado por scroll do App
+  const [active,setActive]=useState(0);
+  const slRef=useRef(null);
+  const scrollTimer=useRef(null);
+
+  function goTo(i){
+    const el=slRef.current; if(!el)return;
+    const slides=el.querySelectorAll("[data-slide]");
+    if(!slides[i])return;
+    setActive(i);
+    const s=slides[i];
+    const left=s.offsetLeft-(el.clientWidth/2)+(s.offsetWidth/2);
+    el.scrollTo({left,behavior:"smooth"});
+  }
+
+  useEffect(()=>{
+    const el=slRef.current; if(!el)return;
+    const onScroll=()=>{
+      // debounce: atualiza índice só depois que o scroll parar
+      clearTimeout(scrollTimer.current);
+      scrollTimer.current=setTimeout(()=>{
+        const slides=el.querySelectorAll("[data-slide]");
+        const cx=el.scrollLeft+el.clientWidth/2;
+        let best=0,bestD=Infinity;
+        slides.forEach((s,i)=>{
+          const d=Math.abs(s.offsetLeft+s.offsetWidth/2-cx);
+          if(d<bestD){bestD=d;best=i;}
+        });
+        setActive(best);
+      },100);
+    };
+    el.addEventListener("scroll",onScroll,{passive:true});
+    return()=>{el.removeEventListener("scroll",onScroll);clearTimeout(scrollTimer.current);};
+  },[]);
+
+  return h("section",{id:"bebidas",style:{padding:"72px 0 0",background:"linear-gradient(180deg,#080d0a,#0f1a12 55%,#0a1008)",textAlign:"center",position:"relative"}},
+
+    // bolhas em div isolado com overflow:hidden para não vazar
+    h("div",{style:{position:"absolute",inset:0,overflow:"hidden",pointerEvents:"none",zIndex:0}},
+      ...[...Array(10)].map((_,i)=>
+        h("div",{key:i,style:{position:"absolute",bottom:-20,left:(4+i*9)+"%",width:8+i*4,height:8+i*4,borderRadius:"50%",background:"rgba(255,255,255,0.07)",animation:`riseUp ${5+i*1.3}s ${i*.8}s linear infinite`}})
+      )
+    ),
+
+    // título
+    h("div",{style:{padding:"0 20px",marginBottom:32,position:"relative",zIndex:2}},
+      h("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:10,justifyContent:"center"}},
+        h("div",{style:{width:22,height:1,background:c.orange}}),
+        h("span",{style:{fontSize:10,letterSpacing:"0.18em",textTransform:"uppercase",color:c.orangeL,fontFamily:"sans-serif"}},"Para acompanhar"),
+        h("div",{style:{width:22,height:1,background:c.orange}})
+      ),
+      h("h2",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(24px,5vw,38px)",fontWeight:900,color:"#f0e6d3",lineHeight:1.1}},
+        "Nossas ",h("em",{style:{color:c.orange}},"bebidas")
+      )
+    ),
+
+    // o slider em si
+    h("div",{
+      ref:slRef,
+      className:"no-scroll",
+      style:{
+        display:"flex",
+        gap:20,
+        overflowX:"auto",
+        scrollSnapType:"x mandatory",
+        // padding lateral para centralizar o primeiro e último card
+        paddingLeft:"calc(50% - 140px)",
+        paddingRight:"calc(50% - 140px)",
+        paddingTop:10,
+        paddingBottom:10,
+        alignItems:"center",
+        WebkitOverflowScrolling:"touch",
+        position:"relative",
+        zIndex:1,
+      }
+    },
+      ...DRINKS.map((dr,i)=>{
+        const on=active===i;
+        return h("div",{
+          key:i,
+          "data-slide":i,
+          onClick:()=>goTo(i),
+          style:{
+            flexShrink:0,
+            width:280,
+            height:440,
+            // glassmorphism: inativo = vidro escuro, ativo = gradiente da bebida
+            background:on?dr.bg:"rgba(255,255,255,0.04)",
+            backdropFilter:"blur(20px)",
+            WebkitBackdropFilter:"blur(20px)",
+            border:on?"1.5px solid rgba(255,255,255,0.45)":"1px solid rgba(255,255,255,0.09)",
+            borderRadius:36,
+            padding:"28px 22px 24px",
+            scrollSnapAlign:"center",
+            // transição suave sem re-renderização
+            transition:"opacity .45s ease, transform .45s ease, background .45s ease, border-color .45s ease, box-shadow .45s ease",
+            opacity:on?1:0.38,
+            transform:on?"scale(1.05)":"scale(0.84)",
+            display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"space-between",
+            boxShadow:on?"0 24px 56px rgba(0,0,0,0.55),0 0 40px rgba(255,255,255,0.06)":"none",
+            cursor:"pointer",
+            position:"relative",
+            color:"#fff",
+            userSelect:"none",
+          }
+        },
+          // badge topo direito
+          h("div",{style:{position:"absolute",top:16,right:16,fontSize:9,fontWeight:700,padding:"4px 10px",borderRadius:20,background:"rgba(255,255,255,0.2)",backdropFilter:"blur(6px)",letterSpacing:"0.5px",fontFamily:"sans-serif"}},dr.badge),
+
+          // emoji flutuante no ativo
+          h("div",{style:{fontSize:68,lineHeight:1,transition:"transform .45s ease",transform:on?"translateY(-10px) rotate(6deg)":"translateY(0) rotate(0)"}},dr.emoji),
+
+          // textos
+          h("div",{style:{textAlign:"center",width:"100%"}},
+            h("div",{style:{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,marginBottom:6,lineHeight:1.2}},dr.name),
+            h("div",{style:{fontSize:11,opacity:.82,lineHeight:1.55,marginBottom:8,fontFamily:"sans-serif"}},dr.desc),
+            h("div",{style:{fontSize:10,fontFamily:"sans-serif",marginBottom:8,opacity:on?.7:0,transition:"opacity .4s ease"}},"🔥 "+dr.kcal),
+            h("div",{style:{fontFamily:"Georgia,serif",fontSize:22,fontWeight:700}},"R$ "+dr.price)
+          ),
+
+          // botão — só visível e clicável no ativo
+          h("a",{
+            href:iurl("bebida+"+dr.name.replace(/\s+/g,"+")),
+            target:"_blank",rel:"noreferrer",
+            onClick:e=>e.stopPropagation(),
+            style:{
+              background:c.orange,color:"#fff",
+              padding:"10px 24px",borderRadius:100,
+              fontSize:11,fontWeight:700,
+              textDecoration:"none",fontFamily:"sans-serif",
+              whiteSpace:"nowrap",
+              opacity:on?1:0,
+              transform:on?"translateY(0)":"translateY(8px)",
+              transition:"opacity .4s ease,transform .4s ease",
+              pointerEvents:on?"auto":"none",
+            }
+          },"Pedir no iFood →")
+        );
+      })
+    ),
+
+    // dots — pill no ativo
+    h("div",{style:{display:"flex",justifyContent:"center",gap:8,padding:"20px 0 28px",position:"relative",zIndex:2}},
+      ...DRINKS.map((_,i)=>
+        h("button",{key:i,onClick:()=>goTo(i),style:{
+          width:active===i?24:8,height:8,
+          borderRadius:100,
+          background:active===i?"#fff":"rgba(255,255,255,0.28)",
+          border:"none",cursor:"pointer",
+          transition:"width .35s ease,background .35s ease",
+          padding:0,flexShrink:0,
+        }})
+      )
+    ),
+
+    // onda SVG de transição
+    h("div",{style:{lineHeight:0,position:"relative",zIndex:1}},
+      h("svg",{viewBox:"0 0 1440 60",xmlns:"http://www.w3.org/2000/svg",preserveAspectRatio:"none",style:{display:"block",width:"100%",height:60}},
+        h("path",{d:"M0,30 C360,60 720,0 1080,30 C1260,45 1380,20 1440,30 L1440,60 L0,60 Z",fill:c.bg})
+      )
+    )
+  );
+}
+
+// ── Reveal ao scroll ─────────────────────────────────────────────────────────
+function Reveal({children,delay=0,style={}}){
   const ref=useRef(null);
   const [vis,setVis]=useState(false);
   useEffect(()=>{
@@ -112,134 +302,66 @@ function Reveal({children, delay=0, style={}}){
     const obs=new IntersectionObserver(([e])=>{
       if(e.isIntersecting){setVis(true);obs.unobserve(el);}
     },{threshold:0.08});
-    obs.observe(el); return()=>obs.disconnect();
+    obs.observe(el);
+    return()=>obs.disconnect();
   },[]);
-  return h("div",{ref,style:{
-    opacity:vis?1:0,
-    transform:vis?"translateY(0)":"translateY(34px)",
-    transition:`opacity .7s ${delay}s ease, transform .7s ${delay}s ease`,
-    ...style
-  }},children);
+  return h("div",{ref,style:{opacity:vis?1:0,transform:vis?"translateY(0)":"translateY(32px)",transition:`opacity .7s ${delay}s ease,transform .7s ${delay}s ease`,...style}},children);
 }
 
-// ── SECTION LABEL ────────────────────────────────────────────────────────────
-function SectionLabel({text,c,center=false}){
+function SecLabel({text,c,center=false}){
   return h("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:8,justifyContent:center?"center":"flex-start"}},
     h("div",{style:{width:22,height:1,background:c.orange}}),
     h("span",{style:{fontSize:10,letterSpacing:"0.18em",textTransform:"uppercase",color:c.orangeL,fontFamily:"sans-serif"}},text),
-    center && h("div",{style:{width:22,height:1,background:c.orange}})
+    center&&h("div",{style:{width:22,height:1,background:c.orange}})
   );
 }
 
-// ── APP ───────────────────────────────────────────────────────────────────────
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// APP PRINCIPAL — estado mínimo aqui, sem timers que causem re-render global
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function App(){
-  const [dark,    setDark]    = useState(true);
-  const [scrolled,setScrolled]= useState(false);
-  const [showTop, setShowTop] = useState(false);
-  const [filter,  setFilter]  = useState("Todos");
-  const [favs,    setFavs]    = useState({});
-  const [dIdx,    setDIdx]    = useState(0);
-  const [leaves,  setLeaves]  = useState([]);
-  const [typed,   setTyped]   = useState("");
-  const [banner,  setBanner]  = useState(true);
-  const [sound,   setSound]   = useState(false);
-  const slRef=useRef(null);
+  const [dark,   setDark]   =useState(true);
+  const [scrolld,setScrolld]=useState(false);
+  const [showTop,setShowTop]=useState(false);
+  const [filter, setFilter] =useState("Todos");
+  const [favs,   setFavs]   =useState({});
+  const [banner, setBanner] =useState(true);
+  const [sound,  setSound]  =useState(false);
+
   const open=storeOpen();
-  const c=palette(dark);
+  const c=pal(dark);
+  const todayIdx=new Date().getDay()===0?6:new Date().getDay()-1;
+  const filtered=filter==="Todos"?DISHES:DISHES.filter(d=>d.tag===filter);
 
-  // typing
   useEffect(()=>{
-    const full="Cada prato, uma obra de arte.";
-    let i=0; setTyped("");
-    const id=setInterval(()=>{ i++; setTyped(full.slice(0,i)); if(i>=full.length)clearInterval(id); },65);
-    return()=>clearInterval(id);
-  },[]);
-
-  // scroll
-  useEffect(()=>{
-    const fn=()=>{ setScrolled(window.scrollY>50); setShowTop(window.scrollY>300); };
+    const fn=()=>{setScrolld(window.scrollY>50);setShowTop(window.scrollY>300);};
     window.addEventListener("scroll",fn,{passive:true});
     return()=>window.removeEventListener("scroll",fn);
   },[]);
 
-  // leaves
-  useEffect(()=>{
-    const id=setInterval(()=>{
-      const emojis=["🍃","🌿","🍂"];
-      setLeaves(p=>[...p.slice(-7),{id:Date.now(),left:Math.random()*95,dur:4+Math.random()*4,e:emojis[Math.floor(Math.random()*3)]}]);
-    },3200);
-    return()=>clearInterval(id);
-  },[]);
-
-  // drink scroll sync
-  useEffect(()=>{
-    const el=slRef.current; if(!el)return;
-    const fn=()=>{
-      const slides=el.querySelectorAll("[data-slide]"),cx=el.scrollLeft+el.clientWidth/2;
-      let best=0,bestD=Infinity;
-      slides.forEach((s,i)=>{ const d=Math.abs(s.offsetLeft+s.offsetWidth/2-cx); if(d<bestD){bestD=d;best=i;} });
-      setDIdx(best);
-    };
-    el.addEventListener("scroll",fn,{passive:true});
-    return()=>el.removeEventListener("scroll",fn);
-  },[]);
-
-  const scrollToDrink=i=>{
-    const el=slRef.current; if(!el)return;
-    const slides=el.querySelectorAll("[data-slide]");
-    if(!slides[i])return;
-    const slide=slides[i];
-    const target=slide.offsetLeft-(el.clientWidth/2)+(slide.offsetWidth/2);
-    el.scrollTo({left:target,behavior:"smooth"});
-  };
-
-  // drag-to-scroll no slider (mouse desktop)
-  const dragState=useRef({down:false,startX:0,scrollLeft:0});
-  const onMouseDown=e=>{
-    const el=slRef.current; if(!el)return;
-    dragState.current={down:true,startX:e.pageX-el.offsetLeft,scrollLeft:el.scrollLeft};
-    el.style.cursor="grabbing"; el.style.userSelect="none";
-  };
-  const onMouseUp=e=>{
-    const el=slRef.current; if(!el)return;
-    dragState.current.down=false;
-    el.style.cursor="grab"; el.style.userSelect="";
-  };
-  const onMouseMove=e=>{
-    const el=slRef.current; if(!el||!dragState.current.down)return;
-    e.preventDefault();
-    const x=e.pageX-el.offsetLeft;
-    const walk=(x-dragState.current.startX)*1.5;
-    el.scrollLeft=dragState.current.scrollLeft-walk;
-  };
-  const todayIdx = new Date().getDay()===0 ? 6 : new Date().getDay()-1;
-  const filtered = filter==="Todos" ? DISHES : DISHES.filter(d=>d.tag===filter);
-
   const hov=(el,on)=>{
     el.style.transform=on?"translateY(-7px)":"translateY(0)";
     el.style.borderColor=on?"rgba(255,77,0,0.22)":c.border;
-    el.style.boxShadow=on?"0 24px 48px rgba(0,0,0,0.4)":"none";
+    el.style.boxShadow=on?"0 20px 48px rgba(0,0,0,0.35)":"none";
   };
 
   return h(Fragment,null,
-    // leaves
-    ...leaves.map(l=>
-      h("div",{key:l.id,style:{position:"fixed",top:"-5%",left:`${l.left}%`,zIndex:9000,pointerEvents:"none",fontSize:17,animation:`fallLeaf ${l.dur}s linear forwards`}},l.e)
-    ),
+    // folhas em componente próprio — não re-renderiza o App
+    h(LeavesLayer),
 
     h("div",{style:{background:c.bg,minHeight:"100vh",fontFamily:"Georgia,serif",color:c.text,overflowX:"hidden",transition:"background .5s,color .5s"}},
 
-      // ── PROMO BANNER ──
-      banner && h("div",{style:{background:"linear-gradient(90deg,#b5451b,#ff4d00,#e8925a,#ff4d00,#b5451b)",backgroundSize:"300% 100%",animation:"bannerSlide 5s linear infinite",color:"#fff",padding:"8px 44px 8px 16px",fontSize:12,fontWeight:700,fontFamily:"sans-serif",textAlign:"center",position:"relative"}},
+      // ── BANNER ──
+      banner&&h("div",{style:{background:"linear-gradient(90deg,#b5451b,#ff4d00,#e8925a,#ff4d00,#b5451b)",backgroundSize:"300% 100%",animation:"bannerSlide 5s linear infinite",color:"#fff",padding:"8px 44px 8px 16px",fontSize:12,fontWeight:700,fontFamily:"sans-serif",textAlign:"center",position:"relative"}},
         "🎉 Primeira entrega com ",
         h("span",{style:{background:"rgba(255,255,255,0.25)",padding:"2px 8px",borderRadius:100}},"30% OFF"),
         " no iFood · Válido para novos usuários!",
-        h("button",{onClick:()=>setBanner(false),style:{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#fff",cursor:"pointer",fontSize:18,lineHeight:1}},"×")
+        h("button",{onClick:()=>setBanner(false),style:{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#fff",cursor:"pointer",fontSize:18}},"×")
       ),
 
       // ── NAV ──
-      h("nav",{style:{position:"sticky",top:0,zIndex:200,background:c.navBg,backdropFilter:"blur(16px)",borderBottom:`1px solid ${c.border}`,padding:scrolled?"11px 20px":"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,transition:"padding .3s,box-shadow .3s",boxShadow:scrolled?"0 4px 20px rgba(0,0,0,0.3)":"none"}},
-        h("a",{href:"#",style:{fontFamily:"Georgia,serif",fontSize:scrolled?18:22,fontWeight:700,color:c.cream,textDecoration:"none",transition:"font-size .3s",flexShrink:0}},
+      h("nav",{style:{position:"sticky",top:0,zIndex:200,background:c.navBg,backdropFilter:"blur(16px)",borderBottom:`1px solid ${c.border}`,padding:scrolld?"11px 20px":"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,transition:"padding .3s,box-shadow .3s",boxShadow:scrolld?"0 4px 20px rgba(0,0,0,0.3)":"none"}},
+        h("a",{href:"#",style:{fontFamily:"Georgia,serif",fontSize:scrolld?18:22,fontWeight:700,color:c.cream,textDecoration:"none",transition:"font-size .3s",flexShrink:0}},
           "Sabo",h("span",{style:{color:c.orange}},"res")
         ),
         h("div",{style:{display:"flex",alignItems:"center",gap:6,background:"rgba(0,0,0,0.15)",padding:"4px 10px",borderRadius:20,flexShrink:0}},
@@ -247,8 +369,8 @@ function App(){
           h("span",{style:{fontSize:10,fontWeight:700,color:open?"#2ecc71":"#e74c3c",fontFamily:"sans-serif",whiteSpace:"nowrap"}},open?"Aberto agora":"Fechado")
         ),
         h("div",{style:{display:"flex",gap:8,alignItems:"center",marginLeft:"auto"}},
-          h("button",{onClick:()=>setSound(s=>!s),title:"Som",style:{background:"none",border:"none",cursor:"pointer",fontSize:16,color:sound?"#2ecc71":c.muted,filter:sound?"drop-shadow(0 0 5px #2ecc71)":"none",transition:"all .3s"}},sound?"🔊":"🔇"),
-          h("button",{onClick:()=>setDark(d=>!d),title:"Tema",style:{background:"none",border:"none",cursor:"pointer",fontSize:16,color:c.gold}},dark?"☀️":"🌙"),
+          h("button",{onClick:()=>setSound(s=>!s),style:{background:"none",border:"none",cursor:"pointer",fontSize:16,color:sound?"#2ecc71":c.muted,filter:sound?"drop-shadow(0 0 5px #2ecc71)":"none",transition:"all .3s"}},sound?"🔊":"🔇"),
+          h("button",{onClick:()=>setDark(d=>!d),style:{background:"none",border:"none",cursor:"pointer",fontSize:16,color:c.gold}},dark?"☀️":"🌙"),
           h("a",{href:"https://www.ifood.com.br",target:"_blank",rel:"noreferrer",style:{background:c.orange,color:"#fff",padding:"9px 16px",borderRadius:100,fontSize:12,fontWeight:700,textDecoration:"none",display:"flex",alignItems:"center",gap:5,animation:"bounce 3s ease-in-out infinite",fontFamily:"sans-serif",whiteSpace:"nowrap"}},"🛵 iFood")
         )
       ),
@@ -259,9 +381,8 @@ function App(){
           h("span",{style:{width:6,height:6,background:c.orange,borderRadius:"50%",display:"inline-block",animation:"pulseDot 2s infinite"}}),
           "Entrega em até 30 minutos"
         ),
-        h("h1",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(32px,8vw,72px)",fontWeight:900,lineHeight:1,color:c.cream,marginBottom:20,minHeight:"1.15em"}},
-          h("span",{style:{borderRight:`3px solid ${c.orange}`,paddingRight:4,animation:"blink .75s step-end infinite"}},typed)
-        ),
+        // TypingText em componente isolado — não re-renderiza o App a cada letra
+        h(TypingText,{orange:c.orange}),
         h("p",{style:{fontSize:14,lineHeight:1.7,color:c.muted,maxWidth:440,margin:"0 auto 32px",fontFamily:"sans-serif",fontWeight:300}},
           "Descubra os melhores sabores da cidade. Escolha o que te encanta e pedimos pelo iFood."
         ),
@@ -276,10 +397,10 @@ function App(){
         )
       ),
 
-      // ── CATEGORIES ──
+      // ── CATEGORIAS ──
       h("section",{id:"categorias",style:{padding:"56px 20px",background:c.bg2}},
         h(Reveal,null,
-          h(SectionLabel,{text:"O que você quer hoje?",c}),
+          h(SecLabel,{text:"O que você quer hoje?",c}),
           h("h2",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(24px,5vw,38px)",fontWeight:900,color:c.cream,marginBottom:28,lineHeight:1.1}},
             "Escolha sua ",h("em",{style:{color:c.orange}},"categoria")
           ),
@@ -297,10 +418,10 @@ function App(){
         )
       ),
 
-      // ── DISHES ──
+      // ── PRATOS ──
       h("section",{id:"pratos",style:{padding:"56px 20px"}},
         h(Reveal,null,
-          h(SectionLabel,{text:"Seleção da casa",c}),
+          h(SecLabel,{text:"Seleção da casa",c}),
           h("div",{style:{display:"flex",flexWrap:"wrap",justifyContent:"space-between",alignItems:"center",gap:14,marginBottom:28}},
             h("h2",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(24px,5vw,38px)",fontWeight:900,color:c.cream,lineHeight:1.1}},
               "Pratos em ",h("span",{style:{color:c.gold}},"destaque")
@@ -308,15 +429,13 @@ function App(){
             h("div",{style:{display:"flex",gap:7,flexWrap:"wrap"}},
               ...FILTERS.map(f=>
                 h("button",{key:f,onClick:()=>setFilter(f),
-                  style:{background:filter===f?c.orange:"transparent",color:filter===f?"#fff":c.muted,border:`1px solid ${filter===f?c.orange:c.border}`,padding:"7px 14px",borderRadius:100,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"sans-serif",transition:"all .25s",whiteSpace:"nowrap"}},
-                  f
-                )
+                  style:{background:filter===f?c.orange:"transparent",color:filter===f?"#fff":c.muted,border:`1px solid ${filter===f?c.orange:c.border}`,padding:"7px 14px",borderRadius:100,fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"sans-serif",transition:"all .25s",whiteSpace:"nowrap"}},f)
               )
             )
           ),
           h("div",{style:{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(270px,1fr))",gap:20}},
             ...filtered.map((d,i)=>
-              h("a",{key:i,href:iurl(d.q),target:"_blank",rel:"noreferrer",
+              h("a",{key:d.name,href:iurl(d.q),target:"_blank",rel:"noreferrer",
                 style:{background:c.card,border:`1px solid ${c.border}`,borderRadius:20,overflow:"hidden",textDecoration:"none",display:"block",transition:"all .3s"},
                 onMouseEnter:e=>hov(e.currentTarget,true),
                 onMouseLeave:e=>hov(e.currentTarget,false)},
@@ -338,9 +457,7 @@ function App(){
                   h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}},
                     h("div",null,
                       h("div",{style:{fontSize:9,color:c.muted,textTransform:"uppercase",letterSpacing:"0.1em",fontFamily:"sans-serif"}},"A partir de"),
-                      h("div",{style:{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:c.cream}},
-                        h("sup",{style:{fontSize:11,fontFamily:"sans-serif",fontWeight:400}},"R$"),d.price
-                      )
+                      h("div",{style:{fontFamily:"Georgia,serif",fontSize:20,fontWeight:700,color:c.cream}},h("sup",{style:{fontSize:11,fontFamily:"sans-serif",fontWeight:400}},"R$"),d.price)
                     ),
                     h("div",{style:{display:"flex",gap:7,alignItems:"center"}},
                       h("span",{style:{fontSize:10,color:c.muted,fontFamily:"sans-serif"}},"🕐 "+d.time),
@@ -355,113 +472,8 @@ function App(){
         )
       ),
 
-      // ── DRINKS ──
-      h("section",{id:"bebidas",style:{padding:"80px 0 0",background:"linear-gradient(180deg,#0a0e0c 0%,#111a14 50%,#0d1510 100%)",textAlign:"center",position:"relative"}},
-
-        // bubbles wrapper (overflow hidden só aqui, não na seção inteira)
-        h("div",{style:{position:"absolute",inset:0,overflow:"hidden",pointerEvents:"none",zIndex:0}},
-          ...[...Array(10)].map((_,i)=>
-            h("div",{key:"b"+i,style:{position:"absolute",bottom:-20,left:`${5+i*9}%`,width:8+i*5,height:8+i*5,borderRadius:"50%",background:"rgba(255,255,255,0.07)",animation:`riseUp ${5+i*1.3}s ${i*.7}s linear infinite`}})
-          )
-        ),
-
-        // título
-        h(Reveal,{style:{padding:"0 20px",marginBottom:40,position:"relative",zIndex:2}},
-          h("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:10,justifyContent:"center"}},
-            h("div",{style:{width:22,height:1,background:c.orange}}),
-            h("span",{style:{fontSize:10,letterSpacing:"0.18em",textTransform:"uppercase",color:c.orangeL,fontFamily:"sans-serif"}},"Para acompanhar"),
-            h("div",{style:{width:22,height:1,background:c.orange}})
-          ),
-          h("h2",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(24px,5vw,38px)",fontWeight:900,color:"#f0e6d3",lineHeight:1.1}},
-            "Nossas ",h("em",{style:{color:c.orange}},"bebidas")
-          )
-        ),
-
-        // slider
-        h("div",{ref:slRef,
-          onMouseDown:onMouseDown,
-          onMouseUp:onMouseUp,
-          onMouseLeave:onMouseUp,
-          onMouseMove:onMouseMove,
-          style:{
-          display:"flex",gap:22,
-          padding:"20px 0",
-          paddingLeft:"calc(50% - 135px)",   // centraliza o primeiro card
-          paddingRight:"calc(50% - 135px)",  // centraliza o último card
-          overflowX:"auto",
-          scrollSnapType:"x mandatory",
-          scrollPadding:"0 calc(50% - 135px)",
-          alignItems:"center",
-          scrollbarWidth:"none",
-          msOverflowStyle:"none",
-          WebkitOverflowScrolling:"touch",
-          minHeight:520,
-          position:"relative",zIndex:1,
-          cursor:"grab",
-        }},
-          ...DRINKS.map((dr,i)=>{
-            const active=dIdx===i;
-            return h("div",{key:i,"data-slide":i,onClick:()=>scrollToDrink(i),
-              style:{
-                minWidth:270,height:460,
-                // glassmorphism: fundo translúcido no inativo, gradiente próprio no ativo
-                background:active?dr.bg:"rgba(255,255,255,0.05)",
-                backdropFilter:"blur(18px)",WebkitBackdropFilter:"blur(18px)",
-                border:active?"1.5px solid rgba(255,255,255,0.5)":"1px solid rgba(255,255,255,0.1)",
-                borderRadius:40,
-                padding:"28px 20px",
-                scrollSnapAlign:"center",
-                flexShrink:0,
-                transition:"all .6s cubic-bezier(0.34,1.2,0.64,1)",
-                opacity:active?1:0.4,
-                transform:active?"scale(1.05)":"scale(0.85)",
-                display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"space-between",
-                boxShadow:active?"0 24px 48px rgba(0,0,0,0.5), 0 0 32px rgba(255,255,255,0.08)":"none",
-                cursor:"pointer",position:"relative",color:"white",
-              }},
-
-              // badge
-              h("div",{style:{position:"absolute",top:18,right:18,fontSize:9,fontWeight:700,padding:"4px 10px",borderRadius:20,background:"rgba(255,255,255,0.22)",backdropFilter:"blur(6px)",color:"#fff",letterSpacing:"0.5px",fontFamily:"sans-serif"}},dr.badge),
-
-              // emoji / ícone
-              h("div",{style:{fontSize:72,marginBottom:6,filter:active?"drop-shadow(0 12px 18px rgba(0,0,0,0.5))":"none",transition:"transform .5s ease, filter .5s ease",transform:active?"translateY(-10px) rotate(6deg)":"none"}},dr.emoji),
-
-              // info
-              h("div",{style:{textAlign:"center",color:"white",width:"100%"}},
-                h("div",{style:{fontFamily:"Georgia,serif",fontSize:18,fontWeight:700,marginBottom:6}},dr.name),
-                h("div",{style:{fontSize:11,opacity:.85,lineHeight:1.55,marginBottom:8,fontFamily:"sans-serif"}},dr.desc),
-                // calorias — aparece só no ativo
-                h("div",{style:{fontSize:10,fontFamily:"sans-serif",marginBottom:10,height:16,overflow:"hidden",opacity:active?0.75:0,transition:"opacity .4s ease"}},"🔥 "+dr.kcal),
-                h("div",{style:{fontWeight:700,fontSize:22,fontFamily:"Georgia,serif",transition:"transform .3s ease",transform:active?"scale(1)":"scale(0.9)"}},"R$ "+dr.price)
-              ),
-
-              // botão iFood — só aparece no ativo
-              h("a",{
-                href:iurl("bebida+"+dr.name.replace(/\s+/g,"+")),
-                target:"_blank",rel:"noreferrer",
-                onClick:e=>e.stopPropagation(),
-                style:{background:c.orange,color:"#fff",padding:"10px 24px",borderRadius:100,fontSize:11,fontWeight:700,textDecoration:"none",fontFamily:"sans-serif",opacity:active?1:0,transform:active?"translateY(0)":"translateY(6px)",transition:"opacity .4s ease, transform .4s ease",pointerEvents:active?"auto":"none",whiteSpace:"nowrap"}
-              },"Pedir no iFood →")
-            );
-          })
-        ),
-
-        // dots
-        h("div",{style:{display:"flex",justifyContent:"center",gap:8,padding:"20px 0 32px",position:"relative",zIndex:2}},
-          ...DRINKS.map((_,i)=>
-            h("button",{key:i,onClick:()=>scrollToDrink(i),
-              style:{width:dIdx===i?22:8,height:8,borderRadius:100,background:dIdx===i?"white":"rgba(255,255,255,0.3)",border:"none",cursor:"pointer",transition:"all .35s ease",padding:0}
-            })
-          )
-        ),
-
-        // wave separator
-        h("div",{style:{lineHeight:0,marginTop:0}},
-          h("svg",{viewBox:"0 0 1440 80",xmlns:"http://www.w3.org/2000/svg",style:{display:"block",width:"100%"}},
-            h("path",{d:"M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z",fill:dark?"#0d0a07":"#faf7f2"})
-          )
-        )
-      ),
+      // ── DRINKS — componente isolado, nunca causa piscar no App ──
+      h(DrinkSlider,{c}),
 
       // ── PROMO ──
       h(Reveal,{style:{padding:"0 20px 56px"}},
@@ -477,14 +489,14 @@ function App(){
         )
       ),
 
-      // ── RESTAURANTS ──
+      // ── RESTAURANTES ──
       h("section",{id:"restaurantes",style:{padding:"56px 20px",borderTop:`1px solid ${c.divider}`}},
         h(Reveal,null,
-          h(SectionLabel,{text:"Parceiros selecionados",c}),
+          h(SecLabel,{text:"Parceiros selecionados",c}),
           h("h2",{style:{fontFamily:"Georgia,serif",fontSize:"clamp(24px,5vw,38px)",fontWeight:900,color:c.cream,marginBottom:28,lineHeight:1.1}},
             "Restaurantes em ",h("em",{style:{color:c.orange}},"destaque")
           ),
-          h("div",{style:{display:"flex",gap:14,overflowX:"auto",paddingBottom:8,scrollbarWidth:"none"}},
+          h("div",{className:"no-scroll",style:{display:"flex",gap:14,overflowX:"auto",paddingBottom:8}},
             ...RESTAURANTS.map((r,i)=>
               h("a",{key:i,href:iurl(r.q),target:"_blank",rel:"noreferrer",
                 style:{flex:"0 0 200px",background:c.card,border:`1px solid ${c.border}`,borderRadius:16,padding:20,textDecoration:"none",transition:"all .25s",display:"block"},
@@ -542,15 +554,14 @@ function App(){
       h("a",{href:"https://wa.me/5511999999999",target:"_blank",rel:"noreferrer",
         style:{position:"fixed",bottom:22,right:22,width:52,height:52,background:"#25D366",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,textDecoration:"none",zIndex:500,boxShadow:"0 4px 18px rgba(37,211,102,0.45)",transition:"all .3s"},
         onMouseEnter:e=>{e.currentTarget.style.transform="scale(1.12) rotate(-8deg)";},
-        onMouseLeave:e=>{e.currentTarget.style.transform="scale(1)";}},
-        "💬"
-      ),
+        onMouseLeave:e=>{e.currentTarget.style.transform="scale(1)";}
+      },"💬"),
 
       // ── BACK TO TOP ──
-      h("button",{onClick:()=>window.scrollTo({top:0,behavior:"smooth"}),
-        style:{position:"fixed",bottom:84,right:26,width:38,height:38,background:c.orange,border:"none",borderRadius:"50%",color:"#fff",fontSize:16,cursor:"pointer",zIndex:500,opacity:showTop?1:0,transform:showTop?"translateY(0)":"translateY(10px)",transition:"all .3s",pointerEvents:showTop?"auto":"none"}},
-        "↑"
-      )
+      h("button",{
+        onClick:()=>window.scrollTo({top:0,behavior:"smooth"}),
+        style:{position:"fixed",bottom:84,right:26,width:38,height:38,background:c.orange,border:"none",borderRadius:"50%",color:"#fff",fontSize:16,cursor:"pointer",zIndex:500,opacity:showTop?1:0,transform:showTop?"translateY(0)":"translateY(10px)",transition:"all .3s",pointerEvents:showTop?"auto":"none"}
+      },"↑")
     )
   );
 }
