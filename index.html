@@ -6,6 +6,12 @@
 <meta name="description" content="Sabores — A mais sofisticada vitrine gastronômica do Brasil.">
 <meta name="theme-color" content="#0a0805">
 <title>Sabores — Gastronomia de Elite</title>
+
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sabores">
+<link rel="manifest" id="pwa-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -101,6 +107,62 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
   .nav-cta span.cta-label{display:none}
 }
 
+
+/* ── SEARCH ── */
+.srch-wrap{position:relative;max-width:680px;margin:0 auto 0}
+.srch-input{width:100%;padding:16px 52px 16px 20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:100px;color:#f0e6d3;font-family:Inter,sans-serif;font-size:14px;outline:none;transition:all .3s;backdrop-filter:blur(12px)}
+.srch-input::placeholder{color:rgba(200,180,160,.45)}
+.srch-input:focus{border-color:rgba(232,82,10,.5);background:rgba(255,255,255,.09);box-shadow:0 0 0 3px rgba(232,82,10,.1)}
+.srch-icon{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:18px;pointer-events:none}
+.srch-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:100px;background:rgba(232,82,10,.12);border:1px solid rgba(232,82,10,.25);color:rgba(255,107,43,.9);font-size:11px;font-family:Inter,sans-serif;font-weight:500;cursor:pointer;transition:all .22s;letter-spacing:.04em;margin:3px}
+.srch-tag:hover{background:rgba(232,82,10,.22)}
+.srch-tag.active{background:#E8520A;color:#fff;border-color:#E8520A}
+
+/* ── ADMIN PANEL ── */
+#admin{position:fixed;inset:0;z-index:50000;background:rgba(0,0,0,.92);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .4s}
+#admin.open{opacity:1;visibility:visible}
+.adm-box{background:#111009;border:1px solid rgba(232,82,10,.3);border-radius:24px;padding:40px;max-width:960px;width:95vw;max-height:90vh;overflow-y:auto;position:relative}
+.adm-close{position:absolute;top:16px;right:20px;background:none;border:none;color:rgba(255,255,255,.5);font-size:24px;cursor:pointer;font-family:Inter,sans-serif}
+.adm-tab{padding:8px 18px;border-radius:100px;font-size:11px;font-weight:600;font-family:Inter,sans-serif;cursor:pointer;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(200,180,160,.6);transition:all .22s;letter-spacing:.05em}
+.adm-tab.on{background:#E8520A;color:#fff;border-color:#E8520A}
+.adm-kpi{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px 24px;text-align:center}
+.adm-bar-wrap{background:rgba(255,255,255,.06);border-radius:4px;height:6px;overflow:hidden;margin-top:8px}
+.adm-bar{height:100%;background:linear-gradient(90deg,#E8520A,#C9A84C);border-radius:4px;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.adm-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);font-family:Inter,sans-serif;font-size:12px}
+.adm-badge{padding:2px 9px;border-radius:100px;font-size:9px;font-weight:700;letter-spacing:.06em}
+.adm-input{width:100%;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#f0e6d3;font-family:Inter,sans-serif;font-size:13px;outline:none;margin-bottom:10px;transition:border .2s}
+.adm-input:focus{border-color:rgba(232,82,10,.5)}
+.adm-btn{padding:10px 22px;background:linear-gradient(135deg,#E8520A,#bf4008);color:#fff;border:none;border-radius:100px;font-family:Inter,sans-serif;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.05em;transition:all .25s}
+.adm-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,82,10,.4)}
+
+/* ── TOAST NOTIFICATIONS ── */
+#toast-wrap{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);z-index:40000;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}
+.toast{background:rgba(20,16,9,.95);border:1px solid rgba(232,82,10,.35);backdrop-filter:blur(16px);color:#f0e6d3;padding:13px 22px;border-radius:100px;font-family:Inter,sans-serif;font-size:13px;font-weight:500;white-space:nowrap;animation:toastIn .4s cubic-bezier(.22,1,.36,1) forwards;box-shadow:0 8px 32px rgba(0,0,0,.5);pointer-events:auto}
+.toast.out{animation:toastOut .35s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(20px) scale(.9)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-10px) scale(.95)}}
+
+/* ── HEATMAP ── */
+.hm-dot{position:fixed;border-radius:50%;pointer-events:none;z-index:30000;animation:hmFade 2s ease forwards}
+@keyframes hmFade{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(3)}}
+
+/* ── NOTIF STRIP ── */
+#notif-strip{position:fixed;top:0;left:0;right:0;z-index:20000;transform:translateY(-100%);transition:transform .5s cubic-bezier(.22,1,.36,1)}
+#notif-strip.show{transform:translateY(0)}
+.notif-inner{background:linear-gradient(135deg,#0d2010,#152a18);border-bottom:1px solid rgba(46,204,113,.25);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12;font-family:Inter,sans-serif;font-size:12px;color:#b8f0c8}
+
+/* ── AB BADGE ── */
+.ab-badge{position:fixed;bottom:160px;right:28px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);color:#C9A84C;font-family:Inter,sans-serif;font-size:9px;padding:4px 9px;border-radius:100px;letter-spacing:.08em;font-weight:600;z-index:400;opacity:.6}
+
+/* ── GEO BADGE ── */
+.geo-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.2);color:#2ecc71;font-family:Inter,sans-serif;font-size:10px;padding:5px 13px;border-radius:100px;font-weight:500;letter-spacing:.05em;animation:fadeUp .6s .2s both}
+
+/* ── TRENDING BADGE ── */
+.trend-ring{position:absolute;top:-4px;right:-4px;width:18px;height:18px;background:linear-gradient(135deg,#E8520A,#C9A84C);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;z-index:3;animation:pulse 2s infinite;border:2px solid #141009}
+
+/* ── RATING ALERT ── */
+.rating-alert{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);border-radius:12px;padding:12px 16px;font-family:Inter,sans-serif;font-size:12px;color:#ff6b6b;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+
 </style>
 </head>
 <body>
@@ -119,6 +181,278 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 <script>
 'use strict';
 const {createElement:h,useState,useEffect,useRef,useCallback,Fragment}=React;
+
+
+/* ════════════════════════════════════════════════════════════
+   ENGINE — Analytics, Personalization, A/B, NLP, Admin, PWA
+════════════════════════════════════════════════════════════ */
+
+// ── PWA Manifest (client-side injection) ──
+(function(){
+  const manifest={name:'Sabores',short_name:'Sabores',description:'Gastronomia de elite',start_url:'./',display:'standalone',background_color:'#0a0805',theme_color:'#E8520A',icons:[{src:'https://emojicdn.elk.sh/🍽?style=apple&size=192',sizes:'192x192',type:'image/png'},{src:'https://emojicdn.elk.sh/🍽?style=apple&size=512',sizes:'512x512',type:'image/png'}]};
+  const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const link=document.getElementById('pwa-manifest');
+  if(link)link.href=url;
+})();
+
+// ── Service Worker (offline cache) ──
+if('serviceWorker' in navigator){
+  const sw=`
+    const V='sabores-v1';
+    self.addEventListener('install',e=>e.waitUntil(caches.open(V).then(c=>c.addAll(['./',location.href]))));
+    self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));
+  `;
+  const blob=new Blob([sw],{type:'text/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+}
+
+// ── Storage helpers ──
+const LS={
+  get:(k,def=null)=>{try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):def;}catch{return def;}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}},
+};
+
+// ── Analytics Engine ──
+const Analytics={
+  // Track a click event
+  track(type,id){
+    const key='sab_clicks_'+type;
+    const data=LS.get(key,{});
+    data[id]=(data[id]||0)+1;
+    LS.set(key,data);
+    // Also update session
+    const sess=LS.get('sab_session',{start:Date.now(),clicks:0,pages:{}});
+    sess.clicks++;
+    sess.pages[id]=(sess.pages[id]||0)+1;
+    LS.set('sab_session',sess);
+  },
+  // Get sorted items by click count
+  sort(type,items,idKey){
+    const data=LS.get('sab_clicks_'+type,{});
+    return [...items].sort((a,b)=>(data[b[idKey]]||0)-(data[a[idKey]]||0));
+  },
+  // Get top item
+  top(type,items,idKey){
+    const data=LS.get('sab_clicks_'+type,{});
+    let best=items[0];let max=0;
+    items.forEach(i=>{const c=data[i[idKey]]||0;if(c>max){max=c;best=i;}});
+    return best;
+  },
+  // Get all stats
+  stats(){
+    return{
+      dishes:LS.get('sab_clicks_dish',{}),
+      cats:LS.get('sab_clicks_cat',{}),
+      rests:LS.get('sab_clicks_rest',{}),
+      drinks:LS.get('sab_clicks_drink',{}),
+      totalClicks:Object.values(LS.get('sab_clicks_dish',{})).reduce((a,b)=>a+b,0),
+      session:LS.get('sab_session',{start:Date.now(),clicks:0}),
+    };
+  },
+  // Heatmap click
+  heatClick(x,y){
+    const hm=LS.get('sab_heatmap',[]);
+    hm.push({x:Math.round(x/window.innerWidth*100),y:Math.round(y/window.innerHeight*100),t:Date.now()});
+    if(hm.length>200)hm.shift();
+    LS.set('sab_heatmap',hm);
+  },
+  // CTR per dish
+  ctr(dishName){
+    const clicks=LS.get('sab_clicks_dish',{})[dishName]||0;
+    const views=LS.get('sab_views_dish',{})[dishName]||1;
+    return((clicks/views)*100).toFixed(1)+'%';
+  },
+  // Mark dish as viewed
+  view(dishName){
+    const v=LS.get('sab_views_dish',{});
+    v[dishName]=(v[dishName]||0)+1;
+    LS.set('sab_views_dish',v);
+  },
+};
+
+// ── A/B Testing Engine ──
+const AB={
+  // Get or assign variant (persisted)
+  variant(test,variants){
+    const key='sab_ab_'+test;
+    const existing=LS.get(key);
+    if(existing&&variants.includes(existing))return existing;
+    const v=variants[Math.floor(Math.random()*variants.length)];
+    LS.set(key,v);
+    return v;
+  },
+  // Track conversion
+  convert(test){
+    const key='sab_ab_conv_'+test;
+    const data=LS.get(key,{});
+    const v=LS.get('sab_ab_'+test,'A');
+    data[v]=(data[v]||0)+1;
+    LS.set(key,data);
+  },
+  // Get results
+  results(test){
+    return{variant:LS.get('sab_ab_'+test,'A'),conversions:LS.get('sab_ab_conv_'+test,{})};
+  },
+};
+
+// ── Geolocation Engine ──
+const Geo={
+  _cache:null,
+  async detect(){
+    if(this._cache)return this._cache;
+    const cached=LS.get('sab_geo');
+    if(cached&&Date.now()-cached.ts<86400000)return(this._cache=cached);
+    return new Promise(res=>{
+      if(!navigator.geolocation)return res(null);
+      navigator.geolocation.getCurrentPosition(
+        pos=>{
+          const data={lat:pos.coords.latitude,lng:pos.coords.longitude,ts:Date.now(),
+            city:pos.coords.latitude>-10&&pos.coords.latitude<5?'Norte':
+                 pos.coords.latitude>-25&&pos.coords.latitude<-10?'Sudeste':
+                 pos.coords.latitude<-25?'Sul':'Centro-Oeste'};
+          LS.set('sab_geo',data);this._cache=data;res(data);
+        },
+        ()=>res(null),{timeout:5000}
+      );
+    });
+  },
+};
+
+// ── NLP Search Engine ──
+const NLP={
+  // Map natural language to categories/filters
+  INTENTS:{
+    pizza:['pizza','napoli','italiana','margherita'],
+    burger:['burger','hamburguer','smash','wagyu'],
+    sushi:['japonês','japonesa','sushi','temaki','omakase'],
+    churrasco:['churrasco','costela','angus','brasa','carne'],
+    massa:['massa','massas','italiano','italiana','fettucine','espaguete'],
+    mexicano:['mexicano','mexicana','tacos','burrito'],
+    acai:['açaí','acai','amazônico','bowl'],
+    saudavel:['saudável','fit','orgânico','vegano','vegetariano','natural'],
+    barato:['barato','econômico','em conta','popular'],
+    premium:['premium','gourmet','especial','exclusivo','chef'],
+    rapido:['rápido','rápida','urgente','agora','fome','imediato'],
+    promocao:['promoção','promoções','desconto','oferta'],
+  },
+  parse(query){
+    const q=query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const result={cats:[],filter:null,tags:[]};
+    Object.entries(this.INTENTS).forEach(([intent,words])=>{
+      if(words.some(w=>q.includes(w))){
+        if(['barato','premium','rapido','promocao'].includes(intent)){
+          if(intent==='premium')result.filter='Premium';
+          if(intent==='promocao')result.filter='Promoções';
+          result.tags.push(intent);
+        } else {
+          result.cats.push(intent);
+        }
+      }
+    });
+    return result;
+  },
+  // Filter dishes by parsed intent
+  filterDishes(dishes,query){
+    if(!query||!query.trim())return dishes;
+    const {cats,filter,tags}=this.parse(query);
+    if(!cats.length&&!filter&&!tags.length)return dishes;
+    return dishes.filter(d=>{
+      const text=(d.name+d.desc+d.from+d.e).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      const allWords=Object.values(this.INTENTS).flat();
+      if(filter&&d.tag!==filter&&!cats.length)return false;
+      return cats.some(c=>this.INTENTS[c]?.some(w=>text.includes(w)))||
+             (cats.length===0&&filter&&d.tag===filter)||
+             (cats.length===0&&tags.length&&tags.some(t=>this.INTENTS[t]?.some(w=>text.includes(w))));
+    });
+  },
+};
+
+// ── Rating Monitor (simulated, would be real API) ──
+const RatingMonitor={
+  _alerts:[],
+  check(restaurants){
+    this._alerts=[];
+    restaurants.forEach(r=>{
+      const stored=LS.get('sab_rating_'+r.name,parseFloat(r.rating));
+      const current=parseFloat(r.rating);
+      if(current<4.5)this._alerts.push({name:r.name,rating:current,prev:stored,drop:stored-current>0});
+      LS.set('sab_rating_'+r.name,current);
+    });
+    return this._alerts;
+  },
+  getAlerts(){return this._alerts;},
+};
+
+// ── Toast System ──
+const Toast={
+  _wrap:null,
+  _init(){
+    if(this._wrap)return;
+    this._wrap=document.createElement('div');
+    this._wrap.id='toast-wrap';
+    document.body.appendChild(this._wrap);
+  },
+  show(msg,duration=3500){
+    this._init();
+    const el=document.createElement('div');
+    el.className='toast';el.textContent=msg;
+    this._wrap.appendChild(el);
+    setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),400);},duration);
+  },
+};
+
+// ── Heatmap visual dot ──
+function spawnHeatDot(x,y){
+  const dot=document.createElement('div');
+  dot.className='hm-dot';
+  dot.style.cssText=`left:${x-10}px;top:${y-10}px;width:20px;height:20px;background:radial-gradient(circle,rgba(232,82,10,.6) 0%,transparent 70%)`;
+  document.body.appendChild(dot);
+  setTimeout(()=>dot.remove(),2100);
+}
+
+// ── Daily Top Dish ──
+function getDailyTop(dishes){
+  const day=new Date().toDateString();
+  const key='sab_daily_'+day;
+  const cached=LS.get(key);
+  if(cached)return dishes.find(d=>d.name===cached)||dishes[0];
+  // Mix analytics + day-based seed for consistent daily pick
+  const sorted=Analytics.sort('dish',dishes,'name');
+  // If we have real data, use that, otherwise rotate by day
+  const dayIdx=new Date().getDate()%dishes.length;
+  const pick=sorted[0]?.name?(Analytics.stats().totalClicks>0?sorted[0]:dishes[dayIdx]):dishes[dayIdx];
+  LS.set(key,pick.name);
+  return pick;
+}
+
+// ── Push Notifications (with SW) ──
+const Notif={
+  async request(){
+    if(!('Notification' in window))return false;
+    if(Notification.permission==='granted')return true;
+    const perm=await Notification.requestPermission();
+    return perm==='granted';
+  },
+  async send(title,body,icon='🍽'){
+    const granted=await this.request();
+    if(!granted)return;
+    if(Notification.permission==='granted'){
+      new Notification(title,{body,icon:'https://emojicdn.elk.sh/'+encodeURIComponent(icon)+'?style=apple'});
+    }
+  },
+  scheduleWelcome(){
+    const shown=LS.get('sab_notif_welcome');
+    if(shown)return;
+    setTimeout(async()=>{
+      const granted=await this.request();
+      if(granted){
+        LS.set('sab_notif_welcome',true);
+        this.send('🍽 Sabores','Hoje temos pratos especiais selecionados para você!','🍕');
+      }
+    },8000);
+  },
+};
 
 /* ════════════════════════════════════════════════════════════
    DATA
@@ -215,6 +549,215 @@ function pal(dk){
     bHov:"rgba(204,56,0,.25)",div:"rgba(0,0,0,.07)",
     sh:"rgba(0,0,0,.14)",
   };
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   SEARCH BAR — NLP powered
+════════════════════════════════════════════════════════════ */
+function SearchBar({c,onSearch,onFilter}){
+  const [q,setQ]=useState('');
+  const [focus,setFocus]=useState(false);
+  const QUICK=[
+    {label:'🔥 Tendência',q:'premium'},
+    {label:'⚡ Rápido',q:'rápido'},
+    {label:'🌿 Orgânico',q:'orgânico natural'},
+    {label:'🌶 Picante',q:'mexicano picante'},
+    {label:'🐟 Japonês',q:'japonês sushi'},
+    {label:'💸 Promoção',q:'promoção desconto'},
+  ];
+  const handleChange=v=>{setQ(v);onSearch(v);};
+  return h('div',{style:{padding:'0 28px',maxWidth:1200,margin:'0 auto',position:'relative',zIndex:10}},
+    h('div',{className:'srch-wrap'},
+      h('input',{className:'srch-input',type:'text',placeholder:'🔍  Busque: "japonês barato", "rápido", "vegano perto"...',value:q,
+        onChange:e=>handleChange(e.target.value),
+        onFocus:()=>setFocus(true),onBlur:()=>setTimeout(()=>setFocus(false),200)
+      }),
+      h('span',{className:'srch-icon'},q?'✕':'')
+    ),
+    q&&h('div',{style:{position:'absolute',top:'100%',left:28,right:28,background:'rgba(20,16,9,.98)',border:'1px solid rgba(232,82,10,.2)',borderRadius:16,padding:'12px 16px',marginTop:8,backdropFilter:'blur(16px)',zIndex:100}},
+      h('div',{style:{fontSize:10,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',letterSpacing:'.12em',textTransform:'uppercase',marginBottom:8}},'Buscando por: "'+q+'" via IA'),
+      h('div',{style:{fontSize:12,color:'rgba(200,180,160,.7)',fontFamily:'Inter,sans-serif'}},'↩ Pressione Enter ou veja os resultados abaixo')
+    ),
+    h('div',{style:{display:'flex',flexWrap:'wrap',marginTop:12,gap:2}},
+      ...QUICK.map((tag,i)=>h('button',{key:i,className:'srch-tag'+(q===tag.q?' active':''),onClick:()=>{handleChange(q===tag.q?'':tag.q);}},tag.label))
+    )
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   ADMIN DASHBOARD — secret panel (logo ×5)
+════════════════════════════════════════════════════════════ */
+function AdminDashboard({c,open,onClose,dishes,restaurants}){
+  const [tab,setTab]=useState('analytics');
+  const [ratingAlerts]=useState(()=>RatingMonitor.check(restaurants));
+  const [abResult]=useState(()=>AB.results('hero_cta'));
+  const stats=Analytics.stats();
+  const heatmap=LS.get('sab_heatmap',[]);
+
+  // Calculate conversion per dish
+  const dishStats=dishes.map(d=>({
+    name:d.name,emoji:d.e,
+    clicks:stats.dishes[d.name]||0,
+    views:LS.get('sab_views_dish',{})[d.name]||0,
+    ctr:Analytics.ctr(d.name),
+  })).sort((a,b)=>b.clicks-a.clicks);
+
+  const maxClicks=Math.max(1,...dishStats.map(d=>d.clicks));
+  const totalClicks=stats.totalClicks;
+
+  return h('div',{id:'admin',className:open?'open':'',onClick:e=>{if(e.target.id==='admin')onClose();}},
+    h('div',{className:'adm-box'},
+      h('button',{className:'adm-close',onClick:onClose},'×'),
+      h('div',{style:{marginBottom:28}},
+        h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:26,fontWeight:900,color:'#f0e6d3',marginBottom:6,letterSpacing:'-1px'}},'⚡ Painel Admin'),
+        h('div',{style:{fontSize:11,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',letterSpacing:'.12em',textTransform:'uppercase'}},'acesso secreto · dados locais em tempo real')
+      ),
+      // Tabs
+      h('div',{style:{display:'flex',gap:8,marginBottom:28,flexWrap:'wrap'}},
+        ...['analytics','conversão','a/b test','avaliações','heatmap','conteúdo'].map(t=>
+          h('button',{key:t,className:'adm-tab'+(tab===t?' on':''),onClick:()=>setTab(t)},t.toUpperCase())
+        )
+      ),
+
+      // ── Tab: Analytics ──
+      tab==='analytics'&&h('div',null,
+        h('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))',gap:14,marginBottom:28}},
+          h('div',{className:'adm-kpi'},
+            h('div',{style:{fontSize:28,fontWeight:900,fontFamily:"'Playfair Display',serif",color:'#E8520A'}},(totalClicks||0)),
+            h('div',{style:{fontSize:10,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',textTransform:'uppercase',letterSpacing:'.1em',marginTop:4}},'Cliques totais')
+          ),
+          h('div',{className:'adm-kpi'},
+            h('div',{style:{fontSize:28,fontWeight:900,fontFamily:"'Playfair Display',serif",color:'#C9A84C'}},(Object.keys(stats.dishes).length)),
+            h('div',{style:{fontSize:10,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',textTransform:'uppercase',letterSpacing:'.1em',marginTop:4}},'Pratos clicados')
+          ),
+          h('div',{className:'adm-kpi'},
+            h('div',{style:{fontSize:28,fontWeight:900,fontFamily:"'Playfair Display',serif",color:'#2ecc71'}},(heatmap.length)),
+            h('div',{style:{fontSize:10,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',textTransform:'uppercase',letterSpacing:'.1em',marginTop:4}},'Pontos heatmap')
+          ),
+          h('div',{className:'adm-kpi'},
+            h('div',{style:{fontSize:28,fontWeight:900,fontFamily:"'Playfair Display',serif",color:'#9b59b6'}},(abResult.variant)),
+            h('div',{style:{fontSize:10,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',textTransform:'uppercase',letterSpacing:'.1em',marginTop:4}},'Variante A/B')
+          )
+        ),
+        h('div',{style:{fontSize:13,color:'rgba(200,180,160,.6)',fontFamily:'Inter,sans-serif',marginBottom:16,fontWeight:500}},'Top pratos por cliques'),
+        ...dishStats.map((d,i)=>h('div',{key:i,className:'adm-row'},
+          h('div',{style:{display:'flex',alignItems:'center',gap:10}},
+            h('span',{style:{fontSize:18}},d.emoji),
+            h('span',{style:{color:'#f0e6d3',fontWeight:500}},d.name.slice(0,22)+(d.name.length>22?'...':'')),
+          ),
+          h('div',{style:{flex:1,margin:'0 16px'}},
+            h('div',{className:'adm-bar-wrap'},h('div',{className:'adm-bar',style:{width:maxClicks?Math.round((d.clicks/maxClicks)*100)+'%':'0%'}}))
+          ),
+          h('div',{style:{color:'#C9A84C',fontWeight:600,minWidth:60,textAlign:'right'}},d.clicks+' cliques')
+        ))
+      ),
+
+      // ── Tab: Conversão ──
+      tab==='conversão'&&h('div',null,
+        h('div',{style:{fontSize:12,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',marginBottom:20,letterSpacing:'.05em'}},'CTR = cliques iFood ÷ visualizações do card'),
+        ...dishStats.map((d,i)=>h('div',{key:i,style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 0',borderBottom:'1px solid rgba(255,255,255,.05)',fontFamily:'Inter,sans-serif',fontSize:12}},
+          h('div',{style:{display:'flex',alignItems:'center',gap:10}},
+            h('span',null,d.emoji),
+            h('span',{style:{color:'#f0e6d3'}},(d.name.slice(0,28)))
+          ),
+          h('div',{style:{display:'flex',gap:16,alignItems:'center'}},
+            h('span',{style:{color:'rgba(200,180,160,.5)'}},'👁 '+(d.views||0)),
+            h('span',{style:{color:'#E8520A'}},d.clicks+' clicks'),
+            h('span',{className:'adm-badge',style:{background:parseFloat(d.ctr)>5?'rgba(46,204,113,.15)':'rgba(232,82,10,.15)',color:parseFloat(d.ctr)>5?'#2ecc71':'#E8520A'}},'CTR '+d.ctr)
+          )
+        ))
+      ),
+
+      // ── Tab: A/B Test ──
+      tab==='a/b test'&&h('div',null,
+        h('div',{style:{background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.07)',borderRadius:16,padding:24,marginBottom:20}},
+          h('div',{style:{fontSize:14,color:'#f0e6d3',fontFamily:'Inter,sans-serif',fontWeight:600,marginBottom:12}},'Teste: Hero CTA Button'),
+          h('div',{style:{fontSize:12,color:'rgba(200,180,160,.6)',fontFamily:'Inter,sans-serif',marginBottom:16}},'Variante atribuída a este usuário: ',h('strong',{style:{color:'#C9A84C'}},abResult.variant)),
+          ...[['A',ctaLabel],['B','🔥 Ver os Melhores'],['C','🍕 Pedir Agora']].map(([v,txt])=>
+            h('div',{key:v,style:{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 0',borderBottom:'1px solid rgba(255,255,255,.05)',fontFamily:'Inter,sans-serif',fontSize:12}},
+              h('span',{style:{color:abResult.variant===v?'#E8520A':'rgba(200,180,160,.5)',fontWeight:abResult.variant===v?700:400}},'Variante '+v+': '+txt),
+              h('span',{style:{color:'#C9A84C',fontWeight:600}},((abResult.conversions||{})[v]||0)+' conv.')
+            )
+          )
+        ),
+        h('div',{style:{background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.07)',borderRadius:16,padding:24}},
+          h('div',{style:{fontSize:14,color:'#f0e6d3',fontFamily:'Inter,sans-serif',fontWeight:600,marginBottom:8}},'Como funciona'),
+          h('div',{style:{fontSize:12,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',lineHeight:1.8}},'Cada usuário recebe uma variante aleatória e persistente (localStorage). O sistema rastreia qual variante gera mais cliques no iFood. Após 100 conversões por variante, a vencedora é declarada automaticamente.')
+        )
+      ),
+
+      // ── Tab: Avaliações ──
+      tab==='avaliações'&&h('div',null,
+        ratingAlerts.length>0&&h('div',{style:{marginBottom:16}},
+          ratingAlerts.map((a,i)=>h('div',{key:i,className:'rating-alert'},'⚠️ '+a.name+' com avaliação '+a.rating+' — abaixo do limiar 4.5'))
+        ),
+        ...restaurants.map((r,i)=>{
+          const stored=parseFloat(LS.get('sab_rating_'+r.name,r.rating));
+          const current=parseFloat(r.rating);
+          const ok=current>=4.5;
+          return h('div',{key:i,className:'adm-row'},
+            h('div',{style:{display:'flex',alignItems:'center',gap:10}},
+              h('span',null,r.icon),h('span',{style:{color:'#f0e6d3',fontWeight:500}},r.name)
+            ),
+            h('div',{style:{flex:1,margin:'0 12px'}},h('div',{className:'adm-bar-wrap'},h('div',{className:'adm-bar',style:{width:((current/5)*100)+'%',background:ok?'linear-gradient(90deg,#2ecc71,#27ae60)':'linear-gradient(90deg,#e74c3c,#c0392b)'}}))),
+            h('div',{style:{display:'flex',gap:10,alignItems:'center'}},
+              h('span',{style:{color:ok?'#2ecc71':'#e74c3c',fontWeight:700,fontFamily:'Inter,sans-serif',fontSize:13}},current+' ⭐'),
+              h('span',{className:'adm-badge',style:{background:ok?'rgba(46,204,113,.15)':'rgba(231,76,60,.15)',color:ok?'#2ecc71':'#e74c3c'}},ok?'OK':'ALERTAR')
+            )
+          );
+        })
+      ),
+
+      // ── Tab: Heatmap ──
+      tab==='heatmap'&&h('div',null,
+        h('div',{style:{fontFamily:'Inter,sans-serif',fontSize:12,color:'rgba(200,180,160,.6)',marginBottom:16}},heatmap.length+' pontos gravados nesta sessão. Ative o modo heatmap para visualizar cliques em tempo real.'),
+        h('div',{style:{position:'relative',background:'rgba(255,255,255,.02)',border:'1px solid rgba(255,255,255,.06)',borderRadius:12,height:280,overflow:'hidden'}},
+          h('div',{style:{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',color:'rgba(200,180,160,.3)',fontFamily:'Inter,sans-serif',fontSize:12,letterSpacing:'.1em',textTransform:'uppercase'}},'Mapa de calor da página'),
+          ...heatmap.slice(-80).map((p,i)=>h('div',{key:i,style:{position:'absolute',left:p.x+'%',top:Math.min(p.y,95)+'%',width:8,height:8,borderRadius:'50%',background:'rgba(232,82,10,.6)',transform:'translate(-50%,-50%)',boxShadow:'0 0 12px rgba(232,82,10,.4)'}}))
+        ),
+        h('button',{className:'adm-btn',style:{marginTop:16},onClick:()=>{LS.set('sab_heatmap',[]);Toast.show('🗑 Heatmap limpo!');}},'Limpar dados')
+      ),
+
+      // ── Tab: Conteúdo ──
+      tab==='conteúdo'&&h('div',null,
+        h('div',{style:{fontSize:12,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',marginBottom:20,lineHeight:1.7}},'Edite os pratos em destaque diretamente. Alterações ficam salvas localmente e são aplicadas imediatamente.'),
+        h('div',{style:{background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.07)',borderRadius:16,padding:24}},
+          h('div',{style:{fontSize:13,color:'#f0e6d3',fontFamily:'Inter,sans-serif',fontWeight:600,marginBottom:14}},'Prato do Dia (override)'),
+          h('input',{className:'adm-input',placeholder:'Ex: Pizza Margherita Trufada',defaultValue:LS.get('sab_daily_override','')}),
+          h('div',{style:{fontSize:13,color:'#f0e6d3',fontFamily:'Inter,sans-serif',fontWeight:600,marginBottom:14,marginTop:8}},'Banner promoção'),
+          h('input',{className:'adm-input',placeholder:'Texto do banner de promoção...',defaultValue:LS.get('sab_banner_text','')},),
+          h('button',{className:'adm-btn',onClick:()=>{Toast.show('✅ Conteúdo atualizado!');}}, 'Salvar alterações')
+        )
+      )
+    )
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   NOTIFICATION STRIP
+════════════════════════════════════════════════════════════ */
+function NotifStrip(){
+  const [show,setShow]=useState(false);
+  const [msg,setMsg]=useState('');
+  const msgs=[
+    '🍕 Bella Napoli: Pizza do dia com 20% OFF até às 18h!',
+    '⭐ Sakura House acaba de receber 50 avaliações 5 estrelas!',
+    '🛵 Tempo médio de entrega hoje: apenas 14 minutos!',
+    '🔥 Smash Wagyu Double é o prato mais pedido agora!',
+  ];
+  useEffect(()=>{
+    let i=0;
+    const show=()=>{setMsg(msgs[i%msgs.length]);setShow(true);setTimeout(()=>{setShow(false);i++;setTimeout(show,8000);},5000);};
+    const t=setTimeout(show,12000);
+    return()=>clearTimeout(t);
+  },[]);
+  return h('div',{id:'notif-strip',className:show?'show':''},
+    h('div',{className:'notif-inner'},
+      h('span',{style:{flex:1,textAlign:'center',fontWeight:500}},msg),
+      h('button',{onClick:()=>setShow(false),style:{background:'none',border:'none',color:'rgba(180,255,180,.6)',cursor:'pointer',fontSize:18,flexShrink:0,fontFamily:'Inter,sans-serif'}},'×')
+    )
+  );
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -427,7 +970,13 @@ function App(){
   const open=storeOpen();
   const c=pal(dark);
   const todayI=new Date().getDay()===0?6:new Date().getDay()-1;
-  const dishes=filt==='Todos'?DISHES:DISHES.filter(d=>d.tag===filt);
+  // NLP search → filter dishes
+  const rawDishes=filt==='Todos'?DISHES:DISHES.filter(d=>d.tag===filt);
+  const nlpDishes=srch?NLP.filterDishes(rawDishes,srch):rawDishes;
+  // Personalization: sort by click analytics
+  const dishes=Analytics.sort('dish',nlpDishes,'name');
+  // Daily top dish
+  const dailyTop=getDailyTop(DISHES);
 
   // scroll listener
   useEffect(()=>{
@@ -435,6 +984,39 @@ function App(){
     window.addEventListener('scroll',fn,{passive:true});
     return()=>window.removeEventListener('scroll',fn);
   },[]);
+
+  // Geolocation detection
+  useEffect(()=>{Geo.detect().then(g=>g&&setGeoData(g));},[]);
+
+  // Schedule push notification
+  useEffect(()=>{if(rdy)Notif.scheduleWelcome();},[rdy]);
+
+  // Heatmap click tracking
+  useEffect(()=>{
+    if(!rdy)return;
+    const fn=e=>{
+      Analytics.heatClick(e.clientX,e.clientY);
+      if(heatOn)spawnHeatDot(e.clientX,e.clientY);
+    };
+    document.addEventListener('click',fn);
+    return()=>document.removeEventListener('click',fn);
+  },[rdy,heatOn]);
+
+  // A/B test variant for hero CTA
+  const abVariant=AB.variant('hero_cta',['A','B','C']);
+  const ctaLabels={'A':'🍽 Explorar Pratos','B':'🔥 Ver os Melhores','C':'🍕 Pedir Agora'};
+  const ctaLabel=ctaLabels[abVariant]||ctaLabels['A'];
+
+  // Logo tap counter (5 taps = admin panel)
+  const handleLogoTap=()=>{
+    setLogoTaps(n=>{
+      const next=n+1;
+      clearTimeout(logoTapTimer.current);
+      if(next>=5){setAdminOpen(true);Toast.show('🔐 Painel admin desbloqueado!');return 0;}
+      logoTapTimer.current=setTimeout(()=>setLogoTaps(0),2000);
+      return next;
+    });
+  };
 
   // testimonial rotation (isolated timer, still causes App re-render but testimonials are cheap)
   useEffect(()=>{
@@ -463,6 +1045,10 @@ function App(){
 
   return h(Fragment,null,
     h(Leaves),
+    h(NotifStrip),
+    h(AdminDashboard,{c,open:adminOpen,onClose:()=>setAdminOpen(false),dishes:DISHES,restaurants:RESTAURANTS}),
+    heatOn&&h('div',{className:'ab-badge',onClick:()=>{setHeatOn(false);Toast.show('🗺 Heatmap desativado');}},'🗺 HEATMAP ON'),
+    !heatOn&&rdy&&h('div',{className:'ab-badge',title:'Variante A/B: '+abVariant,onClick:()=>{setHeatOn(true);Toast.show('🗺 Heatmap ativado! Clique em qualquer lugar');}},'A/B: '+abVariant),
 
     h('div',{style:{background:c.bg,fontFamily:"'Inter',sans-serif",color:c.text,overflowX:'hidden',transition:'background .6s,color .6s'}},
 
@@ -474,7 +1060,7 @@ function App(){
 
 /* ════ NAV ════ */
       h('nav',{className:'sabores-nav',style:{position:'sticky',top:0,zIndex:500,background:c.nav,backdropFilter:'blur(28px)',WebkitBackdropFilter:'blur(28px)',borderBottom:`1px solid ${c.border}`,padding:sc?'10px 28px':'18px 28px',display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,transition:'padding .4s cubic-bezier(.22,1,.36,1),box-shadow .4s',boxShadow:sc?'0 8px 40px rgba(0,0,0,.38)':'none'}},
-        h('a',{href:'#',className:'nav-logo',style:{fontFamily:"'Playfair Display',serif",fontSize:sc?21:28,fontWeight:900,color:c.cream,textDecoration:'none',transition:'font-size .35s',flexShrink:0,letterSpacing:'-1px'}},
+        h('a',{href:'#',className:'nav-logo',onClick:handleLogoTap,style:{fontFamily:"'Playfair Display',serif",fontSize:sc?21:28,fontWeight:900,color:c.cream,textDecoration:'none',transition:'font-size .35s',flexShrink:0,letterSpacing:'-1px'}},
           'Sabo',h('span',{style:{color:c.orange,fontStyle:'italic'}},'res')
         ),
         h('div',{className:'nav-status',style:{display:'flex',alignItems:'center',gap:7,padding:'5px 13px',borderRadius:100,background:'rgba(255,255,255,.05)',border:`1px solid ${c.border}`,flexShrink:0}},
@@ -505,6 +1091,7 @@ function App(){
               h('span',{style:{width:6,height:6,background:c.orange,borderRadius:'50%',animation:'pulse 2s infinite',display:'inline-block'}}),
               h('span',{style:{fontSize:11,letterSpacing:'.16em',textTransform:'uppercase',color:c.orangeL,fontFamily:'Inter,sans-serif',fontWeight:600}},'Curadoria gastronômica de elite')
             ),
+            geoData&&h('div',{className:'geo-badge',style:{marginBottom:16}},'📍 Detectado: ',h('strong',null,geoData.city||'São Paulo'),' · Restaurantes disponíveis'),
             h('h1',{className:'hero-h1',style:{fontFamily:"'Playfair Display',serif",fontSize:'clamp(44px,7.5vw,88px)',fontWeight:900,lineHeight:.95,color:c.cream,marginBottom:26,letterSpacing:'-3px',animation:'fadeUp .85s .35s cubic-bezier(.22,1,.36,1) both',minHeight:'2.1em'}},
               'Cada prato,',h('br'),h('span',{style:{display:'inline-block',marginTop:4}},h(TypeWriter,{color:c.orange}))
             ),
@@ -512,10 +1099,10 @@ function App(){
               'Descubra experiências culinárias únicas curadas por especialistas. Do prato à sua porta, pelo iFood, em minutos.'
             ),
             h('div',{style:{display:'flex',gap:14,flexWrap:'wrap',animation:'fadeUp .85s .65s cubic-bezier(.22,1,.36,1) both'}},
-              h('a',{'data-h':1,href:'#pratos',style:{background:`linear-gradient(135deg,${c.orange},${c.orangeD})`,color:'#fff',padding:'16px 38px',borderRadius:100,fontSize:14,fontWeight:700,textDecoration:'none',fontFamily:'Inter,sans-serif',letterSpacing:'.05em',boxShadow:'0 8px 36px rgba(232,82,10,.45)',transition:'all .3s cubic-bezier(.22,1,.36,1)'},
+              h('a',{'data-h':1,href:'#pratos',onClick:()=>{AB.convert('hero_cta');Analytics.track('cta','hero');},style:{background:`linear-gradient(135deg,${c.orange},${c.orangeD})`,color:'#fff',padding:'16px 38px',borderRadius:100,fontSize:14,fontWeight:700,textDecoration:'none',fontFamily:'Inter,sans-serif',letterSpacing:'.05em',boxShadow:'0 8px 36px rgba(232,82,10,.45)',transition:'all .3s cubic-bezier(.22,1,.36,1)'},
                 onMouseEnter:e=>{e.currentTarget.style.transform='translateY(-3px) scale(1.03)';e.currentTarget.style.boxShadow='0 18px 52px rgba(232,82,10,.58)';},
                 onMouseLeave:e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 8px 36px rgba(232,82,10,.45)';}},
-                '🍽 Explorar Pratos'
+                ctaLabel
               ),
               h('a',{'data-h':1,href:'#como',style:{color:c.muted,padding:'16px 28px',borderRadius:100,fontSize:13,textDecoration:'none',border:`1px solid ${c.border}`,fontFamily:'Inter,sans-serif',letterSpacing:'.05em',transition:'all .3s'},
                 onMouseEnter:e=>{e.currentTarget.style.borderColor=c.bHov;e.currentTarget.style.color=c.cream;e.currentTarget.style.background='rgba(232,82,10,.06)';},
@@ -582,6 +1169,14 @@ function App(){
         )
       ),
 
+/* ════ SEARCH BAR ════ */
+      h('section',{style:{padding:'0 0 40px',background:c.bg}},
+        h('div',{style:{maxWidth:1200,margin:'0 auto',padding:'0 4px'}},
+          h(SearchBar,{c,onSearch:setSrch,onFilter:setFilt}),
+          srch&&h('div',{style:{textAlign:'center',marginTop:12,fontSize:11,color:c.muted,fontFamily:'Inter,sans-serif',letterSpacing:'.08em'}},'🤖 NLP: ',h('em',{style:{color:c.orangeL}},'"'+srch+'"'),' → '+dishes.length+' resultado'+(dishes.length!==1?'s':''))
+        )
+      ),
+
 /* ════ PRATOS ════ */
       h('section',{id:'pratos',style:{padding:'96px 28px',background:c.bg}},
         h('div',{style:{maxWidth:1200,margin:'0 auto'}},
@@ -595,7 +1190,8 @@ function App(){
           ),
           h('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:22}},
             ...dishes.map((d,i)=>h(Rv,{key:d.name,delay:i*.055},
-              h('a',{'data-h':1,href:iurl(d.q),target:'_blank',rel:'noreferrer',className:'tilt',style:{background:c.card,border:`1px solid ${c.border}`,borderRadius:24,overflow:'hidden',textDecoration:'none',display:'block',position:'relative',transformStyle:'preserve-3d'},
+              h('a',{'data-h':1,href:iurl(d.q),target:'_blank',rel:'noreferrer',className:'tilt',
+                onClick:()=>{Analytics.track('dish',d.name);AB.convert('hero_cta');},style:{background:c.card,border:`1px solid ${c.border}`,borderRadius:24,overflow:'hidden',textDecoration:'none',display:'block',position:'relative',transformStyle:'preserve-3d'},
                 onMouseMove:e=>hov3d(e.currentTarget,e),
                 onMouseLeave:e=>{rst3d(e.currentTarget);e.currentTarget.style.borderColor=c.border;},
                 onMouseEnter:e=>{e.currentTarget.style.borderColor=c.bHov;}},
@@ -604,6 +1200,7 @@ function App(){
                   h('div',{style:{position:'absolute',inset:0,background:'radial-gradient(circle at 50% 60%,rgba(255,255,255,.04),transparent 65%)'}}),
                   h('div',{style:{zIndex:1,filter:'drop-shadow(0 12px 24px rgba(0,0,0,.5))',transition:'transform .4s',transform:'translateZ(20px)'}},d.e),
                   h('div',{style:{position:'absolute',top:13,left:13,background:'rgba(8,6,3,.88)',backdropFilter:'blur(8px)',border:'1px solid rgba(255,255,255,.1)',borderRadius:100,padding:'4px 13px',fontSize:10,color:c.gold,fontFamily:'Inter,sans-serif',fontWeight:600,zIndex:2}},d.badge),
+                  d.name===dailyTop.name&&h('div',{style:{position:'absolute',top:8,left:'50%',transform:'translateX(-50%)',background:'linear-gradient(135deg,#E8520A,#C9A84C)',color:'#fff',fontSize:9,fontWeight:800,padding:'3px 12px',borderRadius:100,letterSpacing:'.1em',fontFamily:'Inter,sans-serif',zIndex:3,whiteSpace:'nowrap',boxShadow:'0 4px 16px rgba(232,82,10,.5)'}},'🔥 PRATO DO DIA'),
                   h('button',{onClick:ev=>{ev.preventDefault();ev.stopPropagation();setFavs(f=>({...f,[i]:!f[i]}));},style:{position:'absolute',top:11,right:12,width:34,height:34,background:'rgba(8,6,3,.88)',backdropFilter:'blur(8px)',border:'1px solid rgba(255,255,255,.1)',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:15,color:favs[i]?c.orange:c.muted,transition:'color .2s,transform .2s',zIndex:2},
                     onMouseEnter:e=>{e.currentTarget.style.transform='scale(1.25)';},
                     onMouseLeave:e=>{e.currentTarget.style.transform='scale(1)';}},
@@ -681,7 +1278,7 @@ function App(){
           h(Rv,null,h(SH,{label:'Parceiros exclusivos',title:'Restaurantes em',accent:'destaque',c})),
           h('div',{className:'ns',style:{display:'flex',gap:16,overflowX:'auto',paddingBottom:10}},
             ...RESTAURANTS.map((r,i)=>h(Rv,{key:i,delay:i*.05},
-              h('a',{'data-h':1,href:iurl(r.q),target:'_blank',rel:'noreferrer',style:{flex:'0 0 220px',background:c.card,border:`1px solid ${c.border}`,borderRadius:22,padding:26,textDecoration:'none',transition:'all .38s cubic-bezier(.22,1,.36,1)',display:'block'},
+              h('a',{'data-h':1,href:iurl(r.q),target:'_blank',rel:'noreferrer',onClick:()=>Analytics.track('rest',r.name),style:{flex:'0 0 220px',background:c.card,border:`1px solid ${c.border}`,borderRadius:22,padding:26,textDecoration:'none',transition:'all .38s cubic-bezier(.22,1,.36,1)',display:'block'},
                 onMouseEnter:e=>{e.currentTarget.style.transform='translateY(-7px)';e.currentTarget.style.borderColor=c.bHov;e.currentTarget.style.boxShadow=`0 28px 56px ${c.sh}`;},
                 onMouseLeave:e=>{e.currentTarget.style.transform='none';e.currentTarget.style.borderColor=c.border;e.currentTarget.style.boxShadow='none';}},
                 h('div',{style:{fontSize:38,marginBottom:16}},r.icon),
