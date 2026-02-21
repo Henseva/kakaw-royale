@@ -674,7 +674,7 @@ function AdminDashboard({c,open,onClose,dishes,restaurants}){
         h('div',{style:{background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.07)',borderRadius:16,padding:24,marginBottom:20}},
           h('div',{style:{fontSize:14,color:'#f0e6d3',fontFamily:'Inter,sans-serif',fontWeight:600,marginBottom:12}},'Teste: Hero CTA Button'),
           h('div',{style:{fontSize:12,color:'rgba(200,180,160,.6)',fontFamily:'Inter,sans-serif',marginBottom:16}},'Variante atribuída a este usuário: ',h('strong',{style:{color:'#C9A84C'}},abResult.variant)),
-          ...[['A',ctaLabel],['B','🔥 Ver os Melhores'],['C','🍕 Pedir Agora']].map(([v,txt])=>
+          ...[['A','🍽 Explorar Pratos'],['B','🔥 Ver os Melhores'],['C','🍕 Pedir Agora']].map(([v,txt])=>
             h('div',{key:v,style:{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 0',borderBottom:'1px solid rgba(255,255,255,.05)',fontFamily:'Inter,sans-serif',fontSize:12}},
               h('span',{style:{color:abResult.variant===v?'#E8520A':'rgba(200,180,160,.5)',fontWeight:abResult.variant===v?700:400}},'Variante '+v+': '+txt),
               h('span',{style:{color:'#C9A84C',fontWeight:600}},((abResult.conversions||{})[v]||0)+' conv.')
@@ -966,6 +966,12 @@ function App(){
   const [favs, setFavs] =useState({});
   const [bnr,  setBnr]  =useState(true);
   const [tIdx, setTIdx] =useState(0);
+  const [srch, setSrch]    =useState('');
+  const [adminOpen,setAdminOpen]=useState(false);
+  const [logoTaps,setLogoTaps] =useState(0);
+  const [geoData,setGeoData]   =useState(null);
+  const [heatOn, setHeatOn]    =useState(false);
+  const logoTapTimer=useRef(null);
 
   const open=storeOpen();
   const c=pal(dark);
