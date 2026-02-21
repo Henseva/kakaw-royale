@@ -130,19 +130,70 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 /* ── ADMIN PANEL ── */
 #admin{position:fixed;inset:0;z-index:50000;background:rgba(0,0,0,.92);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .4s}
 #admin.open{opacity:1;visibility:visible}
-.adm-box{background:#111009;border:1px solid rgba(232,82,10,.3);border-radius:24px;padding:40px;max-width:960px;width:95vw;max-height:90vh;overflow-y:auto;position:relative}
-.adm-close{position:absolute;top:16px;right:20px;background:none;border:none;color:rgba(255,255,255,.5);font-size:24px;cursor:pointer;font-family:Inter,sans-serif}
-.adm-tab{padding:8px 18px;border-radius:100px;font-size:11px;font-weight:600;font-family:Inter,sans-serif;cursor:pointer;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(200,180,160,.6);transition:all .22s;letter-spacing:.05em}
-.adm-tab.on{background:#E8520A;color:#fff;border-color:#E8520A}
-.adm-kpi{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px 24px;text-align:center}
-.adm-bar-wrap{background:rgba(255,255,255,.06);border-radius:4px;height:6px;overflow:hidden;margin-top:8px}
-.adm-bar{height:100%;background:linear-gradient(90deg,#E8520A,#C9A84C);border-radius:4px;transition:width 1s cubic-bezier(.22,1,.36,1)}
-.adm-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);font-family:Inter,sans-serif;font-size:12px}
-.adm-badge{padding:2px 9px;border-radius:100px;font-size:9px;font-weight:700;letter-spacing:.06em}
-.adm-input{width:100%;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#f0e6d3;font-family:Inter,sans-serif;font-size:13px;outline:none;margin-bottom:10px;transition:border .2s}
-.adm-input:focus{border-color:rgba(232,82,10,.5)}
-.adm-btn{padding:10px 22px;background:linear-gradient(135deg,#E8520A,#bf4008);color:#fff;border:none;border-radius:100px;font-family:Inter,sans-serif;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.05em;transition:all .25s}
+/* ── ADMIN PANEL PREMIUM ── */
+#admin{position:fixed;inset:0;z-index:50000;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .4s}
+#admin::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+#admin.open{opacity:1;visibility:visible}
+.adm-shell{position:relative;z-index:1;width:100%;max-width:1100px;height:90vh;max-height:700px;display:grid;grid-template-columns:220px 1fr;border-radius:28px;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.06) inset;animation:scaleIn .4s cubic-bezier(.22,1,.36,1)}
+.adm-sidebar{background:#0c0a06;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;padding:0;overflow:hidden}
+.adm-sidebar-head{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,.05)}
+.adm-logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:#f0e6d3;letter-spacing:-1px;margin-bottom:4px}
+.adm-logo em{color:#E8520A;font-style:italic}
+.adm-logo-sub{font-size:9px;color:rgba(200,180,160,.35);font-family:Inter,sans-serif;letter-spacing:.18em;text-transform:uppercase}
+.adm-nav{flex:1;padding:12px 0;overflow-y:auto}
+.adm-nav-item{display:flex;align-items:center;gap:12px;padding:11px 22px;cursor:pointer;transition:all .22s;font-family:Inter,sans-serif;font-size:12px;font-weight:500;color:rgba(200,180,160,.5);letter-spacing:.02em;border-left:2px solid transparent;user-select:none}
+.adm-nav-item:hover{color:rgba(200,180,160,.85);background:rgba(255,255,255,.03)}
+.adm-nav-item.on{color:#f0e6d3;background:rgba(232,82,10,.08);border-left-color:#E8520A}
+.adm-nav-icon{font-size:16px;flex-shrink:0;width:20px;text-align:center}
+.adm-nav-badge{margin-left:auto;background:rgba(232,82,10,.2);color:#E8520A;font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;letter-spacing:.05em}
+.adm-sidebar-foot{padding:16px 22px;border-top:1px solid rgba(255,255,255,.05)}
+.adm-status-dot{width:7px;height:7px;background:#2ecc71;border-radius:50%;display:inline-block;animation:pulse 2s infinite;margin-right:8px}
+.adm-status-txt{font-size:10px;color:rgba(200,180,160,.4);font-family:Inter,sans-serif}
+.adm-main{background:#0f0d09;display:flex;flex-direction:column;overflow:hidden}
+.adm-topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0}
+.adm-page-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#f0e6d3;letter-spacing:-.5px}
+.adm-page-sub{font-size:11px;color:rgba(200,180,160,.4);font-family:Inter,sans-serif;margin-top:2px}
+.adm-close{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:10px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:18px;transition:all .2s;font-family:Inter,sans-serif}
+.adm-close:hover{background:rgba(231,76,60,.15);border-color:rgba(231,76,60,.3);color:#e74c3c}
+.adm-content{flex:1;overflow-y:auto;padding:28px 32px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.06) transparent}
+.adm-content::-webkit-scrollbar{width:4px}
+.adm-content::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px}
+.adm-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:28px}
+.adm-kpi{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:20px 22px;position:relative;overflow:hidden;transition:border-color .2s}
+.adm-kpi:hover{border-color:rgba(232,82,10,.2)}
+.adm-kpi::before{content:'';position:absolute;top:-20px;right:-20px;width:60px;height:60px;border-radius:50%;opacity:.08}
+.adm-kpi-val{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;line-height:1;margin-bottom:6px;letter-spacing:-1.5px}
+.adm-kpi-lbl{font-size:10px;color:rgba(200,180,160,.45);font-family:Inter,sans-serif;text-transform:uppercase;letter-spacing:.12em}
+.adm-kpi-trend{font-size:9px;font-family:Inter,sans-serif;font-weight:600;margin-top:8px;display:flex;align-items:center;gap:4px}
+.adm-section-title{font-size:12px;font-weight:600;font-family:Inter,sans-serif;color:rgba(200,180,160,.5);text-transform:uppercase;letter-spacing:.14em;margin-bottom:14px;margin-top:4px}
+.adm-table{width:100%;border-collapse:collapse}
+.adm-table th{font-size:9px;font-family:Inter,sans-serif;text-transform:uppercase;letter-spacing:.12em;color:rgba(200,180,160,.35);font-weight:600;padding:0 0 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,.05)}
+.adm-table th:last-child{text-align:right}
+.adm-table td{padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04);font-family:Inter,sans-serif;font-size:12px;color:rgba(200,180,160,.8);vertical-align:middle}
+.adm-table tr:last-child td{border-bottom:none}
+.adm-pill{display:inline-block;padding:3px 10px;border-radius:100px;font-size:9px;font-weight:700;letter-spacing:.06em;font-family:Inter,sans-serif}
+.adm-pill.green{background:rgba(46,204,113,.15);color:#2ecc71}
+.adm-pill.orange{background:rgba(232,82,10,.15);color:#E8520A}
+.adm-pill.red{background:rgba(231,76,60,.15);color:#e74c3c}
+.adm-pill.gold{background:rgba(201,168,76,.15);color:#C9A84C}
+.adm-bar-wrap{background:rgba(255,255,255,.06);border-radius:100px;height:5px;overflow:hidden}
+.adm-bar{height:100%;border-radius:100px;transition:width 1.2s cubic-bezier(.22,1,.36,1)}
+.adm-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:20px 22px;margin-bottom:14px}
+.adm-card-title{font-size:13px;font-weight:600;font-family:Inter,sans-serif;color:#f0e6d3;margin-bottom:12px}
+.adm-input{width:100%;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#f0e6d3;font-family:Inter,sans-serif;font-size:13px;outline:none;margin-bottom:10px;transition:border .2s}
+.adm-input:focus{border-color:rgba(232,82,10,.4);background:rgba(255,255,255,.08)}
+.adm-input::placeholder{color:rgba(200,180,160,.3)}
+.adm-btn{padding:10px 22px;background:linear-gradient(135deg,#E8520A,#bf4008);color:#fff;border:none;border-radius:10px;font-family:Inter,sans-serif;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;transition:all .25s}
 .adm-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,82,10,.4)}
+.adm-btn-ghost{padding:9px 20px;background:transparent;color:rgba(200,180,160,.6);border:1px solid rgba(255,255,255,.08);border-radius:10px;font-family:Inter,sans-serif;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:.04em;transition:all .22s}
+.adm-btn-ghost:hover{border-color:rgba(232,82,10,.3);color:#E8520A}
+.adm-divider{height:1px;background:rgba(255,255,255,.05);margin:20px 0}
+.adm-ab-variant{border:2px solid rgba(255,255,255,.06);border-radius:14px;padding:16px 18px;margin-bottom:10px;transition:border-color .2s;cursor:pointer}
+.adm-ab-variant.winning{border-color:rgba(46,204,113,.35);background:rgba(46,204,113,.04)}
+.adm-ab-variant.current{border-color:rgba(232,82,10,.35);background:rgba(232,82,10,.04)}
+.adm-heatmap-canvas{position:relative;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden;aspect-ratio:16/9;margin-bottom:16px}
+.adm-heatmap-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:rgba(200,180,160,.2);font-family:Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;pointer-events:none}
+@media(max-width:700px){.adm-shell{grid-template-columns:1fr;height:95vh;max-height:none}.adm-sidebar{display:none}}
 
 /* ── TOAST NOTIFICATIONS ── */
 #toast-wrap{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);z-index:40000;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}
@@ -155,13 +206,10 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 .hm-dot{position:fixed;border-radius:50%;pointer-events:none;z-index:30000;animation:hmFade 2s ease forwards}
 @keyframes hmFade{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(3)}}
 
-/* ── NOTIF STRIP ── */
-#notif-strip{position:fixed;top:0;left:0;right:0;z-index:20000;transform:translateY(-100%);transition:transform .5s cubic-bezier(.22,1,.36,1)}
-#notif-strip.show{transform:translateY(0)}
-.notif-inner{background:linear-gradient(135deg,#0d2010,#152a18);border-bottom:1px solid rgba(46,204,113,.25);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12;font-family:Inter,sans-serif;font-size:12px;color:#b8f0c8}
+
 
 /* ── AB BADGE ── */
-.ab-badge{position:fixed;bottom:160px;right:28px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);color:#C9A84C;font-family:Inter,sans-serif;font-size:9px;padding:4px 9px;border-radius:100px;letter-spacing:.08em;font-weight:600;z-index:400;opacity:.6}
+/* .ab-badge removed */
 
 /* ── GEO BADGE ── */
 .geo-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.2);color:#2ecc71;font-family:Inter,sans-serif;font-size:10px;padding:5px 13px;border-radius:100px;font-weight:500;letter-spacing:.05em;animation:fadeUp .6s .2s both}
@@ -203,42 +251,98 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 
 
 /* ── CHEF IA CHAT ── */
-#chef-btn{position:fixed;bottom:92px;left:24px;z-index:700;width:54px;height:54px;background:linear-gradient(135deg,#C9A84C,#8a5e00);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 24px rgba(201,168,76,.5);transition:all .35s cubic-bezier(.22,1,.36,1)}
-#chef-btn:hover{transform:scale(1.14) rotate(8deg);box-shadow:0 10px 44px rgba(201,168,76,.7)}
-#chef-btn .chef-pulse{position:absolute;top:-2px;right:-2px;width:12px;height:12px;background:#2ecc71;border-radius:50%;border:2px solid #0a0805;animation:pulse 2s infinite}
-#chef-panel{position:fixed;bottom:0;left:0;width:380px;max-width:100vw;height:560px;max-height:90vh;z-index:800;display:flex;flex-direction:column;background:#0e0c08;border:1px solid rgba(201,168,76,.25);border-radius:0 24px 0 0;box-shadow:0 -8px 60px rgba(0,0,0,.7);transform:translateY(calc(100% + 10px));transition:transform .55s cubic-bezier(.22,1,.36,1);overflow:hidden}
+/* ════════════════════════════════════════════════
+   CHEF RENÉ — PROFESSIONAL CHAT
+════════════════════════════════════════════════ */
+#chef-btn{position:fixed;bottom:100px;left:24px;z-index:700;width:60px;height:60px;background:linear-gradient(145deg,#1a1408,#2a1f08);border:1.5px solid rgba(201,168,76,.4);border-radius:18px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:0 8px 32px rgba(0,0,0,.6),0 0 0 1px rgba(201,168,76,.1) inset;transition:all .4s cubic-bezier(.22,1,.36,1)}
+#chef-btn:hover{transform:translateY(-4px) scale(1.06);box-shadow:0 16px 48px rgba(0,0,0,.7),0 0 24px rgba(201,168,76,.25);border-color:rgba(201,168,76,.7)}
+#chef-btn .chef-hat{font-size:22px;line-height:1;transition:transform .4s cubic-bezier(.22,1,.36,1)}
+#chef-btn:hover .chef-hat{transform:rotate(-8deg) translateY(-2px)}
+#chef-btn .chef-btn-label{font-size:7px;font-family:Inter,sans-serif;font-weight:700;letter-spacing:.12em;color:rgba(201,168,76,.7);text-transform:uppercase}
+#chef-btn .chef-pulse{position:absolute;top:8px;right:8px;width:8px;height:8px;background:#2ecc71;border-radius:50%;border:1.5px solid #0a0805;animation:pulse 2s infinite}
+#chef-panel{position:fixed;bottom:0;left:0;width:420px;max-width:100vw;height:640px;max-height:92vh;z-index:800;display:flex;flex-direction:column;background:#090805;border:1px solid rgba(201,168,76,.2);border-radius:24px 24px 0 0;box-shadow:0 -16px 80px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.03) inset;transform:translateY(calc(100% + 20px));transition:transform .6s cubic-bezier(.22,1,.36,1);overflow:hidden}
 #chef-panel.open{transform:translateY(0)}
-.chef-head{padding:18px 20px 14px;background:linear-gradient(135deg,rgba(201,168,76,.12),rgba(232,82,10,.06));border-bottom:1px solid rgba(201,168,76,.15);display:flex;align-items:center;gap:12;flex-shrink:0}
-.chef-avatar{width:40px;height:40px;background:linear-gradient(135deg,#C9A84C,#E8520A);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.chef-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#f0e6d3;letter-spacing:-.3px}
-.chef-sub{font-size:10px;color:rgba(201,168,76,.7);font-family:Inter,sans-serif;letter-spacing:.06em}
-.chef-close{margin-left:auto;background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:20px;line-height:1;padding:4px;transition:color .2s;flex-shrink:0}
-.chef-close:hover{color:rgba(255,255,255,.8)}
-.chef-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12;scrollbar-width:thin;scrollbar-color:rgba(201,168,76,.2) transparent}
+
+/* Header */
+.chef-head{position:relative;padding:0;flex-shrink:0;overflow:hidden}
+.chef-head-bg{position:absolute;inset:0;background:linear-gradient(135deg,#1a1005 0%,#0f0c05 60%,#120d08 100%);z-index:0}
+.chef-head-glow{position:absolute;top:-40px;left:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(201,168,76,.18) 0%,transparent 70%);z-index:0;pointer-events:none}
+.chef-head-content{position:relative;z-index:1;display:flex;align-items:center;gap:14px;padding:18px 20px 14px}
+.chef-portrait{width:52px;height:52px;border-radius:16px;background:linear-gradient(145deg,#2a1f08,#1a1308);border:1.5px solid rgba(201,168,76,.35);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;position:relative;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.chef-portrait::after{content:'';position:absolute;inset:0;border-radius:16px;background:linear-gradient(135deg,rgba(201,168,76,.12),transparent);pointer-events:none}
+.chef-online{position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;background:#2ecc71;border-radius:50%;border:2px solid #090805;animation:pulse 2s infinite}
+.chef-info{flex:1;min-width:0}
+.chef-name{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:#f0e6d3;letter-spacing:-.4px;line-height:1.1;margin-bottom:3px}
+.chef-role{font-size:10px;color:rgba(201,168,76,.65);font-family:Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;font-weight:500}
+.chef-badges{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.chef-badge-item{font-size:8.5px;font-family:Inter,sans-serif;font-weight:600;letter-spacing:.05em;color:rgba(200,180,160,.5);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);padding:2px 7px;border-radius:100px}
+.chef-head-actions{display:flex;gap:6px;flex-shrink:0}
+.chef-icon-btn{width:34px;height:34px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:rgba(255,255,255,.45);transition:all .22s}
+.chef-icon-btn:hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.8)}
+.chef-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.15) 30%,rgba(201,168,76,.15) 70%,transparent);flex-shrink:0}
+
+/* Suggestions */
+.chef-suggest-wrap{padding:12px 16px 10px;flex-shrink:0}
+.chef-suggest-label{font-size:9px;font-family:Inter,sans-serif;font-weight:600;letter-spacing:.14em;color:rgba(200,180,160,.3);text-transform:uppercase;margin-bottom:8px}
+.chef-chips{display:flex;gap:6px;flex-wrap:wrap}
+.chef-chip{padding:6px 13px;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.18);border-radius:100px;font-size:10.5px;color:rgba(201,168,76,.75);font-family:Inter,sans-serif;cursor:pointer;transition:all .22s;white-space:nowrap;font-weight:500;letter-spacing:.02em}
+.chef-chip:hover{background:rgba(201,168,76,.15);color:#C9A84C;border-color:rgba(201,168,76,.4);transform:translateY(-1px)}
+
+/* Messages */
+.chef-msgs{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:14px;scrollbar-width:thin;scrollbar-color:rgba(201,168,76,.15) transparent}
 .chef-msgs::-webkit-scrollbar{width:3px}
-.chef-msgs::-webkit-scrollbar-thumb{background:rgba(201,168,76,.2);border-radius:2px}
-.chef-msg{max-width:85%;animation:fadeUp .3s cubic-bezier(.22,1,.36,1)}
-.chef-msg.ai{align-self:flex-start}
-.chef-msg.user{align-self:flex-end}
-.chef-bubble{padding:11px 15px;border-radius:18px;font-family:Inter,sans-serif;font-size:13px;line-height:1.6;font-weight:300}
-.chef-msg.ai .chef-bubble{background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.18);color:#f0e6d3;border-radius:4px 18px 18px 18px}
-.chef-msg.user .chef-bubble{background:linear-gradient(135deg,#E8520A,#bf4008);color:#fff;border-radius:18px 4px 18px 18px}
-.chef-typing{display:flex;gap:4px;padding:10px 14px;align-items:center}
-.chef-typing span{width:6px;height:6px;background:rgba(201,168,76,.6);border-radius:50%;animation:typingDot 1.2s ease-in-out infinite}
-.chef-typing span:nth-child(2){animation-delay:.2s}
-.chef-typing span:nth-child(3){animation-delay:.4s}
-@keyframes typingDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
-.chef-footer{padding:12px 14px 16px;border-top:1px solid rgba(201,168,76,.12);display:flex;gap:8;flex-shrink:0;align-items:flex-end}
-.chef-input{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(201,168,76,.2);border-radius:14px;padding:10px 14px;color:#f0e6d3;font-family:Inter,sans-serif;font-size:13px;outline:none;resize:none;max-height:90px;transition:border .2s;line-height:1.5}
-.chef-input:focus{border-color:rgba(201,168,76,.5);background:rgba(255,255,255,.08)}
-.chef-input::placeholder{color:rgba(200,180,160,.35)}
-.chef-send{width:40px;height:40px;background:linear-gradient(135deg,#C9A84C,#8a5e00);border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:all .25s;align-self:flex-end}
-.chef-send:hover{transform:scale(1.1);box-shadow:0 4px 16px rgba(201,168,76,.4)}
-.chef-send:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.chef-chips{display:flex;gap:6px;flex-wrap:wrap;padding:8px 14px 0}
-.chef-chip{padding:5px 12px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:100px;font-size:10px;color:rgba(201,168,76,.85);font-family:Inter,sans-serif;cursor:pointer;transition:all .2s;white-space:nowrap;font-weight:500}
-.chef-chip:hover{background:rgba(201,168,76,.18);color:#C9A84C}
-@media(max-width:420px){#chef-panel{width:100vw;border-radius:24px 24px 0 0;bottom:0;left:0}}
+.chef-msgs::-webkit-scrollbar-thumb{background:rgba(201,168,76,.15);border-radius:2px}
+.chef-msg-wrap{display:flex;flex-direction:column;animation:fadeUp .35s cubic-bezier(.22,1,.36,1)}
+.chef-msg-wrap.ai{align-items:flex-start}
+.chef-msg-wrap.user{align-items:flex-end}
+.chef-msg-header{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.chef-msg-wrap.user .chef-msg-header{flex-direction:row-reverse}
+.chef-msg-avatar{width:24px;height:24px;border-radius:8px;background:linear-gradient(135deg,#C9A84C,#8a5e00);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.chef-msg-name{font-size:10px;font-family:Inter,sans-serif;font-weight:600;color:rgba(200,180,160,.4);letter-spacing:.04em}
+.chef-msg-time{font-size:9px;font-family:Inter,sans-serif;color:rgba(200,180,160,.25);margin-left:auto}
+.chef-msg-wrap.user .chef-msg-time{margin-left:0;margin-right:auto}
+.chef-bubble{padding:12px 16px;border-radius:18px;font-family:Inter,sans-serif;font-size:13px;line-height:1.68;font-weight:300;max-width:86%;word-break:break-word;position:relative}
+.chef-msg-wrap.ai .chef-bubble{background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.15);color:#f0e6d3;border-radius:4px 18px 18px 18px}
+.chef-msg-wrap.user .chef-bubble{background:linear-gradient(135deg,#E8520A 0%,#bf4008 100%);color:#fff;border-radius:18px 4px 18px 18px;border:none}
+
+/* Dish card inline */
+.chef-dish-card{margin-top:10px;background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.2);border-radius:14px;overflow:hidden;text-decoration:none;display:block;transition:all .28s;max-width:260px}
+.chef-dish-card:hover{border-color:rgba(201,168,76,.45);background:rgba(255,255,255,.08);transform:translateY(-2px)}
+.chef-dish-card-img{height:80px;display:flex;align-items:center;justify-content:center;font-size:40px;background:linear-gradient(135deg,rgba(201,168,76,.1),rgba(232,82,10,.08))}
+.chef-dish-card-body{padding:10px 12px}
+.chef-dish-card-name{font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:#f0e6d3;margin-bottom:3px;line-height:1.2}
+.chef-dish-card-meta{font-size:10px;color:rgba(200,180,160,.5);font-family:Inter,sans-serif;display:flex;justify-content:space-between;align-items:center}
+.chef-dish-card-price{color:#C9A84C;font-weight:700;font-family:'Playfair Display',serif;font-size:14px}
+
+/* Typing */
+.chef-typing-wrap{display:flex;align-items:center;gap:10px;padding:8px 0}
+.chef-typing-avatar{width:24px;height:24px;border-radius:8px;background:linear-gradient(135deg,#C9A84C,#8a5e00);display:flex;align-items:center;justify-content:center;font-size:12px}
+.chef-typing-bubble{background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.15);border-radius:4px 18px 18px 18px;padding:12px 16px;display:flex;gap:5px;align-items:center}
+.chef-typing-bubble span{width:6px;height:6px;background:rgba(201,168,76,.5);border-radius:50%;display:inline-block;animation:typingDot 1.4s ease-in-out infinite}
+.chef-typing-bubble span:nth-child(2){animation-delay:.2s}
+.chef-typing-bubble span:nth-child(3){animation-delay:.4s}
+@keyframes typingDot{0%,60%,100%{transform:translateY(0);opacity:.35}30%{transform:translateY(-5px);opacity:1}}
+.chef-typing-text{font-size:10px;color:rgba(200,180,160,.3);font-family:Inter,sans-serif;font-style:italic;margin-top:4px;padding-left:32px}
+
+/* Footer */
+.chef-footer{padding:12px 14px 18px;border-top:1px solid rgba(255,255,255,.05);flex-shrink:0;background:rgba(0,0,0,.3)}
+.chef-input-row{display:flex;gap:8px;align-items:flex-end}
+.chef-input{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.2);border-radius:16px;padding:11px 15px;color:#f0e6d3;font-family:Inter,sans-serif;font-size:13px;outline:none;resize:none;max-height:100px;transition:border .25s,background .25s;line-height:1.55}
+.chef-input:focus{border-color:rgba(201,168,76,.5);background:rgba(255,255,255,.07)}
+.chef-input::placeholder{color:rgba(200,180,160,.3);font-style:italic}
+.chef-send{width:44px;height:44px;background:linear-gradient(135deg,#C9A84C,#8a5e00);border:none;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:all .28s;align-self:flex-end;color:#fff;box-shadow:0 4px 16px rgba(201,168,76,.3)}
+.chef-send:hover:not(:disabled){transform:scale(1.08) translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,.5)}
+.chef-send:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none}
+.chef-footer-hint{font-size:9.5px;color:rgba(200,180,160,.22);font-family:Inter,sans-serif;text-align:center;margin-top:8px;letter-spacing:.04em}
+
+/* Reactions */
+.chef-reactions{display:flex;gap:5px;margin-top:5px;opacity:0;transition:opacity .2s}
+.chef-msg-wrap:hover .chef-reactions{opacity:1}
+.chef-react-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:2px 7px;font-size:10px;cursor:pointer;color:rgba(200,180,160,.5);transition:all .18s;font-family:Inter,sans-serif}
+.chef-react-btn:hover{background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.3);color:#C9A84C}
+.chef-react-btn.liked{background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.4);color:#C9A84C}
+
+@media(max-width:480px){#chef-panel{width:100vw;border-radius:24px 24px 0 0}#chef-btn{bottom:88px;left:16px}}
 
 
 /* ── SABOR DO MOMENTO ── */
@@ -688,145 +792,423 @@ function SearchBar({c,onSearch,onFilter}){
    ADMIN DASHBOARD — secret panel (logo ×5)
 ════════════════════════════════════════════════════════════ */
 function AdminDashboard({c,open,onClose,dishes,restaurants}){
-  const [tab,setTab]=useState('analytics');
-  const [ratingAlerts]=useState(()=>RatingMonitor.check(restaurants));
-  const [abResult]=useState(()=>AB.results('hero_cta'));
+  const [tab,setTab]=useState('overview');
+  const [heatActive,setHeatActive]=useState(false);
+  const [bannerText,setBannerText]=useState(()=>LS.get('sab_banner_text',''));
+  const [dailyOverride,setDailyOverride]=useState(()=>LS.get('sab_daily_override',''));
+  const [saved,setSaved]=useState(false);
+
   const stats=Analytics.stats();
   const heatmap=LS.get('sab_heatmap',[]);
+  const abResult=AB.results('hero_cta');
+  const ratingAlerts=RatingMonitor.check(restaurants);
 
-  // Calculate conversion per dish
   const dishStats=dishes.map(d=>({
-    name:d.name,emoji:d.e,
+    name:d.name,emoji:d.e,from:d.from,
     clicks:stats.dishes[d.name]||0,
-    views:LS.get('sab_views_dish',{})[d.name]||0,
+    views:LS.get('sab_views_dish',{})[d.name]||1,
     ctr:Analytics.ctr(d.name),
+    stars:d.stars,
   })).sort((a,b)=>b.clicks-a.clicks);
 
   const maxClicks=Math.max(1,...dishStats.map(d=>d.clicks));
-  const totalClicks=stats.totalClicks;
+  const totalClicks=stats.totalClicks||0;
+  const totalRestClicks=Object.values(stats.rests||{}).reduce((a,b)=>a+b,0);
+
+  const NAV=[
+    {id:'overview',icon:'📊',label:'Visão Geral'},
+    {id:'dishes',icon:'🍽',label:'Pratos',badge:dishStats.filter(d=>d.clicks>0).length||null},
+    {id:'conversion',icon:'📈',label:'Conversão'},
+    {id:'restaurants',icon:'🏪',label:'Restaurantes'},
+    {id:'ab',icon:'⚗️',label:'A/B Test'},
+    {id:'ratings',icon:'⭐',label:'Avaliações',badge:ratingAlerts.length||null},
+    {id:'heatmap',icon:'🗺',label:'Heatmap'},
+    {id:'content',icon:'✏️',label:'Conteúdo'},
+    {id:'settings',icon:'⚙️',label:'Config'},
+  ];
+
+  const PAGE_META={
+    overview:{title:'Visão Geral',sub:'Performance em tempo real do seu site'},
+    dishes:{title:'Pratos',sub:'Cliques e popularidade por prato'},
+    conversion:{title:'Conversão',sub:'CTR e taxa de cliques no iFood'},
+    restaurants:{title:'Restaurantes',sub:'Cliques e desempenho por parceiro'},
+    ab:{title:'A/B Test',sub:'Resultados dos testes de variante'},
+    ratings:{title:'Avaliações',sub:'Monitoramento dos restaurantes parceiros'},
+    heatmap:{title:'Heatmap',sub:'Mapa de calor de cliques dos visitantes'},
+    content:{title:'Conteúdo',sub:'Edite textos e destaques em tempo real'},
+    settings:{title:'Config',sub:'Configurações do painel e dados'},
+  };
+
+  const saveContent=()=>{
+    LS.set('sab_banner_text',bannerText);
+    LS.set('sab_daily_override',dailyOverride);
+    setSaved(true);
+    Toast.show('✅ Alterações salvas!');
+    setTimeout(()=>setSaved(false),2500);
+  };
+
+  const clearAll=()=>{
+    ['sab_clicks_dish','sab_clicks_cat','sab_clicks_rest','sab_heatmap','sab_views_dish','sab_session'].forEach(k=>localStorage.removeItem(k));
+    Toast.show('🗑 Todos os dados limpos');
+    onClose();
+  };
+
+  const pg=PAGE_META[tab]||PAGE_META.overview;
 
   return h('div',{id:'admin',className:open?'open':'',onClick:e=>{if(e.target.id==='admin')onClose();}},
-    h('div',{className:'adm-box'},
-      h('button',{className:'adm-close',onClick:onClose},'×'),
-      h('div',{style:{marginBottom:28}},
-        h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:26,fontWeight:900,color:'#f0e6d3',marginBottom:6,letterSpacing:'-1px'}},'⚡ Painel Admin'),
-        h('div',{style:{fontSize:11,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',letterSpacing:'.12em',textTransform:'uppercase'}},'acesso secreto · dados locais em tempo real')
-      ),
-      // Tabs
-      h('div',{style:{display:'flex',gap:8,marginBottom:28,flexWrap:'wrap'}},
-        ...['analytics','conversão','a/b test','avaliações','heatmap','conteúdo'].map(t=>
-          h('button',{key:t,className:'adm-tab'+(tab===t?' on':''),onClick:()=>setTab(t)},t.toUpperCase())
+    h('div',{className:'adm-shell'},
+
+      /* ── SIDEBAR ── */
+      h('div',{className:'adm-sidebar'},
+        h('div',{className:'adm-sidebar-head'},
+          h('div',{className:'adm-logo'},'Sabo',h('em',null,'res')),
+          h('div',{className:'adm-logo-sub'},'painel admin · acesso restrito')
+        ),
+        h('div',{className:'adm-nav'},
+          ...NAV.map(n=>h('div',{key:n.id,className:'adm-nav-item'+(tab===n.id?' on':''),onClick:()=>setTab(n.id)},
+            h('span',{className:'adm-nav-icon'},n.icon),
+            h('span',null,n.label),
+            n.badge&&h('span',{className:'adm-nav-badge'},n.badge)
+          ))
+        ),
+        h('div',{className:'adm-sidebar-foot'},
+          h('span',{className:'adm-status-dot'}),
+          h('span',{className:'adm-status-txt'},'Sistema online · local')
         )
       ),
 
-      // ── Tab: Analytics ──
-      tab==='analytics'&&h('div',null,
-        h('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))',gap:14,marginBottom:28}},
-          h('div',{className:'adm-kpi'},
-            h('div',{style:{fontSize:28,fontWeight:900,fontFamily:"'Playfair Display',serif",color:'#E8520A'}},(totalClicks||0)),
-            h('div',{style:{fontSize:10,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',textTransform:'uppercase',letterSpacing:'.1em',marginTop:4}},'Cliques totais')
+      /* ── MAIN ── */
+      h('div',{className:'adm-main'},
+        h('div',{className:'adm-topbar'},
+          h('div',null,
+            h('div',{className:'adm-page-title'},pg.title),
+            h('div',{className:'adm-page-sub'},pg.sub)
           ),
-          h('div',{className:'adm-kpi'},
-            h('div',{style:{fontSize:28,fontWeight:900,fontFamily:"'Playfair Display',serif",color:'#C9A84C'}},(Object.keys(stats.dishes).length)),
-            h('div',{style:{fontSize:10,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',textTransform:'uppercase',letterSpacing:'.1em',marginTop:4}},'Pratos clicados')
-          ),
-          h('div',{className:'adm-kpi'},
-            h('div',{style:{fontSize:28,fontWeight:900,fontFamily:"'Playfair Display',serif",color:'#2ecc71'}},(heatmap.length)),
-            h('div',{style:{fontSize:10,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',textTransform:'uppercase',letterSpacing:'.1em',marginTop:4}},'Pontos heatmap')
-          ),
-          h('div',{className:'adm-kpi'},
-            h('div',{style:{fontSize:28,fontWeight:900,fontFamily:"'Playfair Display',serif",color:'#9b59b6'}},(abResult.variant)),
-            h('div',{style:{fontSize:10,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',textTransform:'uppercase',letterSpacing:'.1em',marginTop:4}},'Variante A/B')
-          )
+          h('button',{className:'adm-close',onClick:onClose},'×')
         ),
-        h('div',{style:{fontSize:13,color:'rgba(200,180,160,.6)',fontFamily:'Inter,sans-serif',marginBottom:16,fontWeight:500}},'Top pratos por cliques'),
-        ...dishStats.map((d,i)=>h('div',{key:i,className:'adm-row'},
-          h('div',{style:{display:'flex',alignItems:'center',gap:10}},
-            h('span',{style:{fontSize:18}},d.emoji),
-            h('span',{style:{color:'#f0e6d3',fontWeight:500}},d.name.slice(0,22)+(d.name.length>22?'...':'')),
-          ),
-          h('div',{style:{flex:1,margin:'0 16px'}},
-            h('div',{className:'adm-bar-wrap'},h('div',{className:'adm-bar',style:{width:maxClicks?Math.round((d.clicks/maxClicks)*100)+'%':'0%'}}))
-          ),
-          h('div',{style:{color:'#C9A84C',fontWeight:600,minWidth:60,textAlign:'right'}},d.clicks+' cliques')
-        ))
-      ),
+        h('div',{className:'adm-content'},
 
-      // ── Tab: Conversão ──
-      tab==='conversão'&&h('div',null,
-        h('div',{style:{fontSize:12,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',marginBottom:20,letterSpacing:'.05em'}},'CTR = cliques iFood ÷ visualizações do card'),
-        ...dishStats.map((d,i)=>h('div',{key:i,style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 0',borderBottom:'1px solid rgba(255,255,255,.05)',fontFamily:'Inter,sans-serif',fontSize:12}},
-          h('div',{style:{display:'flex',alignItems:'center',gap:10}},
-            h('span',null,d.emoji),
-            h('span',{style:{color:'#f0e6d3'}},(d.name.slice(0,28)))
-          ),
-          h('div',{style:{display:'flex',gap:16,alignItems:'center'}},
-            h('span',{style:{color:'rgba(200,180,160,.5)'}},'👁 '+(d.views||0)),
-            h('span',{style:{color:'#E8520A'}},d.clicks+' clicks'),
-            h('span',{className:'adm-badge',style:{background:parseFloat(d.ctr)>5?'rgba(46,204,113,.15)':'rgba(232,82,10,.15)',color:parseFloat(d.ctr)>5?'#2ecc71':'#E8520A'}},'CTR '+d.ctr)
-          )
-        ))
-      ),
-
-      // ── Tab: A/B Test ──
-      tab==='a/b test'&&h('div',null,
-        h('div',{style:{background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.07)',borderRadius:16,padding:24,marginBottom:20}},
-          h('div',{style:{fontSize:14,color:'#f0e6d3',fontFamily:'Inter,sans-serif',fontWeight:600,marginBottom:12}},'Teste: Hero CTA Button'),
-          h('div',{style:{fontSize:12,color:'rgba(200,180,160,.6)',fontFamily:'Inter,sans-serif',marginBottom:16}},'Variante atribuída a este usuário: ',h('strong',{style:{color:'#C9A84C'}},abResult.variant)),
-          ...[['A','🍽 Explorar Pratos'],['B','🔥 Ver os Melhores'],['C','🍕 Pedir Agora']].map(([v,txt])=>
-            h('div',{key:v,style:{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 0',borderBottom:'1px solid rgba(255,255,255,.05)',fontFamily:'Inter,sans-serif',fontSize:12}},
-              h('span',{style:{color:abResult.variant===v?'#E8520A':'rgba(200,180,160,.5)',fontWeight:abResult.variant===v?700:400}},'Variante '+v+': '+txt),
-              h('span',{style:{color:'#C9A84C',fontWeight:600}},((abResult.conversions||{})[v]||0)+' conv.')
-            )
-          )
-        ),
-        h('div',{style:{background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.07)',borderRadius:16,padding:24}},
-          h('div',{style:{fontSize:14,color:'#f0e6d3',fontFamily:'Inter,sans-serif',fontWeight:600,marginBottom:8}},'Como funciona'),
-          h('div',{style:{fontSize:12,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',lineHeight:1.8}},'Cada usuário recebe uma variante aleatória e persistente (localStorage). O sistema rastreia qual variante gera mais cliques no iFood. Após 100 conversões por variante, a vencedora é declarada automaticamente.')
-        )
-      ),
-
-      // ── Tab: Avaliações ──
-      tab==='avaliações'&&h('div',null,
-        ratingAlerts.length>0&&h('div',{style:{marginBottom:16}},
-          ratingAlerts.map((a,i)=>h('div',{key:i,className:'rating-alert'},'⚠️ '+a.name+' com avaliação '+a.rating+' — abaixo do limiar 4.5'))
-        ),
-        ...restaurants.map((r,i)=>{
-          const stored=parseFloat(LS.get('sab_rating_'+r.name,r.rating));
-          const current=parseFloat(r.rating);
-          const ok=current>=4.5;
-          return h('div',{key:i,className:'adm-row'},
-            h('div',{style:{display:'flex',alignItems:'center',gap:10}},
-              h('span',null,r.icon),h('span',{style:{color:'#f0e6d3',fontWeight:500}},r.name)
+          /* ── TAB: OVERVIEW ── */
+          tab==='overview'&&h('div',null,
+            h('div',{className:'adm-kpi-grid'},
+              ...[
+                {val:totalClicks,lbl:'Cliques totais',color:'#E8520A',icon:'🖱',trend:'+12% vs ontem'},
+                {val:dishStats.filter(d=>d.clicks>0).length,lbl:'Pratos visitados',color:'#C9A84C',icon:'🍽',trend:dishStats.length+' total'},
+                {val:heatmap.length,lbl:'Pontos heatmap',color:'#2ecc71',icon:'🗺',trend:'sessão atual'},
+                {val:totalRestClicks,lbl:'Cliques rest.',color:'#9b59b6',icon:'🏪',trend:'total acum.'},
+              ].map((k,i)=>h('div',{key:i,className:'adm-kpi',style:{'--accent':k.color}},
+                h('div',{style:{position:'absolute',top:-18,right:-18,width:56,height:56,borderRadius:'50%',background:k.color,opacity:.08}}),
+                h('div',{style:{fontSize:20,marginBottom:8}},k.icon),
+                h('div',{className:'adm-kpi-val',style:{color:k.color}},k.val||0),
+                h('div',{className:'adm-kpi-lbl'},k.lbl),
+                h('div',{className:'adm-kpi-trend',style:{color:k.color,opacity:.7}},'↑ ',k.trend)
+              ))
             ),
-            h('div',{style:{flex:1,margin:'0 12px'}},h('div',{className:'adm-bar-wrap'},h('div',{className:'adm-bar',style:{width:((current/5)*100)+'%',background:ok?'linear-gradient(90deg,#2ecc71,#27ae60)':'linear-gradient(90deg,#e74c3c,#c0392b)'}}))),
-            h('div',{style:{display:'flex',gap:10,alignItems:'center'}},
-              h('span',{style:{color:ok?'#2ecc71':'#e74c3c',fontWeight:700,fontFamily:'Inter,sans-serif',fontSize:13}},current+' ⭐'),
-              h('span',{className:'adm-badge',style:{background:ok?'rgba(46,204,113,.15)':'rgba(231,76,60,.15)',color:ok?'#2ecc71':'#e74c3c'}},ok?'OK':'ALERTAR')
+            h('div',{className:'adm-section-title'},'Top 3 mais clicados'),
+            h('div',null,
+              ...dishStats.slice(0,3).map((d,i)=>h('div',{key:i,style:{display:'flex',alignItems:'center',gap:14,padding:'12px 0',borderBottom:'1px solid rgba(255,255,255,.04)'}},
+                h('div',{style:{width:28,height:28,borderRadius:8,background:'rgba(232,82,10,.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}},d.emoji),
+                h('div',{style:{flex:1}},
+                  h('div',{style:{fontFamily:'Inter,sans-serif',fontSize:12,color:'#f0e6d3',fontWeight:500,marginBottom:5}},d.name.slice(0,30)),
+                  h('div',{className:'adm-bar-wrap'},
+                    h('div',{className:'adm-bar',style:{width:maxClicks?Math.round(d.clicks/maxClicks*100)+'%':'4%',background:`linear-gradient(90deg,#E8520A,#C9A84C)`}})
+                  )
+                ),
+                h('div',{style:{fontFamily:'Inter,sans-serif',fontSize:12,color:'#C9A84C',fontWeight:700,minWidth:50,textAlign:'right'}},d.clicks||0,' clq')
+              ))
+            ),
+            h('div',{className:'adm-divider'}),
+            h('div',{className:'adm-section-title'},'Atividade recente'),
+            h('div',{style:{display:'flex',flexDirection:'column',gap:6,marginBottom:20}},
+              ...Object.entries(stats.dishes||{}).slice(-5).reverse().map(([name,cnt],i)=>{
+                const dish=DISHES.find(d=>d.name===name)||{e:'🍽'};
+                return h('div',{key:i,style:{display:'flex',alignItems:'center',gap:10,padding:'8px 10px',background:'rgba(255,255,255,.02)',borderRadius:10,fontFamily:'Inter,sans-serif',fontSize:11}},
+                  h('span',null,dish.e),
+                  h('span',{style:{color:'rgba(200,180,160,.7)',flex:1}},name.slice(0,24)),
+                  h('span',{style:{color:'#C9A84C',fontWeight:600}},cnt,'×'),
+                  h('span',{style:{fontSize:9,color:'rgba(200,180,160,.3)',marginLeft:4}},'cliques')
+                );
+              }),
+              Object.keys(stats.dishes||{}).length===0&&h('div',{style:{fontSize:11,color:'rgba(200,180,160,.3)',fontFamily:'Inter,sans-serif',padding:'12px 0',textAlign:'center'}},'Nenhum clique registrado ainda — navegue pelo site!')
+            ),
+            h('div',{className:'adm-divider'}),
+            h('div',{className:'adm-section-title'},'A/B Ativo'),
+            h('div',{style:{display:'flex',gap:10,flexWrap:'wrap'}},
+              ...[['A','🍽 Explorar Pratos'],['B','🔥 Ver os Melhores'],['C','🍕 Pedir Agora']].map(([v,txt])=>{
+                const conv=(abResult.conversions||{})[v]||0;
+                const isCurr=abResult.variant===v;
+                return h('div',{key:v,className:'adm-ab-variant'+(isCurr?' current':''),style:{flex:1,minWidth:120}},
+                  h('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}},
+                    h('span',{style:{fontFamily:'Inter,sans-serif',fontSize:11,color:'rgba(200,180,160,.6)',letterSpacing:'.06em'}},'VAR '+v),
+                    isCurr&&h('span',{className:'adm-pill orange'},'VOCÊ')
+                  ),
+                  h('div',{style:{fontFamily:'Inter,sans-serif',fontSize:12,color:'#f0e6d3',marginBottom:8}},txt),
+                  h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:22,fontWeight:900,color:isCurr?'#E8520A':'rgba(200,180,160,.5)'}},conv),
+                  h('div',{style:{fontSize:9,color:'rgba(200,180,160,.35)',fontFamily:'Inter,sans-serif',textTransform:'uppercase',letterSpacing:'.1em'}},'conversões')
+                );
+              })
             )
-          );
-        })
-      ),
+          ),
 
-      // ── Tab: Heatmap ──
-      tab==='heatmap'&&h('div',null,
-        h('div',{style:{fontFamily:'Inter,sans-serif',fontSize:12,color:'rgba(200,180,160,.6)',marginBottom:16}},heatmap.length+' pontos gravados nesta sessão. Ative o modo heatmap para visualizar cliques em tempo real.'),
-        h('div',{style:{position:'relative',background:'rgba(255,255,255,.02)',border:'1px solid rgba(255,255,255,.06)',borderRadius:12,height:280,overflow:'hidden'}},
-          h('div',{style:{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',color:'rgba(200,180,160,.3)',fontFamily:'Inter,sans-serif',fontSize:12,letterSpacing:'.1em',textTransform:'uppercase'}},'Mapa de calor da página'),
-          ...heatmap.slice(-80).map((p,i)=>h('div',{key:i,style:{position:'absolute',left:p.x+'%',top:Math.min(p.y,95)+'%',width:8,height:8,borderRadius:'50%',background:'rgba(232,82,10,.6)',transform:'translate(-50%,-50%)',boxShadow:'0 0 12px rgba(232,82,10,.4)'}}))
-        ),
-        h('button',{className:'adm-btn',style:{marginTop:16},onClick:()=>{LS.set('sab_heatmap',[]);Toast.show('🗑 Heatmap limpo!');}},'Limpar dados')
-      ),
+          /* ── TAB: DISHES ── */
+          tab==='dishes'&&h('div',null,
+            h('table',{className:'adm-table'},
+              h('thead',null,h('tr',null,
+                h('th',null,'Prato'),h('th',null,'Restaurante'),
+                h('th',null,'Popularidade'),h('th',{style:{textAlign:'right'}},'Cliques')
+              )),
+              h('tbody',null,...dishStats.map((d,i)=>h('tr',{key:i},
+                h('td',null,h('div',{style:{display:'flex',alignItems:'center',gap:10}},
+                  h('span',{style:{fontSize:18}},d.emoji),
+                  h('span',{style:{color:'#f0e6d3',fontWeight:500}},d.name.slice(0,22)+(d.name.length>22?'…':''))
+                )),
+                h('td',{style:{color:'rgba(200,180,160,.5)',fontSize:11}},d.from),
+                h('td',{style:{minWidth:100}},
+                  h('div',{className:'adm-bar-wrap'},
+                    h('div',{className:'adm-bar',style:{width:maxClicks?Math.round(d.clicks/maxClicks*100)+'%':'3%',background:'linear-gradient(90deg,#E8520A,#C9A84C)'}})
+                  )
+                ),
+                h('td',{style:{textAlign:'right',color:'#C9A84C',fontWeight:700}},d.clicks||0)
+              )))
+            )
+          ),
 
-      // ── Tab: Conteúdo ──
-      tab==='conteúdo'&&h('div',null,
-        h('div',{style:{fontSize:12,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',marginBottom:20,lineHeight:1.7}},'Edite os pratos em destaque diretamente. Alterações ficam salvas localmente e são aplicadas imediatamente.'),
-        h('div',{style:{background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.07)',borderRadius:16,padding:24}},
-          h('div',{style:{fontSize:13,color:'#f0e6d3',fontFamily:'Inter,sans-serif',fontWeight:600,marginBottom:14}},'Prato do Dia (override)'),
-          h('input',{className:'adm-input',placeholder:'Ex: Pizza Margherita Trufada',defaultValue:LS.get('sab_daily_override','')}),
-          h('div',{style:{fontSize:13,color:'#f0e6d3',fontFamily:'Inter,sans-serif',fontWeight:600,marginBottom:14,marginTop:8}},'Banner promoção'),
-          h('input',{className:'adm-input',placeholder:'Texto do banner de promoção...',defaultValue:LS.get('sab_banner_text','')},),
-          h('button',{className:'adm-btn',onClick:()=>{Toast.show('✅ Conteúdo atualizado!');}}, 'Salvar alterações')
+          /* ── TAB: CONVERSION ── */
+          tab==='conversion'&&h('div',null,
+            h('div',{className:'adm-card',style:{marginBottom:20}},
+              h('div',{className:'adm-card-title'},'O que é CTR?'),
+              h('div',{style:{fontSize:12,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',lineHeight:1.75}},'Click-Through Rate = cliques no iFood ÷ vezes que o card foi visto × 100. Acima de 5% é excelente para food delivery.')
+            ),
+            h('table',{className:'adm-table'},
+              h('thead',null,h('tr',null,
+                h('th',null,'Prato'),h('th',null,'Vistos'),
+                h('th',null,'Cliques iFood'),h('th',{style:{textAlign:'right'}},'CTR')
+              )),
+              h('tbody',null,...dishStats.map((d,i)=>{
+                const ctrVal=parseFloat(d.ctr);
+                return h('tr',{key:i},
+                  h('td',null,h('div',{style:{display:'flex',alignItems:'center',gap:8}},h('span',null,d.emoji),h('span',{style:{color:'#f0e6d3'}},d.name.slice(0,20)+(d.name.length>20?'…':'')))),
+                  h('td',{style:{color:'rgba(200,180,160,.4)'}},'👁 ',d.views),
+                  h('td',{style:{color:'#E8520A',fontWeight:600}},d.clicks),
+                  h('td',{style:{textAlign:'right'}},h('span',{className:'adm-pill '+(ctrVal>=5?'green':ctrVal>=2?'gold':'orange')},d.ctr))
+                );
+              }))
+            )
+          ),
+
+          /* ── TAB: RESTAURANTS ── */
+          tab==='restaurants'&&h('div',null,
+            h('div',{className:'adm-kpi-grid',style:{marginBottom:20}},
+              h('div',{className:'adm-kpi'},
+                h('div',{style:{fontSize:20,marginBottom:8}},'🏪'),
+                h('div',{className:'adm-kpi-val',style:{color:'#E8520A'}},restaurants.length),
+                h('div',{className:'adm-kpi-lbl'},'Parceiros')
+              ),
+              h('div',{className:'adm-kpi'},
+                h('div',{style:{fontSize:20,marginBottom:8}},'🖱'),
+                h('div',{className:'adm-kpi-val',style:{color:'#C9A84C'}},totalRestClicks),
+                h('div',{className:'adm-kpi-lbl'},'Cliques totais')
+              ),
+              h('div',{className:'adm-kpi'},
+                h('div',{style:{fontSize:20,marginBottom:8}},'⚠️'),
+                h('div',{className:'adm-kpi-val',style:{color:ratingAlerts.length?'#e74c3c':'#2ecc71'}},ratingAlerts.length||0),
+                h('div',{className:'adm-kpi-lbl'},'Alertas')
+              )
+            ),
+            h('table',{className:'adm-table'},
+              h('thead',null,h('tr',null,
+                h('th',null,'Restaurante'),h('th',null,'Tipo'),
+                h('th',null,'Rating'),h('th',null,'Cliques'),h('th',{style:{textAlign:'right'}},'Status')
+              )),
+              h('tbody',null,...restaurants.map((r,i)=>{
+                const clicks=stats.rests?.[r.name]||0;
+                const rating=parseFloat(r.rating);
+                const ok=rating>=4.5;
+                const maxRClicks=Math.max(1,...restaurants.map(rr=>stats.rests?.[rr.name]||0));
+                return h('tr',{key:i},
+                  h('td',null,h('div',{style:{display:'flex',alignItems:'center',gap:10}},
+                    h('span',{style:{fontSize:16}},r.icon),
+                    h('span',{style:{color:'#f0e6d3',fontWeight:500}},r.name)
+                  )),
+                  h('td',{style:{color:'rgba(200,180,160,.4)',fontSize:11}},r.type),
+                  h('td',null,h('span',{style:{color:ok?'#2ecc71':'#e74c3c',fontWeight:700,fontFamily:"'Playfair Display',serif"}},rating)),
+                  h('td',{style:{minWidth:80}},
+                    h('div',{style:{display:'flex',alignItems:'center',gap:8}},
+                      h('div',{className:'adm-bar-wrap',style:{flex:1}},
+                        h('div',{className:'adm-bar',style:{width:maxRClicks?Math.round(clicks/maxRClicks*100)+'%':'3%',background:'linear-gradient(90deg,#9b59b6,#8e44ad)'}})
+                      ),
+                      h('span',{style:{color:'rgba(200,180,160,.6)',fontFamily:'Inter,sans-serif',fontSize:11,minWidth:24}},clicks)
+                    )
+                  ),
+                  h('td',{style:{textAlign:'right'}},h('span',{className:'adm-pill '+(ok?'green':'red')},ok?'OK':'⚠️'))
+                );
+              }))
+            )
+          ),
+
+          /* ── TAB: A/B TEST ── */
+          tab==='ab'&&h('div',null,
+            h('div',{className:'adm-card'},
+              h('div',{className:'adm-card-title'},'Teste ativo: Hero CTA Button'),
+              h('div',{style:{fontSize:11,color:'rgba(200,180,160,.4)',fontFamily:'Inter,sans-serif',marginBottom:20,lineHeight:1.7}},'Cada visitante recebe uma variante aleatória e persistente. O sistema acumula conversões silenciosamente. Variante vencedora será a com maior CTR após 100+ amostras.'),
+              h('div',{style:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12}},
+                ...[['A','🍽 Explorar Pratos','#E8520A'],['B','🔥 Ver os Melhores','#C9A84C'],['C','🍕 Pedir Agora','#9b59b6']].map(([v,txt,col])=>{
+                  const conv=(abResult.conversions||{})[v]||0;
+                  const total=Object.values(abResult.conversions||{}).reduce((a,b)=>a+b,0)||1;
+                  const pct=Math.round(conv/total*100);
+                  const isCurr=abResult.variant===v;
+                  return h('div',{key:v,style:{background:'rgba(255,255,255,.03)',border:`1px solid ${isCurr?col+'55':'rgba(255,255,255,.06)'}`,borderRadius:16,padding:20,textAlign:'center'}},
+                    h('div',{style:{fontSize:9,fontFamily:'Inter,sans-serif',fontWeight:700,letterSpacing:'.12em',textTransform:'uppercase',color:col,marginBottom:10}},'Variante '+v+(isCurr?' · VOCÊ':'')),
+                    h('div',{style:{fontSize:13,fontFamily:'Inter,sans-serif',color:'rgba(200,180,160,.8)',marginBottom:16,lineHeight:1.4}},txt),
+                    h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:38,fontWeight:900,color:col,lineHeight:1,marginBottom:4}},conv),
+                    h('div',{style:{fontSize:9,color:'rgba(200,180,160,.35)',fontFamily:'Inter,sans-serif',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:12}},'conversões'),
+                    h('div',{className:'adm-bar-wrap'},h('div',{className:'adm-bar',style:{width:pct+'%',background:col}})),
+                    h('div',{style:{fontSize:10,color:col,fontFamily:'Inter,sans-serif',marginTop:6,fontWeight:600}},pct+'% do total')
+                  );
+                })
+              )
+            )
+          ),
+
+          /* ── TAB: RATINGS ── */
+          tab==='ratings'&&h('div',null,
+            ratingAlerts.length>0&&h('div',{className:'adm-card',style:{borderColor:'rgba(231,76,60,.25)',marginBottom:20}},
+              h('div',{className:'adm-card-title',style:{color:'#e74c3c'}},'⚠️ Alertas ativos ('+ratingAlerts.length+')'),
+              ...ratingAlerts.map((a,i)=>h('div',{key:i,style:{fontSize:12,fontFamily:'Inter,sans-serif',color:'rgba(255,120,100,.8)',padding:'6px 0',borderBottom:'1px solid rgba(255,255,255,.04)'}},a.name+' — avaliação '+a.rating+' (limiar: 4.5)'))
+            ),
+            h('table',{className:'adm-table'},
+              h('thead',null,h('tr',null,
+                h('th',null,'Restaurante'),h('th',null,'Score'),
+                h('th',null,'Barra'),h('th',{style:{textAlign:'right'}},'Status')
+              )),
+              h('tbody',null,...restaurants.map((r,i)=>{
+                const cur=parseFloat(r.rating);
+                const ok=cur>=4.5;
+                return h('tr',{key:i},
+                  h('td',null,h('div',{style:{display:'flex',alignItems:'center',gap:10}},h('span',{style:{fontSize:16}},r.icon),h('span',{style:{color:'#f0e6d3'}},r.name))),
+                  h('td',{style:{fontFamily:"'Playfair Display',serif",fontSize:16,fontWeight:700,color:ok?'#2ecc71':'#e74c3c'}},cur),
+                  h('td',{style:{minWidth:80}},h('div',{className:'adm-bar-wrap'},h('div',{className:'adm-bar',style:{width:((cur/5)*100)+'%',background:ok?'linear-gradient(90deg,#2ecc71,#27ae60)':'linear-gradient(90deg,#e74c3c,#c0392b)'}}))),
+                  h('td',{style:{textAlign:'right'}},h('span',{className:'adm-pill '+(ok?'green':'red')},ok?'OK':'ATENÇÃO'))
+                );
+              }))
+            )
+          ),
+
+          /* ── TAB: HEATMAP ── */
+          tab==='heatmap'&&h('div',null,
+            h('div',{className:'adm-card',style:{marginBottom:16}},
+              h('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}},
+                h('div',{className:'adm-card-title',style:{marginBottom:0}},'Mapa de calor da sessão'),
+                h('span',{className:'adm-pill gold'},heatmap.length+' pontos')
+              ),
+              h('div',{style:{fontSize:11,color:'rgba(200,180,160,.4)',fontFamily:'Inter,sans-serif',marginTop:4,lineHeight:1.6}},'Cada ponto representa um clique do visitante. Pontos vermelhos = mais quentes. O mapa é relativo à viewport no momento do clique.')
+            ),
+            h('div',{className:'adm-heatmap-canvas'},
+              h('div',{className:'adm-heatmap-label'},heatmap.length===0?'Nenhum clique registrado ainda':''),
+              h('svg',{style:{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none'},viewBox:'0 0 100 56.25'},
+                h('defs',null,
+                  h('radialGradient',{id:'hg-hot'},
+                    h('stop',{offset:'0%',stopColor:'#e74c3c',stopOpacity:.9}),
+                    h('stop',{offset:'100%',stopColor:'#e74c3c',stopOpacity:0})
+                  ),
+                  h('radialGradient',{id:'hg-warm'},
+                    h('stop',{offset:'0%',stopColor:'#E8520A',stopOpacity:.75}),
+                    h('stop',{offset:'100%',stopColor:'#E8520A',stopOpacity:0})
+                  ),
+                  h('radialGradient',{id:'hg-cool'},
+                    h('stop',{offset:'0%',stopColor:'#C9A84C',stopOpacity:.55}),
+                    h('stop',{offset:'100%',stopColor:'#C9A84C',stopOpacity:0})
+                  )
+                ),
+                ...heatmap.slice(-150).map((p,i,arr)=>{
+                  const age=i/arr.length;
+                  const grad=age>.7?'url(#hg-hot)':age>.35?'url(#hg-warm)':'url(#hg-cool)';
+                  const r=age>.7?5:age>.35?4:3;
+                  return h('circle',{key:i,
+                    cx:p.x,cy:Math.min((p.y/window.innerHeight*56.25)||28,54),
+                    r,fill:grad,opacity:.8
+                  });
+                })
+              ),
+              h('div',{style:{position:'absolute',bottom:8,right:10,display:'flex',gap:12,alignItems:'center'}},
+                ...[['#e74c3c','Recente'],['#E8520A','Médio'],['#C9A84C','Antigo']].map(([col,lbl],i)=>
+                  h('div',{key:i,style:{display:'flex',alignItems:'center',gap:4,fontFamily:'Inter,sans-serif',fontSize:9,color:'rgba(200,180,160,.5)'}},
+                    h('span',{style:{width:8,height:8,borderRadius:'50%',background:col,display:'inline-block'}}),
+                    lbl
+                  )
+                )
+              )
+            ),
+            h('div',{style:{display:'flex',gap:10}},
+              h('button',{className:'adm-btn',onClick:()=>{LS.set('sab_heatmap',[]);Toast.show('🗑 Heatmap limpo!');}}, 'Limpar heatmap'),
+              h('button',{className:'adm-btn-ghost',onClick:()=>{
+                const csv=heatmap.map(p=>p.x+','+p.y+','+(p.t?new Date(p.t).toISOString():'?')).join('\n');
+                const blob=new Blob(['x,y,timestamp\n'+csv],{type:'text/csv'});
+                const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='heatmap.csv';a.click();
+                Toast.show('📥 CSV exportado!');
+              }},'Exportar CSV')
+            )
+          ),
+
+          /* ── TAB: CONTENT ── */
+          tab==='content'&&h('div',null,
+            h('div',{className:'adm-card'},
+              h('div',{className:'adm-card-title'},'Banner de promoção'),
+              h('div',{style:{fontSize:11,color:'rgba(200,180,160,.4)',fontFamily:'Inter,sans-serif',marginBottom:12}},'Texto que aparece no banner laranja no topo do site.'),
+              h('input',{className:'adm-input',placeholder:'Ex: Frete grátis nos próximos 2 pedidos!',value:bannerText,onChange:e=>setBannerText(e.target.value)})
+            ),
+            h('div',{className:'adm-card'},
+              h('div',{className:'adm-card-title'},'Prato em destaque (override)'),
+              h('div',{style:{fontSize:11,color:'rgba(200,180,160,.4)',fontFamily:'Inter,sans-serif',marginBottom:12}},'Force qual prato aparece como "Prato do Dia" (deixe vazio para automático).'),
+              h('input',{className:'adm-input',placeholder:'Ex: Pizza Margherita Trufada',value:dailyOverride,onChange:e=>setDailyOverride(e.target.value)})
+            ),
+            h('div',{style:{display:'flex',gap:10}},
+              h('button',{className:'adm-btn',onClick:saveContent},saved?'✓ Salvo!':'Salvar alterações'),
+              h('button',{className:'adm-btn-ghost',onClick:()=>{setBannerText('');setDailyOverride('');}}, 'Limpar tudo')
+            )
+          ),
+
+          /* ── TAB: SETTINGS ── */
+          tab==='settings'&&h('div',null,
+            h('div',{className:'adm-card'},
+              h('div',{className:'adm-card-title'},'Dados e privacidade'),
+              h('div',{style:{fontSize:12,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',lineHeight:1.75,marginBottom:16}},'Todos os dados (cliques, heatmap, A/B, sessão) são armazenados exclusivamente no localStorage deste navegador. Nenhum dado é enviado para servidores externos.'),
+              h('div',{style:{display:'flex',gap:10,flexWrap:'wrap'}},
+                h('button',{className:'adm-btn-ghost',onClick:()=>{
+                  const d={clicks:stats.dishes,cats:stats.cats,heatmap,ab:abResult,timestamp:new Date().toISOString()};
+                  const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+                  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sabores-analytics.json';a.click();
+                  Toast.show('📥 Relatório exportado!');
+                }},'📥 Exportar tudo (JSON)'),
+                h('button',{className:'adm-btn',style:{background:'linear-gradient(135deg,#e74c3c,#c0392b)'},onClick:clearAll},'🗑 Limpar todos os dados')
+              )
+            ),
+            h('div',{className:'adm-card',style:{marginTop:0}},
+              h('div',{className:'adm-card-title'},'Sessão atual'),
+              ...[
+                ['Início da sessão', new Date(stats.session?.start||Date.now()).toLocaleTimeString('pt-BR')],
+                ['Cliques na sessão', String(stats.session?.clicks||0)],
+                ['Variante A/B', abResult.variant||'A'],
+                ['Pontos heatmap', String(heatmap.length)],
+                ['Storage usado', (JSON.stringify(localStorage).length/1024).toFixed(1)+' KB'],
+              ].map(([k,v],i)=>h('div',{key:i,style:{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid rgba(255,255,255,.04)',fontFamily:'Inter,sans-serif',fontSize:12}},
+                h('span',{style:{color:'rgba(200,180,160,.4)'}},k),
+                h('span',{style:{color:'#C9A84C',fontWeight:600,fontFamily:'monospace',fontSize:11}},v)
+              ))
+            ),
+            h('div',{className:'adm-card'},
+              h('div',{className:'adm-card-title'},'Atalhos do painel'),
+              ...[
+                ['5× logo','Abrir painel admin'],
+                ['ESC','Fechar painel'],
+                ['Ctrl+Shift+A','Abrir via teclado'],
+              ].map(([k,v],i)=>h('div',{key:i,style:{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'9px 0',borderBottom:'1px solid rgba(255,255,255,.04)',fontFamily:'Inter,sans-serif',fontSize:12}},
+                h('span',{style:{fontFamily:'monospace',fontSize:11,background:'rgba(255,255,255,.06)',padding:'2px 8px',borderRadius:6,color:'#C9A84C'}},k),
+                h('span',{style:{color:'rgba(200,180,160,.5)',margin:'0 8px'}},'→'),
+                h('span',{style:{color:'rgba(200,180,160,.65)'}},v)
+              ))
+            )
+          )
         )
       )
     )
@@ -1228,38 +1610,61 @@ function MomentoSection({c}){
 }
 
 /* ════════════════════════════════════════════════════════════
-   CHEF IA — powered by Claude API
+   CHEF RENÉ DUBOIS — Sommelier IA · Powered by Claude
 ════════════════════════════════════════════════════════════ */
-const MENU_CONTEXT=DISHES.map(d=>`${d.e} ${d.name} (${d.from}) - R$${d.price}, ${d.time}min, frete ${d.frete}, ${d.stars}⭐ - ${d.desc}`).join('\n');
-const DRINKS_CONTEXT=DRINKS.map(d=>`${d.e} ${d.name} - R$${d.price}, ${d.kcal} - ${d.desc}`).join('\n');
-const CHEF_SYSTEM=`Você é o Chef René, sommelier e maître gastronômico do Sabores, a vitrine gastronômica mais sofisticada do Brasil. Você tem personalidade refinada, calorosa e apaixonada por gastronomia. Use linguagem elegante mas acessível. Sempre sugira pratos específicos do cardápio abaixo.
+const MENU_CONTEXT=DISHES.map(d=>[d.e,d.name,'('+d.from+')','—','R$'+d.price,d.time+'min, frete '+d.frete,d.stars+'⭐',d.reviews+' avaliações','—',d.desc].join(' ')).join('\n');
+const DRINKS_CONTEXT=DRINKS.map(d=>[d.e,d.name,'—','R$'+d.price,d.kcal,'—',d.desc].join(' ')).join('\n');
 
-CARDÁPIO ATUAL:
-${MENU_CONTEXT}
+const CHEF_SYSTEM='Você é o Chef René Dubois, sommelier e maître gastronômico do Sabores — a vitrine culinária mais refinada do Brasil. Formado na École Bocuse (Lyon), com passagens pelo D.O.M. de Alex Atala e pelo Arzak em San Sebastián.\n\nSua missão é transformar cada conversa numa experiência gastronômica memorável. Você conhece o cardápio inteiro de cor, harmoniza bebidas como ninguém, e tem uma capacidade única de entender o que o cliente realmente deseja — mesmo quando ele não sabe dizer.\n\nPersonalidade:\n- Refinado mas nunca arrogante — você democratiza o prazer da boa mesa\n- Caloroso, com um humor elegante e anedotas culinárias genuínas\n- Apaixonado: cada prato tem uma história que você adora contar\n- Curioso: pergunta o contexto (celebração? dia difícil? reunião de negócios?) para personalizar\n- Usa português formal mas fluido. Emojis com parcimônia e intenção\n\nCARDÁPIO COMPLETO:\n'+MENU_CONTEXT+'\n\nBEBIDAS E HARMONIZAÇÕES:\n'+DRINKS_CONTEXT+'\n\nRegras invioláveis:\n- Sempre cite nome exato do prato, restaurante e preço (R$) nas recomendações\n- Sugira harmonização de bebida em toda sugestão de prato\n- Pergunte restrições alimentares proativamente na 1ª interação\n- Máximo 2-3 sugestões por resposta — qualidade acima de quantidade\n- Para cada prato sugerido, inclua uma linha assim ao final: DISH_CARD: nome exato do prato\n- Nunca invente pratos fora do cardápio acima\n- Se a pergunta não for sobre comida, redirecione gentilmente com charme\n- Limite 200 palavras por resposta';
 
-BEBIDAS:
-${DRINKS_CONTEXT}
+function fmtTime(d){
+  if(!d)return'';
+  const t=d instanceof Date?d:new Date(d);
+  const hh=t.getHours(),mm=t.getMinutes();
+  return (hh>12?hh-12:hh||12)+':'+(mm<10?'0'+mm:mm)+(hh>=12?' PM':' AM');
+}
 
-Regras:
-- Sempre mencione nome do prato, restaurante e preço nas sugestões
-- Pergunte sobre restrições alimentares quando relevante
-- Sugira harmonizações de bebidas
-- Máximo 3 sugestões por resposta
-- Seja conciso (máx 150 palavras)
-- Use emojis com moderação
-- Nunca invente pratos fora do cardápio acima`;
+function ChefDishCard({name}){
+  const dish=DISHES.find(d=>d.name.toLowerCase()===name.toLowerCase().trim())||DISHES.find(d=>d.name.toLowerCase().includes(name.toLowerCase().trim().slice(0,8)));
+  if(!dish)return null;
+  return h('a',{href:iurl(dish.q),target:'_blank',rel:'noreferrer',className:'chef-dish-card'},
+    h('div',{className:'chef-dish-card-img'},dish.e),
+    h('div',{className:'chef-dish-card-body'},
+      h('div',{className:'chef-dish-card-name'},dish.name),
+      h('div',{className:'chef-dish-card-meta'},
+        h('span',null,dish.from+' · '+dish.stars+'⭐'),
+        h('span',{className:'chef-dish-card-price'},'R$'+dish.price)
+      )
+    )
+  );
+}
+
+function parseChefMsg(text){
+  const cards=[];
+  const clean=text.replace(/DISH_CARD:\s*([^\n]+)/g,function(_,n){cards.push(n.trim());return '';}).trim();
+  return {clean,cards};
+}
 
 function ChefChat(){
   const [open,setOpen]=useState(false);
-  const [msgs,setMsgs]=useState([
-    {role:'ai',text:'Olá! Sou o Chef René 👨‍🍳 Posso ajudá-lo a escolher o prato perfeito para este momento. O que está desejando hoje?'}
-  ]);
+  const [msgs,setMsgs]=useState([{
+    role:'ai',
+    text:'Bonsoir! Sou o Chef René Dubois — sommelier e curador gastronômico do Sabores.\n\nAntes de começar, posso perguntar: tem alguma restrição alimentar? E que tipo de experiência busca hoje — algo para celebrar, para confortar, ou simplesmente o melhor que temos?',
+    time:new Date(),
+    liked:false,
+  }]);
   const [input,setInput]=useState('');
   const [loading,setLoading]=useState(false);
+  const [cleared,setCleared]=useState(false);
+  const [showChips,setShowChips]=useState(0);
   const msgsRef=useRef(null);
   const inputRef=useRef(null);
 
-  const CHIPS=['Estou com fome agora 🔥','Algo leve e saudável 🥗','Japonês premium 🍱','Surpreenda-me 🎲','Sem glúten 🌾','Para dois 💑'];
+  const CHIP_CATS=[
+    {cat:'Ocasião',chips:['🎉 Comemorando algo','💑 Jantar a dois','💼 Almoço de negócios','🎂 Aniversário']},
+    {cat:'Humor',chips:['🔥 Faminto agora','🌿 Quero algo leve','😴 Dia cansativo','💪 Pré-treino']},
+    {cat:'Culinária',chips:['🍱 Japonês premium','🍝 Italiana clássica','🌮 Mexicano','🍔 Hambúrguer gourmet']},
+  ];
 
   useEffect(()=>{
     if(msgsRef.current)msgsRef.current.scrollTop=msgsRef.current.scrollHeight;
@@ -1269,77 +1674,137 @@ function ChefChat(){
     const q=(text||input).trim();
     if(!q||loading)return;
     setInput('');
-    setMsgs(m=>[...m,{role:'user',text:q}]);
+    const now=new Date();
+    setMsgs(m=>[...m,{role:'user',text:q,time:now}]);
     setLoading(true);
-
-    // Build history for context
-    const history=msgs.filter(m=>m.role!=='ai'||msgs.indexOf(m)>0).map(m=>({
-      role:m.role==='ai'?'assistant':'user',
-      content:m.text
-    }));
-
+    const history=msgs.map(m=>({role:m.role==='ai'?'assistant':'user',content:m.text}));
     try{
       const res=await fetch('https://api.anthropic.com/v1/messages',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
           model:'claude-sonnet-4-20250514',
-          max_tokens:400,
+          max_tokens:600,
           system:CHEF_SYSTEM,
           messages:[...history,{role:'user',content:q}]
         })
       });
       const data=await res.json();
-      const reply=data.content?.[0]?.text||'Desculpe, não consegui responder. Tente novamente.';
-      setMsgs(m=>[...m,{role:'ai',text:reply}]);
+      const reply=data.content?.[0]?.text||'Pardonnez-moi — tive um problema de conexão. Pode repetir?';
+      setMsgs(m=>[...m,{role:'ai',text:reply,time:new Date(),liked:false}]);
     }catch(e){
-      setMsgs(m=>[...m,{role:'ai',text:'Desculpe, houve um problema de conexão. Tente novamente em instantes.'}]);
+      setMsgs(m=>[...m,{role:'ai',text:'Pardonnez-moi — problema de conexão momentâneo. Tente novamente.',time:new Date(),liked:false}]);
     }
     setLoading(false);
-    setTimeout(()=>inputRef.current?.focus(),100);
+    setTimeout(()=>inputRef.current&&inputRef.current.focus(),80);
   };
 
-  const handleKey=e=>{
-    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}
+  const handleKey=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}};
+  const toggleLike=i=>setMsgs(m=>m.map((msg,idx)=>idx===i?{...msg,liked:!msg.liked}:msg));
+  const clearChat=()=>{
+    setMsgs([{role:'ai',text:'Conversation effacée. Bonjour à nouveau! Em que posso ajudá-lo?',time:new Date(),liked:false}]);
+    setCleared(true);setTimeout(()=>setCleared(false),1500);
   };
 
   return h(Fragment,null,
-    // Floating button
-    h('button',{id:'chef-btn','data-cursor':'chat',onClick:()=>{setOpen(o=>!o);},title:'Pergunte ao Chef René'},
-      open?'✕':'👨‍🍳',
+    h('button',{id:'chef-btn','data-cursor':'chat',onClick:()=>setOpen(o=>!o),title:'Falar com Chef René'},
+      h('span',{className:'chef-hat'},open?'✕':'👨‍🍳'),
+      h('span',{className:'chef-btn-label'},open?'fechar':'chef ia'),
       !open&&h('span',{className:'chef-pulse'})
     ),
-    // Panel
     h('div',{id:'chef-panel',className:open?'open':''},
-      // Header
       h('div',{className:'chef-head'},
-        h('div',{className:'chef-avatar'},'👨‍🍳'),
-        h('div',null,
-          h('div',{className:'chef-title'},'Chef René'),
-          h('div',{className:'chef-sub'},'Sommelier IA · Online agora')
+        h('div',{className:'chef-head-bg'}),
+        h('div',{className:'chef-head-glow'}),
+        h('div',{className:'chef-head-content'},
+          h('div',{className:'chef-portrait'},
+            '👨‍🍳',
+            h('span',{className:'chef-online'})
+          ),
+          h('div',{className:'chef-info'},
+            h('div',{className:'chef-name'},'Chef René Dubois'),
+            h('div',{className:'chef-role'},'Sommelier IA · Curador Gastronômico'),
+            h('div',{className:'chef-badges'},
+              h('span',{className:'chef-badge-item'},'École Bocuse'),
+              h('span',{className:'chef-badge-item'},'D.O.M Alumni'),
+              h('span',{className:'chef-badge-item'},'Michelin ✦')
+            )
+          ),
+          h('div',{className:'chef-head-actions'},
+            h('button',{className:'chef-icon-btn',title:'Limpar conversa',onClick:clearChat},cleared?'✓':'🗑'),
+            h('button',{className:'chef-icon-btn',title:'Fechar',onClick:()=>setOpen(false)},'×')
+          )
         ),
-        h('button',{className:'chef-close',onClick:()=>setOpen(false)},'×')
+        h('div',{className:'chef-divider'})
       ),
-      // Quick chips
-      h('div',{className:'chef-chips'},
-        ...CHIPS.map((chip,i)=>h('button',{key:i,className:'chef-chip',onClick:()=>{if(!loading)send(chip);}},chip))
-      ),
-      // Messages
-      h('div',{ref:msgsRef,className:'chef-msgs'},
-        ...msgs.map((m,i)=>h('div',{key:i,className:'chef-msg '+m.role},
-          h('div',{className:'chef-bubble'},m.text)
-        )),
-        loading&&h('div',{className:'chef-msg ai'},
-          h('div',{className:'chef-bubble chef-typing'},
-            h('span'),h('span'),h('span')
+      h('div',{className:'chef-suggest-wrap'},
+        h('div',{style:{display:'flex',gap:6,marginBottom:8}},
+          ...CHIP_CATS.map((cat,i)=>h('button',{key:i,
+            style:{padding:'3px 10px',
+              background:showChips===i?'rgba(201,168,76,.18)':'rgba(255,255,255,.04)',
+              border:'1px solid '+(showChips===i?'rgba(201,168,76,.4)':'rgba(255,255,255,.07)'),
+              borderRadius:100,fontSize:9,fontFamily:'Inter,sans-serif',fontWeight:600,
+              letterSpacing:'.1em',color:showChips===i?'#C9A84C':'rgba(200,180,160,.4)',
+              cursor:'pointer',transition:'all .2s',textTransform:'uppercase'},
+            onClick:()=>setShowChips(i)
+          },cat.cat))
+        ),
+        h('div',{className:'chef-chips'},
+          ...CHIP_CATS[showChips].chips.map((chip,i)=>
+            h('button',{key:i,className:'chef-chip',onClick:()=>{if(!loading)send(chip);}},chip)
           )
         )
       ),
-      // Input
+      h('div',{className:'chef-divider'}),
+      h('div',{ref:msgsRef,className:'chef-msgs'},
+        ...msgs.map(function(m,i){
+          const parsed=parseChefMsg(m.text);
+          const isAi=m.role==='ai';
+          return h('div',{key:i,className:'chef-msg-wrap '+m.role},
+            h('div',{className:'chef-msg-header'},
+              isAi&&h('div',{className:'chef-msg-avatar'},'👨‍🍳'),
+              h('span',{className:'chef-msg-name'},isAi?'Chef René':'Você'),
+              h('span',{className:'chef-msg-time'},fmtTime(m.time))
+            ),
+            h('div',{className:'chef-bubble'},
+              parsed.clean.split('\n').map(function(line,li,arr){
+                return h('span',{key:li},line,li<arr.length-1&&h('br'));
+              })
+            ),
+            parsed.cards.length>0&&h('div',{style:{display:'flex',flexDirection:'column',gap:8,marginTop:6}},
+              ...parsed.cards.map(function(name,ci){return h(ChefDishCard,{key:ci,name});})
+            ),
+            isAi&&h('div',{className:'chef-reactions'},
+              h('button',{className:'chef-react-btn'+(m.liked?' liked':''),onClick:()=>toggleLike(i)},
+                m.liked?'👍 Obrigado!':'👍 Útil'
+              ),
+              h('button',{className:'chef-react-btn',onClick:()=>send('Me dê mais opções como esta')},
+                '+ Mais opções'
+              )
+            )
+          );
+        }),
+        loading&&h('div',{className:'chef-typing-wrap'},
+          h('div',{className:'chef-typing-avatar'},'👨‍🍳'),
+          h('div',{style:{display:'flex',flexDirection:'column'}},
+            h('div',{className:'chef-typing-bubble'},h('span'),h('span'),h('span')),
+            h('div',{className:'chef-typing-text'},'Chef René está preparando sua resposta...')
+          )
+        )
+      ),
       h('div',{className:'chef-footer'},
-        h('textarea',{ref:inputRef,className:'chef-input',placeholder:'Ex: quero algo japonês e leve...',value:input,
-          onChange:e=>setInput(e.target.value),onKeyDown:handleKey,rows:1}),
-        h('button',{className:'chef-send',disabled:loading||!input.trim(),onClick:()=>send()},'↑')
+        h('div',{className:'chef-input-row'},
+          h('textarea',{ref:inputRef,className:'chef-input',
+            placeholder:'Pergunte ao Chef René...',
+            value:input,onChange:function(e){setInput(e.target.value);},
+            onKeyDown:handleKey,rows:1}),
+          h('button',{className:'chef-send',disabled:loading||!input.trim(),onClick:function(){send();}},
+            h('svg',{width:18,height:18,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:2.5},
+              h('path',{d:'M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z'})
+            )
+          )
+        ),
+        h('div',{className:'chef-footer-hint'},'Enter para enviar · Shift+Enter nova linha')
       )
     )
   );
@@ -1471,6 +1936,16 @@ function App(){
     return()=>clearInterval(id);
   },[]);
 
+  // ESC + Ctrl+Shift+A keyboard shortcuts for admin
+  useEffect(()=>{
+    const fn=e=>{
+      if(e.key==='Escape')setAdminOpen(false);
+      if(e.key==='A'&&e.ctrlKey&&e.shiftKey){e.preventDefault();setAdminOpen(o=>!o);}
+    };
+    window.addEventListener('keydown',fn);
+    return()=>window.removeEventListener('keydown',fn);
+  },[]);
+
   // boot cursor & progress after load
   useEffect(()=>{
     if(rdy){const c1=bootCursor();const c2=bootProgress();return()=>{c1&&c1();c2&&c2();};}
@@ -1492,11 +1967,9 @@ function App(){
 
   return h(Fragment,null,
     h(Leaves),
-    h(NotifStrip),
     h(AdminDashboard,{c,open:adminOpen,onClose:()=>setAdminOpen(false),dishes:DISHES,restaurants:RESTAURANTS}),
     h(ChefChat),
-    heatOn&&h('div',{className:'ab-badge',onClick:()=>{setHeatOn(false);Toast.show('🗺 Heatmap desativado');}},'🗺 HEATMAP ON'),
-    !heatOn&&rdy&&h('div',{className:'ab-badge',title:'Variante A/B: '+abVariant,onClick:()=>{setHeatOn(true);Toast.show('🗺 Heatmap ativado! Clique em qualquer lugar');}},'A/B: '+abVariant),
+    /* A/B badge removed — only visible inside admin panel */
 
     h('div',{style:{background:c.bg,fontFamily:"'Inter',sans-serif",color:c.text,overflowX:'hidden',transition:'background .6s,color .6s'}},
 
@@ -1773,7 +2246,7 @@ function App(){
             h('div',null,
               h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:19,color:c.gold,marginBottom:22,letterSpacing:'-.3px'}},'Contato'),
               h('div',{style:{fontFamily:'Inter,sans-serif',fontWeight:300}},
-                ...[['💬 WhatsApp','https://wa.me/5511999999999','#2ecc71'],['✉️ E-mail','mailto:oi@sabores.com.br',c.cream],['📍 São Paulo, SP','#',c.muted]].map(([l,href,hc])=>
+                ...[['💬 WhatsApp','https://wa.me/5569981133218','#2ecc71'],['✉️ E-mail','mailto:oi@sabores.com.br',c.cream],['📍 São Paulo, SP','#',c.muted]].map(([l,href,hc])=>
                   h('a',{'data-h':1,key:l,href,target:href.startsWith('http')?'_blank':'_self',style:{display:'block',fontSize:13,color:c.muted,textDecoration:'none',lineHeight:2.8,transition:'color .22s'},
                     onMouseEnter:e=>e.currentTarget.style.color=hc,
                     onMouseLeave:e=>e.currentTarget.style.color=c.muted},l)
@@ -1794,7 +2267,7 @@ function App(){
       ),
 
 /* ════ FIXED: WHATSAPP ════ */
-      h('a',{'data-h':1,href:'https://wa.me/5511999999999',target:'_blank',rel:'noreferrer',style:{position:'fixed',bottom:24,right:24,width:54,height:54,background:'#25D366',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:26,textDecoration:'none',zIndex:600,boxShadow:'0 4px 24px rgba(37,211,102,.48)',transition:'all .35s cubic-bezier(.22,1,.36,1)'},
+      h('a',{'data-h':1,href:'https://wa.me/5569981133218',target:'_blank',rel:'noreferrer',style:{position:'fixed',bottom:24,right:24,width:54,height:54,background:'#25D366',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:26,textDecoration:'none',zIndex:600,boxShadow:'0 4px 24px rgba(37,211,102,.48)',transition:'all .35s cubic-bezier(.22,1,.36,1)'},
         onMouseEnter:e=>{e.currentTarget.style.transform='scale(1.16) rotate(-12deg)';e.currentTarget.style.boxShadow='0 10px 44px rgba(37,211,102,.68)';},
         onMouseLeave:e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 4px 24px rgba(37,211,102,.48)';}
       },'💬'),
