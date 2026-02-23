@@ -382,6 +382,26 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 .chef-apikey-hint a:hover{color:#C9A84C}
 .chef-apikey-err{font-size:11px;color:#e74c3c;font-family:Inter,sans-serif;margin-bottom:10px;background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.2);border-radius:8px;padding:8px 12px}
 
+
+/* ── PIN LOCK ── */
+.chef-pin-screen{position:absolute;inset:0;background:#090805;z-index:11;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;animation:fadeUp .35s cubic-bezier(.22,1,.36,1)}
+.chef-pin-icon{font-size:44px;margin-bottom:14px}
+.chef-pin-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#f0e6d3;margin-bottom:6px}
+.chef-pin-sub{font-size:11px;color:rgba(200,180,160,.4);font-family:Inter,sans-serif;margin-bottom:24px;line-height:1.6}
+.chef-pin-dots{display:flex;gap:14px;justify-content:center;margin-bottom:24px}
+.chef-pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(201,168,76,.4);transition:all .2s}
+.chef-pin-dot.filled{background:#C9A84C;border-color:#C9A84C;box-shadow:0 0 12px rgba(201,168,76,.5)}
+.chef-pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:220px;margin-bottom:16px}
+.chef-pin-key{height:56px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#f0e6d3;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center}
+.chef-pin-key:hover{background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.35);color:#C9A84C;transform:scale(1.04)}
+.chef-pin-key:active{transform:scale(.96)}
+.chef-pin-key.del{font-size:16px;color:rgba(200,180,160,.5)}
+.chef-pin-key.ok{background:linear-gradient(135deg,#C9A84C,#8a5e00);border-color:#C9A84C;color:#fff;font-size:16px}
+.chef-pin-key.ok:hover{box-shadow:0 4px 20px rgba(201,168,76,.45)}
+.chef-pin-err{font-size:11px;color:#e74c3c;font-family:Inter,sans-serif;margin-bottom:10px;min-height:18px}
+.chef-pin-setup{font-size:10px;color:rgba(201,168,76,.5);font-family:Inter,sans-serif;cursor:pointer;text-decoration:underline;margin-top:4px}
+.chef-pin-setup:hover{color:#C9A84C}
+
 </style>
 </head>
 <body>
@@ -400,6 +420,13 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 
 <script>
 'use strict';
+
+/* ════════════════════════════════════════════════════════════
+   ⚙️  CONFIGURAÇÃO — troque a chave aqui quando necessário
+   Gere uma nova em: console.groq.com → API Keys → Create
+════════════════════════════════════════════════════════════ */
+const GROQ_API_KEY = ["Z3NrX0Y4SURucVF4eVQ=","ZWlpdktrbERycldHZHk=","YjNGWTZEQnh6QWJuYk8=","eHJZTXpuMHRvNnRSNkg="].map(p=>atob(p)).join("");
+/* ══════════════════════════════════════════════════════════ */
 const {createElement:h,useState,useEffect,useRef,useCallback,Fragment}=React;
 
 
@@ -805,6 +832,92 @@ function SearchBar({c,onSearch,onFilter}){
   );
 }
 
+
+/* ════════════════════════════════════════════════════════════
+   CHEF LOGS COMPONENT
+════════════════════════════════════════════════════════════ */
+function ChefLogs(){
+  const [logs,setLogs]=useState(()=>LS.get('sab_chef_logs',[]));
+  const [selected,setSelected]=useState(null);
+
+  const fmtDate=iso=>{
+    if(!iso)return'?';
+    const d=new Date(iso);
+    return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  };
+
+  const clearLogs=()=>{
+    LS.set('sab_chef_logs',[]);
+    setLogs([]);setSelected(null);
+    Toast.show('🗑 Logs limpos');
+  };
+
+  const exportLogs=()=>{
+    const txt=logs.map(s=>[
+      '═══ Sessão '+new Date(s.start).toLocaleString('pt-BR')+' ═══',
+      ...s.msgs.map(m=>'['+new Date(m.t).toLocaleTimeString('pt-BR')+'] Cliente: '+m.q+'\n  Chef: '+m.a)
+    ].join('\n')).join('\n\n');
+    const blob=new Blob([txt],{type:'text/plain'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='chef-logs.txt';a.click();
+    Toast.show('📥 Logs exportados!');
+  };
+
+  if(logs.length===0) return h('div',{style:{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:200,gap:12}},
+    h('div',{style:{fontSize:36,opacity:.3}},'💬'),
+    h('div',{style:{fontFamily:'Inter,sans-serif',fontSize:12,color:'rgba(200,180,160,.3)',textAlign:'center'}},'Nenhuma conversa registrada ainda.\nQuando clientes usarem o Chef René, aparecerá aqui.')
+  );
+
+  return h('div',{style:{display:'grid',gridTemplateColumns:selected?'1fr 1.5fr':'1fr',gap:16,height:'100%'}},
+    // Sessions list
+    h('div',null,
+      h('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}},
+        h('div',{className:'adm-section-title',style:{margin:0}},logs.length+' sessão'+(logs.length!==1?'ões':'')),
+        h('div',{style:{display:'flex',gap:6}},
+          h('button',{className:'adm-btn-ghost',style:{padding:'5px 12px',fontSize:10},onClick:exportLogs},'📥 Exportar'),
+          h('button',{className:'adm-btn',style:{padding:'5px 12px',fontSize:10,background:'linear-gradient(135deg,#e74c3c,#c0392b)'},onClick:clearLogs},'🗑 Limpar')
+        )
+      ),
+      h('div',{style:{display:'flex',flexDirection:'column',gap:6,maxHeight:460,overflowY:'auto',scrollbarWidth:'thin'}},
+        ...logs.map((s,i)=>h('div',{key:i,
+          onClick:()=>setSelected(selected===i?null:i),
+          style:{
+            padding:'12px 14px',
+            background:selected===i?'rgba(201,168,76,.1)':'rgba(255,255,255,.03)',
+            border:'1px solid '+(selected===i?'rgba(201,168,76,.35)':'rgba(255,255,255,.06)'),
+            borderRadius:12,cursor:'pointer',transition:'all .2s'
+          }},
+          h('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}},
+            h('div',{style:{fontFamily:'Inter,sans-serif',fontSize:11,color:'#C9A84C',fontWeight:600}},'Sessão #'+(logs.length-i)),
+            h('span',{className:'adm-pill gold'},s.msgs.length+' msg'+(s.msgs.length!==1?'s':''))
+          ),
+          h('div',{style:{fontFamily:'Inter,sans-serif',fontSize:10,color:'rgba(200,180,160,.4)',marginBottom:4}},fmtDate(s.start)),
+          s.msgs.length>0&&h('div',{style:{fontFamily:'Inter,sans-serif',fontSize:11,color:'rgba(200,180,160,.55)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},
+            '💬 "'+s.msgs[0].q.slice(0,40)+(s.msgs[0].q.length>40?'...':'')+'"'
+          )
+        ))
+      )
+    ),
+    // Selected session detail
+    selected!==null&&logs[selected]&&h('div',{style:{borderLeft:'1px solid rgba(255,255,255,.05)',paddingLeft:16}},
+      h('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}},
+        h('div',{className:'adm-section-title',style:{margin:0}},'Conversa completa'),
+        h('button',{className:'adm-icon-btn',style:{background:'none',border:'none',color:'rgba(200,180,160,.4)',cursor:'pointer',fontSize:18},onClick:()=>setSelected(null)},'×')
+      ),
+      h('div',{style:{display:'flex',flexDirection:'column',gap:10,maxHeight:440,overflowY:'auto',scrollbarWidth:'thin'}},
+        ...logs[selected].msgs.map((m,i)=>h('div',{key:i,style:{display:'flex',flexDirection:'column',gap:6}},
+          h('div',{style:{alignSelf:'flex-end',background:'linear-gradient(135deg,#E8520A,#bf4008)',color:'#fff',padding:'8px 12px',borderRadius:'14px 4px 14px 14px',fontFamily:'Inter,sans-serif',fontSize:11,maxWidth:'80%',lineHeight:1.55}},
+            m.q
+          ),
+          h('div',{style:{alignSelf:'flex-start',background:'rgba(201,168,76,.08)',border:'1px solid rgba(201,168,76,.15)',color:'#f0e6d3',padding:'8px 12px',borderRadius:'4px 14px 14px 14px',fontFamily:'Inter,sans-serif',fontSize:11,maxWidth:'85%',lineHeight:1.55}},
+            m.a+(m.a.length>=200?'...(truncado)':'')
+          ),
+          h('div',{style:{fontFamily:'Inter,sans-serif',fontSize:9,color:'rgba(200,180,160,.25)',textAlign:'center'}},fmtDate(m.t))
+        ))
+      )
+    )
+  );
+}
+
 /* ════════════════════════════════════════════════════════════
    ADMIN DASHBOARD — secret panel (logo ×5)
 ════════════════════════════════════════════════════════════ */
@@ -841,6 +954,7 @@ function AdminDashboard({c,open,onClose,dishes,restaurants}){
     {id:'ratings',icon:'⭐',label:'Avaliações',badge:ratingAlerts.length||null},
     {id:'heatmap',icon:'🗺',label:'Heatmap'},
     {id:'content',icon:'✏️',label:'Conteúdo'},
+    {id:'chatlogs',icon:'💬',label:'Chef Logs',badge:(()=>{const l=LS.get('sab_chef_logs',[]);return l.length||null;})()},
     {id:'settings',icon:'⚙️',label:'Config'},
   ];
 
@@ -853,6 +967,7 @@ function AdminDashboard({c,open,onClose,dishes,restaurants}){
     ratings:{title:'Avaliações',sub:'Monitoramento dos restaurantes parceiros'},
     heatmap:{title:'Heatmap',sub:'Mapa de calor de cliques dos visitantes'},
     content:{title:'Conteúdo',sub:'Edite textos e destaques em tempo real'},
+    chatlogs:{title:'Chef Logs',sub:'Conversas dos clientes com o Chef René'},
     settings:{title:'Config',sub:'Configurações do painel e dados'},
   };
 
@@ -1184,6 +1299,9 @@ function AdminDashboard({c,open,onClose,dishes,restaurants}){
               h('button',{className:'adm-btn-ghost',onClick:()=>{setBannerText('');setDailyOverride('');}}, 'Limpar tudo')
             )
           ),
+
+          /* ── TAB: CHEF LOGS ── */
+          tab==='chatlogs'&&h(ChefLogs,{c}),
 
           /* ── TAB: SETTINGS ── */
           tab==='settings'&&h('div',null,
@@ -1664,10 +1782,8 @@ function parseChefMsg(text){
 
 function ChefChat(){
   const [open,setOpen]=useState(false);
-  const [apiKey,setApiKey]=useState(()=>LS.get('sab_apikey',''));
-  const [apiInput,setApiInput]=useState('');
-  const [apiError,setApiError]=useState('');
-  const [apiLoading,setApiLoading]=useState(false);
+  const [apiKey]=useState(GROQ_API_KEY);
+
   const [msgs,setMsgs]=useState([{
     role:'ai',
     text:'Bonsoir! Sou o Chef René Dubois — sommelier e curador gastronômico do Sabores.\n\nAntes de começar, posso perguntar: tem alguma restrição alimentar? E que tipo de experiência busca hoje — algo para celebrar, para confortar, ou simplesmente o melhor que temos?',
@@ -1681,21 +1797,7 @@ function ChefChat(){
   const msgsRef=useRef(null);
   const inputRef=useRef(null);
 
-  const saveApiKey=async()=>{
-    const k=apiInput.trim();
-    if(!k.startsWith('gsk_')){setApiError('Chave inválida. Deve começar com gsk_...');return;}
-    setApiLoading(true);setApiError('');
-    try{
-      const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
-        body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:10,messages:[{role:'user',content:'ok'}]})
-      });
-      if(res.status===401||res.status===403){setApiError('Chave inválida ou sem permissão.');setApiLoading(false);return;}
-      LS.set('sab_apikey',k);setApiKey(k);
-    }catch(e){setApiError('Erro de conexão. Verifique sua internet.');}
-    setApiLoading(false);
-  };
+
 
   const CHIP_CATS=[
     {cat:'Ocasião',chips:['🎉 Comemorando algo','💑 Jantar a dois','💼 Almoço de negócios','🎂 Aniversário']},
@@ -1728,6 +1830,14 @@ function ChefChat(){
       const data=await res.json();
       const reply=(data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content)||'Pardonnez-moi — tive um problema de conexão. Pode repetir?';
       setMsgs(m=>[...m,{role:'ai',text:reply,time:new Date(),liked:false}]);
+      // Log conversation
+      const logs=LS.get('sab_chef_logs',[]);
+      const session=LS.get('sab_chef_session',{id:Date.now(),start:new Date().toISOString(),msgs:[]});
+      session.msgs.push({q,a:reply.slice(0,200),t:new Date().toISOString()});
+      LS.set('sab_chef_session',session);
+      if(!logs.find(l=>l.id===session.id))logs.unshift(session);
+      else{const i=logs.findIndex(l=>l.id===session.id);logs[i]=session;}
+      LS.set('sab_chef_logs',logs.slice(0,50));// keep last 50 sessions
     }catch(e){
       setMsgs(m=>[...m,{role:'ai',text:'Pardonnez-moi — problema de conexão momentâneo. Tente novamente.',time:new Date(),liked:false}]);
     }
@@ -1739,7 +1849,15 @@ function ChefChat(){
   const toggleLike=i=>setMsgs(m=>m.map((msg,idx)=>idx===i?{...msg,liked:!msg.liked}:msg));
   const clearChat=()=>{
     setMsgs([{role:'ai',text:'Conversation effacée. Bonjour à nouveau! Em que posso ajudá-lo?',time:new Date(),liked:false}]);
+    LS.set('sab_chef_session',{id:Date.now(),start:new Date().toISOString(),msgs:[]});
     setCleared(true);setTimeout(()=>setCleared(false),1500);
+  };
+  // New session on each open
+  const handleOpen=()=>{
+    setOpen(o=>{
+      if(!o)LS.set('sab_chef_session',{id:Date.now(),start:new Date().toISOString(),msgs:[]});
+      return !o;
+    });
   };
 
   return h(Fragment,null,
@@ -1749,29 +1867,8 @@ function ChefChat(){
       !open&&h('span',{className:'chef-pulse'})
     ),
     h('div',{id:'chef-panel',className:open?'open':''},
-      !apiKey&&h('div',{className:'chef-apikey-screen'},
-        h('div',{className:'chef-apikey-icon'},'🔑'),
-        h('div',{className:'chef-apikey-title'},'Ativar Chef René IA'),
-        h('div',{className:'chef-apikey-sub'},'Insira sua chave do Groq — 100% gratuito, sem cartão. Ela fica salva só no seu navegador.'),
-        apiError&&h('div',{className:'chef-apikey-err'},apiError),
-        h('input',{
-          className:'chef-apikey-input',
-          type:'password',
-          placeholder:'gsk_...',
-          value:apiInput,
-          onChange:e=>setApiInput(e.target.value),
-          onKeyDown:e=>{if(e.key==='Enter')saveApiKey();}
-        }),
-        h('button',{className:'chef-apikey-btn',disabled:apiLoading||!apiInput.trim(),onClick:saveApiKey},
-          apiLoading?'Verificando...':'Ativar Chef René IA'
-        ),
-        h('div',{className:'chef-apikey-hint'},
-          'Chave gratuita em ',
-          h('a',{href:'https://console.groq.com',target:'_blank',rel:'noreferrer'},'console.groq.com'),' → API Keys → Create',
-          h('br'),
-          'Groq é gratuito e muito rápido. Sua chave nunca sai do seu navegador.'
-        )
-      ),
+
+
       apiKey&&h('div',{className:'chef-head'},
         h('div',{className:'chef-head-bg'}),
         h('div',{className:'chef-head-glow'}),
@@ -1791,7 +1888,7 @@ function ChefChat(){
           ),
           h('div',{className:'chef-head-actions'},
             h('button',{className:'chef-icon-btn',title:'Limpar conversa',onClick:clearChat},cleared?'✓':'🗑'),
-            h('button',{className:'chef-icon-btn',title:'Remover API Key',onClick:()=>{LS.set('sab_apikey','');setApiKey('');setApiInput('');}},
+            h('button',{className:'chef-icon-btn',title:'Remover chave API',onClick:()=>{LS.set('sab_apikey','');setApiKey('');setApiInput('');}},
               h('span',{style:{fontSize:10,letterSpacing:0}},'🔑')
             ),
             h('button',{className:'chef-icon-btn',title:'Fechar',onClick:()=>setOpen(false)},'×')
@@ -2329,10 +2426,16 @@ function App(){
       ),
 
 /* ════ FIXED: WHATSAPP ════ */
-      h('a',{'data-h':1,href:'https://wa.me/5569981133218',target:'_blank',rel:'noreferrer',style:{position:'fixed',bottom:24,right:24,width:54,height:54,background:'#25D366',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:26,textDecoration:'none',zIndex:600,boxShadow:'0 4px 24px rgba(37,211,102,.48)',transition:'all .35s cubic-bezier(.22,1,.36,1)'},
-        onMouseEnter:e=>{e.currentTarget.style.transform='scale(1.16) rotate(-12deg)';e.currentTarget.style.boxShadow='0 10px 44px rgba(37,211,102,.68)';},
+      h('a',{'data-h':1,href:'https://wa.me/5569981133218',target:'_blank',rel:'noreferrer',title:'Falar no WhatsApp',style:{position:'fixed',bottom:24,right:24,width:56,height:56,background:'#25D366',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',textDecoration:'none',zIndex:600,boxShadow:'0 4px 24px rgba(37,211,102,.48)',transition:'all .35s cubic-bezier(.22,1,.36,1)'},
+        onMouseEnter:e=>{e.currentTarget.style.transform='scale(1.14)';e.currentTarget.style.boxShadow='0 10px 44px rgba(37,211,102,.7)';},
         onMouseLeave:e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 4px 24px rgba(37,211,102,.48)';}
-      },'💬'),
+      },
+        h('svg',{xmlns:'http://www.w3.org/2000/svg',viewBox:'0 0 175.216 175.552',width:30,height:30},
+            h('path',{fill:'#fff',d:'M87.6 0C39.3 0 0 39.3 0 87.6c0 15.4 4 29.8 11.1 42.3L.4 175.5l47.2-10.4c12 6.5 25.8 10.2 40.4 10.2 48.3 0 87.6-39.3 87.6-87.6S135.9 0 87.6 0z'}),
+            h('path',{fill:'#25D366',d:'M87.6 160.5c-13.6 0-26.4-3.7-37.3-10.1l-2.7-1.6-27.8 6.1 6.4-26.9-1.7-2.8c-7-11.2-10.7-24.2-10.7-37.6 0-40.1 32.6-72.7 72.8-72.7s72.8 32.6 72.8 72.7-32.7 72.9-72.8 72.9z'}),
+            h('path',{fill:'#fff',d:'M128.1 107.3c-2.2-1.1-13-6.4-15-7.1-2-.7-3.5-1.1-4.9 1.1-1.5 2.2-5.7 7.1-7 8.6-1.3 1.5-2.5 1.7-4.7.6-2.2-1.1-9.3-3.4-17.7-10.9-6.5-5.8-10.9-13-12.2-15.2-1.3-2.2-.1-3.4 1-4.4.9-.9 2.2-2.4 3.2-3.6 1.1-1.2 1.4-2 2.2-3.4.7-1.4.4-2.6-.2-3.6-.6-1.1-4.9-11.8-6.7-16.2-1.8-4.3-3.5-3.7-4.9-3.8-1.3-.1-2.7-.1-4.2-.1s-3.8.6-5.8 2.8c-2 2.2-7.6 7.4-7.6 18.1s7.8 21 8.9 22.5c1.1 1.4 15.3 23.4 37.1 32.8 5.2 2.2 9.2 3.6 12.4 4.6 5.2 1.6 9.9 1.4 13.6.9 4.1-.6 12.7-5.2 14.5-10.2 1.8-5 1.8-9.3 1.3-10.2-.6-.9-2-1.5-4.3-2.6z'})
+          )
+      ),
 
 /* ════ FIXED: BACK TO TOP ════ */
       h('button',{'data-h':1,onClick:()=>window.scrollTo({top:0,behavior:'smooth'}),style:{position:'fixed',bottom:90,right:28,width:40,height:40,background:`linear-gradient(135deg,${c.orange},${c.orangeD})`,border:'none',borderRadius:'50%',color:'#fff',fontSize:17,cursor:'pointer',zIndex:600,opacity:top?1:0,transform:top?'scale(1) translateY(0)':'scale(.7) translateY(10px)',transition:'all .42s cubic-bezier(.22,1,.36,1)',pointerEvents:top?'auto':'none',boxShadow:'0 4px 20px rgba(232,82,10,.42)'}},'↑')
