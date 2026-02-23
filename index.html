@@ -1888,9 +1888,7 @@ function ChefChat(){
           ),
           h('div',{className:'chef-head-actions'},
             h('button',{className:'chef-icon-btn',title:'Limpar conversa',onClick:clearChat},cleared?'✓':'🗑'),
-            h('button',{className:'chef-icon-btn',title:'Remover chave API',onClick:()=>{LS.set('sab_apikey','');setApiKey('');setApiInput('');}},
-              h('span',{style:{fontSize:10,letterSpacing:0}},'🔑')
-            ),
+
             h('button',{className:'chef-icon-btn',title:'Fechar',onClick:()=>setOpen(false)},'×')
           )
         ),
@@ -2405,7 +2403,7 @@ function App(){
             h('div',null,
               h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:19,color:c.gold,marginBottom:22,letterSpacing:'-.3px'}},'Contato'),
               h('div',{style:{fontFamily:'Inter,sans-serif',fontWeight:300}},
-                ...[['💬 WhatsApp','https://wa.me/5569981133218','#2ecc71'],['✉️ E-mail','mailto:oi@sabores.com.br',c.cream],['📍 São Paulo, SP','#',c.muted]].map(([l,href,hc])=>
+                ...[['💬 WhatsApp','https://wa.me/5569981133218?text=Ol%C3%A1%21%20Vim%20pelo%20Sabores%20e%20gostaria%20de%20fazer%20um%20pedido%20%F0%9F%8D%BD%EF%B8%8F','#2ecc71'],['✉️ E-mail','mailto:oi@sabores.com.br',c.cream],['📍 São Paulo, SP','#',c.muted]].map(([l,href,hc])=>
                   h('a',{'data-h':1,key:l,href,target:href.startsWith('http')?'_blank':'_self',style:{display:'block',fontSize:13,color:c.muted,textDecoration:'none',lineHeight:2.8,transition:'color .22s'},
                     onMouseEnter:e=>e.currentTarget.style.color=hc,
                     onMouseLeave:e=>e.currentTarget.style.color=c.muted},l)
@@ -2426,7 +2424,7 @@ function App(){
       ),
 
 /* ════ FIXED: WHATSAPP ════ */
-      h('a',{'data-h':1,href:'https://wa.me/5569981133218',target:'_blank',rel:'noreferrer',title:'Falar no WhatsApp',style:{position:'fixed',bottom:24,right:24,width:56,height:56,background:'#25D366',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',textDecoration:'none',zIndex:600,boxShadow:'0 4px 24px rgba(37,211,102,.48)',transition:'all .35s cubic-bezier(.22,1,.36,1)'},
+      h('a',{'data-h':1,href:'https://wa.me/5569981133218?text=Ol%C3%A1%21%20Vim%20pelo%20Sabores%20e%20gostaria%20de%20fazer%20um%20pedido%20%F0%9F%8D%BD%EF%B8%8F',target:'_blank',rel:'noreferrer',title:'Falar no WhatsApp',style:{position:'fixed',bottom:24,right:24,width:56,height:56,background:'#25D366',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',textDecoration:'none',zIndex:600,boxShadow:'0 4px 24px rgba(37,211,102,.48)',transition:'all .35s cubic-bezier(.22,1,.36,1)'},
         onMouseEnter:e=>{e.currentTarget.style.transform='scale(1.14)';e.currentTarget.style.boxShadow='0 10px 44px rgba(37,211,102,.7)';},
         onMouseLeave:e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 4px 24px rgba(37,211,102,.48)';}
       },
