@@ -1683,15 +1683,15 @@ function ChefChat(){
 
   const saveApiKey=async()=>{
     const k=apiInput.trim();
-    if(!k.startsWith('sk-ant-')){setApiError('Chave inválida. Deve começar com sk-ant-...');return;}
+    if(!k.startsWith('gsk_')){setApiError('Chave inválida. Deve começar com gsk_...');return;}
     setApiLoading(true);setApiError('');
     try{
-      const res=await fetch('https://api.anthropic.com/v1/messages',{
+      const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
         method:'POST',
-        headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01'},
-        body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:10,messages:[{role:'user',content:'ok'}]})
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+        body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:10,messages:[{role:'user',content:'ok'}]})
       });
-      if(res.status===401){setApiError('Chave inválida ou sem permissão.');setApiLoading(false);return;}
+      if(res.status===401||res.status===403){setApiError('Chave inválida ou sem permissão.');setApiLoading(false);return;}
       LS.set('sab_apikey',k);setApiKey(k);
     }catch(e){setApiError('Erro de conexão. Verifique sua internet.');}
     setApiLoading(false);
@@ -1716,18 +1716,17 @@ function ChefChat(){
     setLoading(true);
     const history=msgs.map(m=>({role:m.role==='ai'?'assistant':'user',content:m.text}));
     try{
-      const res=await fetch('https://api.anthropic.com/v1/messages',{
+      const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
         method:'POST',
-        headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
         body:JSON.stringify({
-          model:'claude-sonnet-4-20250514',
+          model:'llama-3.3-70b-versatile',
           max_tokens:600,
-          system:CHEF_SYSTEM,
-          messages:[...history,{role:'user',content:q}]
+          messages:[{role:'system',content:CHEF_SYSTEM},...history,{role:'user',content:q}]
         })
       });
       const data=await res.json();
-      const reply=data.content?.[0]?.text||'Pardonnez-moi — tive um problema de conexão. Pode repetir?';
+      const reply=(data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content)||'Pardonnez-moi — tive um problema de conexão. Pode repetir?';
       setMsgs(m=>[...m,{role:'ai',text:reply,time:new Date(),liked:false}]);
     }catch(e){
       setMsgs(m=>[...m,{role:'ai',text:'Pardonnez-moi — problema de conexão momentâneo. Tente novamente.',time:new Date(),liked:false}]);
@@ -1752,13 +1751,13 @@ function ChefChat(){
     h('div',{id:'chef-panel',className:open?'open':''},
       !apiKey&&h('div',{className:'chef-apikey-screen'},
         h('div',{className:'chef-apikey-icon'},'🔑'),
-        h('div',{className:'chef-apikey-title'},'Configurar Chef René IA'),
-        h('div',{className:'chef-apikey-sub'},'Para ativar o Chef René, insira sua chave da API Anthropic. Ela fica salva localmente apenas no seu navegador.'),
+        h('div',{className:'chef-apikey-title'},'Ativar Chef René IA'),
+        h('div',{className:'chef-apikey-sub'},'Insira sua chave do Groq — 100% gratuito, sem cartão. Ela fica salva só no seu navegador.'),
         apiError&&h('div',{className:'chef-apikey-err'},apiError),
         h('input',{
           className:'chef-apikey-input',
           type:'password',
-          placeholder:'sk-ant-api03-...',
+          placeholder:'gsk_...',
           value:apiInput,
           onChange:e=>setApiInput(e.target.value),
           onKeyDown:e=>{if(e.key==='Enter')saveApiKey();}
@@ -1767,10 +1766,10 @@ function ChefChat(){
           apiLoading?'Verificando...':'Ativar Chef René IA'
         ),
         h('div',{className:'chef-apikey-hint'},
-          'Obtenha sua chave gratuita em ',
-          h('a',{href:'https://console.anthropic.com',target:'_blank',rel:'noreferrer'},'console.anthropic.com'),
+          'Chave gratuita em ',
+          h('a',{href:'https://console.groq.com',target:'_blank',rel:'noreferrer'},'console.groq.com'),' → API Keys → Create',
           h('br'),
-          'Sua chave nunca sai do seu navegador.'
+          'Groq é gratuito e muito rápido. Sua chave nunca sai do seu navegador.'
         )
       ),
       apiKey&&h('div',{className:'chef-head'},
