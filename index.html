@@ -365,6 +365,23 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 .momento-time-colon{animation:blink .9s step-end infinite;opacity:.7}
 @media(max-width:600px){.momento-card{flex-direction:column;text-align:center;padding:24px}.momento-clock{display:none}}
 
+
+/* ── API KEY GATE ── */
+.chef-apikey-screen{position:absolute;inset:0;background:#090805;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;animation:fadeUp .4s cubic-bezier(.22,1,.36,1)}
+.chef-apikey-icon{font-size:48px;margin-bottom:16px;filter:drop-shadow(0 8px 24px rgba(201,168,76,.4))}
+.chef-apikey-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#f0e6d3;margin-bottom:8px;letter-spacing:-.4px}
+.chef-apikey-sub{font-size:12px;color:rgba(200,180,160,.45);font-family:Inter,sans-serif;line-height:1.7;margin-bottom:24px;max-width:280px}
+.chef-apikey-input{width:100%;padding:13px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.3);border-radius:14px;color:#f0e6d3;font-family:'Courier New',monospace;font-size:12px;outline:none;margin-bottom:12px;transition:border .2s;letter-spacing:.04em;text-align:center}
+.chef-apikey-input:focus{border-color:rgba(201,168,76,.7);background:rgba(255,255,255,.08)}
+.chef-apikey-input::placeholder{color:rgba(200,180,160,.25);font-family:Inter,sans-serif;letter-spacing:0;font-size:11px}
+.chef-apikey-btn{width:100%;padding:13px;background:linear-gradient(135deg,#C9A84C,#8a5e00);color:#fff;border:none;border-radius:12px;font-family:Inter,sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.04em;transition:all .28s;margin-bottom:10px}
+.chef-apikey-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,.45)}
+.chef-apikey-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.chef-apikey-hint{font-size:10px;color:rgba(200,180,160,.3);font-family:Inter,sans-serif;line-height:1.6}
+.chef-apikey-hint a{color:rgba(201,168,76,.6);text-decoration:none}
+.chef-apikey-hint a:hover{color:#C9A84C}
+.chef-apikey-err{font-size:11px;color:#e74c3c;font-family:Inter,sans-serif;margin-bottom:10px;background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.2);border-radius:8px;padding:8px 12px}
+
 </style>
 </head>
 <body>
@@ -1647,6 +1664,10 @@ function parseChefMsg(text){
 
 function ChefChat(){
   const [open,setOpen]=useState(false);
+  const [apiKey,setApiKey]=useState(()=>LS.get('sab_apikey',''));
+  const [apiInput,setApiInput]=useState('');
+  const [apiError,setApiError]=useState('');
+  const [apiLoading,setApiLoading]=useState(false);
   const [msgs,setMsgs]=useState([{
     role:'ai',
     text:'Bonsoir! Sou o Chef René Dubois — sommelier e curador gastronômico do Sabores.\n\nAntes de começar, posso perguntar: tem alguma restrição alimentar? E que tipo de experiência busca hoje — algo para celebrar, para confortar, ou simplesmente o melhor que temos?',
@@ -1659,6 +1680,22 @@ function ChefChat(){
   const [showChips,setShowChips]=useState(0);
   const msgsRef=useRef(null);
   const inputRef=useRef(null);
+
+  const saveApiKey=async()=>{
+    const k=apiInput.trim();
+    if(!k.startsWith('sk-ant-')){setApiError('Chave inválida. Deve começar com sk-ant-...');return;}
+    setApiLoading(true);setApiError('');
+    try{
+      const res=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01'},
+        body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:10,messages:[{role:'user',content:'ok'}]})
+      });
+      if(res.status===401){setApiError('Chave inválida ou sem permissão.');setApiLoading(false);return;}
+      LS.set('sab_apikey',k);setApiKey(k);
+    }catch(e){setApiError('Erro de conexão. Verifique sua internet.');}
+    setApiLoading(false);
+  };
 
   const CHIP_CATS=[
     {cat:'Ocasião',chips:['🎉 Comemorando algo','💑 Jantar a dois','💼 Almoço de negócios','🎂 Aniversário']},
@@ -1681,7 +1718,7 @@ function ChefChat(){
     try{
       const res=await fetch('https://api.anthropic.com/v1/messages',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
         body:JSON.stringify({
           model:'claude-sonnet-4-20250514',
           max_tokens:600,
@@ -1713,7 +1750,30 @@ function ChefChat(){
       !open&&h('span',{className:'chef-pulse'})
     ),
     h('div',{id:'chef-panel',className:open?'open':''},
-      h('div',{className:'chef-head'},
+      !apiKey&&h('div',{className:'chef-apikey-screen'},
+        h('div',{className:'chef-apikey-icon'},'🔑'),
+        h('div',{className:'chef-apikey-title'},'Configurar Chef René IA'),
+        h('div',{className:'chef-apikey-sub'},'Para ativar o Chef René, insira sua chave da API Anthropic. Ela fica salva localmente apenas no seu navegador.'),
+        apiError&&h('div',{className:'chef-apikey-err'},apiError),
+        h('input',{
+          className:'chef-apikey-input',
+          type:'password',
+          placeholder:'sk-ant-api03-...',
+          value:apiInput,
+          onChange:e=>setApiInput(e.target.value),
+          onKeyDown:e=>{if(e.key==='Enter')saveApiKey();}
+        }),
+        h('button',{className:'chef-apikey-btn',disabled:apiLoading||!apiInput.trim(),onClick:saveApiKey},
+          apiLoading?'Verificando...':'Ativar Chef René IA'
+        ),
+        h('div',{className:'chef-apikey-hint'},
+          'Obtenha sua chave gratuita em ',
+          h('a',{href:'https://console.anthropic.com',target:'_blank',rel:'noreferrer'},'console.anthropic.com'),
+          h('br'),
+          'Sua chave nunca sai do seu navegador.'
+        )
+      ),
+      apiKey&&h('div',{className:'chef-head'},
         h('div',{className:'chef-head-bg'}),
         h('div',{className:'chef-head-glow'}),
         h('div',{className:'chef-head-content'},
@@ -1732,12 +1792,15 @@ function ChefChat(){
           ),
           h('div',{className:'chef-head-actions'},
             h('button',{className:'chef-icon-btn',title:'Limpar conversa',onClick:clearChat},cleared?'✓':'🗑'),
+            h('button',{className:'chef-icon-btn',title:'Remover API Key',onClick:()=>{LS.set('sab_apikey','');setApiKey('');setApiInput('');}},
+              h('span',{style:{fontSize:10,letterSpacing:0}},'🔑')
+            ),
             h('button',{className:'chef-icon-btn',title:'Fechar',onClick:()=>setOpen(false)},'×')
           )
         ),
         h('div',{className:'chef-divider'})
       ),
-      h('div',{className:'chef-suggest-wrap'},
+      apiKey&&h('div',{className:'chef-suggest-wrap'},
         h('div',{style:{display:'flex',gap:6,marginBottom:8}},
           ...CHIP_CATS.map((cat,i)=>h('button',{key:i,
             style:{padding:'3px 10px',
@@ -1755,8 +1818,8 @@ function ChefChat(){
           )
         )
       ),
-      h('div',{className:'chef-divider'}),
-      h('div',{ref:msgsRef,className:'chef-msgs'},
+      apiKey&&h('div',{className:'chef-divider'}),
+      apiKey&&h('div',{ref:msgsRef,className:'chef-msgs'},
         ...msgs.map(function(m,i){
           const parsed=parseChefMsg(m.text);
           const isAi=m.role==='ai';
@@ -1792,7 +1855,7 @@ function ChefChat(){
           )
         )
       ),
-      h('div',{className:'chef-footer'},
+      apiKey&&h('div',{className:'chef-footer'},
         h('div',{className:'chef-input-row'},
           h('textarea',{ref:inputRef,className:'chef-input',
             placeholder:'Pergunte ao Chef René...',
