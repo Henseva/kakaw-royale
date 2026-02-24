@@ -224,7 +224,7 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 
 
 /* ── NETFLIX ROWS ── */
-.nfx-section{padding:0 0 56px}
+.nfx-section{padding:0 0 56px;position:relative;z-index:3}
 .nfx-row{margin-bottom:48px}
 .nfx-row-header{display:flex;align-items:baseline;justify-content:space-between;padding:0 28px;margin-bottom:16px}
 .nfx-row-title{font-family:'Playfair Display',serif;font-size:clamp(18px,2.5vw,26px);font-weight:700;color:var(--cream,#f0e6d3);letter-spacing:-.5px}
@@ -406,8 +406,9 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 
 
 /* ════ SEASONAL THEMES ════ */
-#seasonal-overlay{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;opacity:.5}
+#seasonal-overlay{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;opacity:.65}
 .seasonal-particle{position:absolute;pointer-events:none;animation:seasonFall linear infinite;opacity:0;user-select:none;font-size:16px}
+.nfx-section,.nfx-card,.nfx-slider-wrap,.grain,[id='pratos'],[id='bebidas'],[id='categorias'],[id='como'],[id='restaurantes'],[id='depoimentos']{position:relative;z-index:2}
 @keyframes seasonFall{
   0%{transform:translateY(-40px) rotate(0deg);opacity:0}
   5%{opacity:.85}
@@ -819,14 +820,14 @@ function getSeasonalTheme(){
   // Carnaval — ~fev/mar (fixo: 1-28 fev + 1-5 mar)
   if((m===2)||(m===3&&d<=5))
     return {name:'Carnaval',emoji:'🎭',
-      particles:['🎭','🥁','✨','🎊','🌈','🦜','💜','💛'],
+      particles:['🎭','✨','🎊','🎈','💜','💛','🎉','🎀'],
       accent:'#9b59b6',accentD:'#7d3c98',glow:'rgba(155,89,182,.35)',
       banner:'🎭 É Carnaval! Peça seu prato favorito',bannerBg:'linear-gradient(135deg,rgba(155,89,182,.85),rgba(125,60,152,.85))',bannerColor:'#fff'};
 
   // Páscoa — abril
   if(m===4)
     return {name:'Páscoa',emoji:'🐣',
-      particles:['🐣','🥚','🌸','🌷','🐰','🍫','✨'],
+      particles:['🐣','🥚','🐰','🍫','✨','🌟','🎀'],
       accent:'#e91e8c',accentD:'#c2185b',glow:'rgba(233,30,140,.3)',
       banner:'🐣 Feliz Páscoa! Celebre com o melhor da gastronomia',bannerBg:'linear-gradient(135deg,rgba(233,30,140,.85),rgba(194,24,91,.85))',bannerColor:'#fff'};
 
@@ -861,7 +862,7 @@ function getSeasonalTheme(){
   // Dia de Finados — 2 nov
   if(m===11&&d===2)
     return {name:'Finados',emoji:'🕯️',
-      particles:['🕯️','🌸','🌼','✨','🦋'],
+      particles:['🕯️','✨','🦋','💜','🌟'],
       accent:'#8e44ad',accentD:'#6c3483',glow:'rgba(142,68,173,.3)',
       banner:'🕯️ Um momento de memória e sabor',bannerBg:'linear-gradient(135deg,rgba(142,68,173,.85),rgba(108,52,131,.85))',bannerColor:'#f0e6d3'};
 
@@ -1843,7 +1844,7 @@ function DrinkSlider({c}){
     return()=>{el.removeEventListener('scroll',fn);clearTimeout(tmr.current);};
   },[]);
 
-  return h('section',{id:'bebidas',style:{padding:'100px 0 0',background:'linear-gradient(180deg,#050d08 0%,#0a1a0d 55%,#070e08 100%)',textAlign:'center',position:'relative'}},
+  return h('section',{id:'bebidas',style:{padding:'100px 0 0',background:'linear-gradient(180deg,#050d08 0%,#0a1a0d 55%,#070e08 100%)',textAlign:'center',position:'relative',zIndex:3}},
     // bubbles
     h('div',{style:{position:'absolute',inset:0,overflow:'hidden',pointerEvents:'none'}},
       ...[...Array(12)].map((_,i)=>h('div',{key:i,style:{position:'absolute',bottom:-30,left:(2+i*8)+'%',width:5+i*3,height:5+i*3,borderRadius:'50%',background:'rgba(255,255,255,.06)',animation:`riseUp ${6+i*1.1}s ${i*.65}s linear infinite`}}))
@@ -2453,15 +2454,15 @@ function App(){
         ),
         h('div',{style:{display:'flex',gap:8,alignItems:'center',marginLeft:'auto'}},
           h('button',{'data-h':1,className:'nav-theme',onClick:()=>setDark(d=>!d),style:{background:'none',border:`1px solid ${c.border}`,borderRadius:'50%',cursor:'pointer',width:38,height:38,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,color:c.gold,transition:'all .3s',flexShrink:0}},dark?'☀️':'🌙'),
-          h('a',{'data-h':1,className:'nav-cta',href:'https://www.ifood.com.br',target:'_blank',rel:'noreferrer',style:{background:`linear-gradient(135deg,${c.orange},${c.orangeD})`,color:'#fff',padding:'9px 16px',borderRadius:100,fontSize:12,fontWeight:700,textDecoration:'none',display:'flex',alignItems:'center',gap:7,fontFamily:'Inter,sans-serif',whiteSpace:'nowrap',letterSpacing:'.05em',boxShadow:'0 4px 24px rgba(232,82,10,.38)',transition:'box-shadow .3s,transform .25s',flexShrink:0},
-            onMouseEnter:e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 10px 40px rgba(232,82,10,.55)';},
-            onMouseLeave:e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 4px 24px rgba(232,82,10,.38)';}},
-            h('svg',{width:48,height:16,viewBox:'0 0 200 66',fill:'none',xmlns:'http://www.w3.org/2000/svg',style:{flexShrink:0}},
-              h('path',{fill:'#fff',d:'M18.4 13.2H6.6C3 13.2 0 16.2 0 19.8v26.4c0 3.6 3 6.6 6.6 6.6h11.8c3.6 0 6.6-3 6.6-6.6V19.8c0-3.6-3-6.6-6.6-6.6zm.6 33c0 .3-.3.6-.6.6H6.6c-.3 0-.6-.3-.6-.6V19.8c0-.3.3-.6.6-.6h11.8c.3 0 .6.3.6.6v26.4z'}),
-              h('path',{fill:'#fff',d:'M12.5 21a3.5 3.5 0 100 7 3.5 3.5 0 000-7zM37 13.2h-6v39.6h6V13.2zM55.3 13.2h-6v39.6h6v-16h12v-6h-12v-12h14v-5.6H55.3zM96 13.2H84.2c-3.6 0-6.6 3-6.6 6.6v26.4c0 3.6 3 6.6 6.6 6.6H96c3.6 0 6.6-3 6.6-6.6V19.8c0-3.6-3-6.6-6.6-6.6zm.6 33c0 .3-.3.6-.6.6H84.2c-.3 0-.6-.3-.6-.6V19.8c0-.3.3-.6.6-.6H96c.3 0 .6.3.6.6v26.4zM127.5 13.2h-11.8c-3.6 0-6.6 3-6.6 6.6v26.4c0 3.6 3 6.6 6.6 6.6h11.8c3.6 0 6.6-3 6.6-6.6v-8.4h-6v8.4c0 .3-.3.6-.6.6h-11.8c-.3 0-.6-.3-.6-.6V19.8c0-.3.3-.6.6-.6h11.8c.3 0 .6.3.6.6v8.4h6v-8.4c0-3.6-3-6.6-6.6-6.6z'}),
-              h('path',{fill:'#fff',d:'M161.6 13.2h-6v15.6l-13.2-15.6h-5.2v39.6h6V22.8l13.8 16.2.6.6h4V13.2h-6zM200 13.2h-24v6h9v33.6h6V19.2h9v-6z'})
-            ),
-            h('span',{className:'cta-label'},'Pedir agora')
+          h('a',{'data-h':1,className:'nav-cta',href:'https://www.ifood.com.br',target:'_blank',rel:'noreferrer',style:{background:'none',border:`1px solid ${c.border}`,color:'#fff',padding:'0',borderRadius:'50%',width:38,height:38,fontSize:12,fontWeight:700,textDecoration:'none',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'none',transition:'all .3s',flexShrink:0},
+            onMouseEnter:e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.borderColor='rgba(201,168,76,.4)';},
+            onMouseLeave:e=>{e.currentTarget.style.transform='none';e.currentTarget.style.borderColor=c.border;}},
+            h('svg',{width:36,height:36,viewBox:'0 0 100 100',fill:'none',xmlns:'http://www.w3.org/2000/svg',style:{flexShrink:0,borderRadius:'50%'}},
+              h('circle',{cx:50,cy:50,r:50,fill:'rgba(0,0,0,0.45)'}),
+              h('circle',{cx:50,cy:50,r:47,fill:'none',stroke:'rgba(255,255,255,0.15)',strokeWidth:3}),
+              h('text',{x:50,y:52,textAnchor:'middle',fill:'#EA1D2C',fontSize:26,fontWeight:900,fontFamily:'Arial,sans-serif',letterSpacing:-1},'ifood'),
+              h('path',{d:'M32 68 Q50 82 68 68',stroke:'#EA1D2C',strokeWidth:5,strokeLinecap:'round',fill:'none'})
+            )
           )
         )
       ),
@@ -2570,7 +2571,7 @@ function App(){
       ),
 
 /* ════ PRATOS (NETFLIX ROWS) ════ */
-      h('section',{id:'pratos',style:{paddingTop:60,paddingBottom:32,background:c.bg}},
+      h('section',{id:'pratos',style:{paddingTop:60,paddingBottom:32,background:c.bg,position:'relative',zIndex:3}},
         h(Rv,{style:{padding:'0 28px',maxWidth:1200,margin:'0 auto',marginBottom:40}},
           h('div',{style:{display:'flex',flexWrap:'wrap',alignItems:'flex-end',justifyContent:'space-between',gap:16}},
             h(SH,{label:'Curadoria especial',title:'Pratos em',accent:'destaque',c}),
