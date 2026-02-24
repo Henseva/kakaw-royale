@@ -724,6 +724,9 @@ const DISHES=[
   {e:"🌮",badge:"🌶 Chef's Pick",from:"El Rancho",stars:4.7,reviews:920,name:"Trio Tacos Signature",desc:"Al pastor com abacaxi grelhado, carnitas de 8h e birria com consommé para mergulhar. Autêntico México.",price:"56",time:"30",frete:"R$3",q:"tacos+birria+al+pastor+signature",bg:"linear-gradient(145deg,#12091c,#211030,#12091c)",tag:"Promoções"},
 ];
 
+// Admin override from localStorage
+(function(){var ov=LS.get("sab_dishes_override",null);if(Array.isArray(ov)&&ov.length>0)DISHES.splice(0,DISHES.length,...ov);})();
+
 const DRINKS=[
   {e:"🥤",name:"Limonada Suíça Signature",desc:"Limão siciliano premium, leite condensado belga, menta fresca e raspas. A nossa favorita.",price:"22",bg:"linear-gradient(145deg,#061c06,#0d3a10)",badge:"🌿 Signature",kcal:"180 kcal",time:"5 min"},
   {e:"🧃",name:"Cold Press Manga",desc:"Manga Tommy prensada a frio, sem pasteurização. Vitaminas e enzimas 100% intactas.",price:"18",bg:"linear-gradient(145deg,#281200,#542800)",badge:"🔥 Raw",kcal:"120 kcal",time:"imediato"},
@@ -834,6 +837,107 @@ function SearchBar({c,onSearch,onFilter}){
   );
 }
 
+
+
+/* ════ DISH MANAGER ════ */
+function DishManager(){
+  var [dishes,setDishes]=useState(function(){return JSON.parse(JSON.stringify(DISHES));});
+  var [editing,setEditing]=useState(null);
+  var [form,setForm]=useState({});
+
+  function openEdit(i){
+    setEditing(i);
+    var base=i==='new'?{e:'',name:'',from:'',desc:'',price:'',time:'30',frete:'Gratis',stars:'4.8',reviews:'100',tag:'Novidades',badge:'Novo',bg:'linear-gradient(145deg,#1c0d04,#301a08)',q:''}:Object.assign({},dishes[i]);
+    setForm(base);
+  }
+
+  function saveEdit(){
+    if(!form.name||!form.price){Toast.show('Nome e preco sao obrigatorios');return;}
+    var updated=editing==='new'?dishes.concat([form]):dishes.map(function(d,i){return i===editing?Object.assign({},form):d;});
+    setDishes(updated);
+    DISHES.splice(0,DISHES.length,...updated);
+    LS.set('sab_dishes_override',updated);
+    setEditing(null);
+    Toast.show('Prato salvo! Recarregue a pagina para ver no site.');
+  }
+
+  function deleteDish(i){
+    if(!confirm('Remover este prato?'))return;
+    var updated=dishes.filter(function(_,idx){return idx!==i;});
+    setDishes(updated);
+    DISHES.splice(0,DISHES.length,...updated);
+    LS.set('sab_dishes_override',updated);
+    Toast.show('Prato removido');
+  }
+
+  function resetDishes(){
+    if(!confirm('Restaurar pratos originais?'))return;
+    LS.set('sab_dishes_override',null);
+    Toast.show('Recarregue a pagina para restaurar');
+  }
+
+  function Field(p){
+    function onChange(e){
+      var val=e.target.value;
+      setForm(function(f){var n=Object.assign({},f);n[p.k]=val;return n;});
+    }
+    return h('div',{style:{marginBottom:10}},
+      h('label',{style:{display:'block',fontFamily:'Inter,sans-serif',fontSize:10,fontWeight:600,color:'rgba(200,180,160,.5)',letterSpacing:'.1em',textTransform:'uppercase',marginBottom:4}},p.label),
+      p.multi
+        ?h('textarea',{value:form[p.k]||'',rows:3,onChange:onChange,style:{width:'100%',background:'rgba(255,255,255,.05)',border:'1px solid rgba(201,168,76,.2)',borderRadius:10,padding:'9px 12px',color:'#f0e6d3',fontFamily:'Inter,sans-serif',fontSize:12,outline:'none',resize:'vertical',boxSizing:'border-box'}})
+        :h('input',{type:'text',value:form[p.k]||'',placeholder:p.ph||'',onChange:onChange,style:{width:'100%',background:'rgba(255,255,255,.05)',border:'1px solid rgba(201,168,76,.2)',borderRadius:10,padding:'9px 12px',color:'#f0e6d3',fontFamily:'Inter,sans-serif',fontSize:12,outline:'none',boxSizing:'border-box'}})
+    );
+  }
+
+  if(editing!==null) return h('div',null,
+    h('div',{style:{display:'flex',alignItems:'center',gap:10,marginBottom:18}},
+      h('button',{onClick:function(){setEditing(null);},style:{background:'none',border:'1px solid rgba(255,255,255,.1)',borderRadius:8,color:'rgba(200,180,160,.6)',cursor:'pointer',padding:'6px 14px',fontFamily:'Inter,sans-serif',fontSize:11}},'<- Voltar'),
+      h('div',{className:'adm-section-title',style:{margin:0}},editing==='new'?'Novo prato':'Editar prato')
+    ),
+    h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}},
+      h(Field,{label:'Emoji',k:'e',ph:'Emoji'}),
+      h(Field,{label:'Nome',k:'name',ph:'Nome do prato'}),
+      h(Field,{label:'Restaurante',k:'from',ph:'Nome do restaurante'}),
+      h(Field,{label:'Preco R$',k:'price',ph:'54'}),
+      h(Field,{label:'Entrega min',k:'time',ph:'25'}),
+      h(Field,{label:'Frete',k:'frete',ph:'Gratis ou R$5'}),
+      h(Field,{label:'Avaliacao',k:'stars',ph:'4.9'}),
+      h(Field,{label:'Qtd avaliacoes',k:'reviews',ph:'1200'}),
+      h(Field,{label:'Badge',k:'badge',ph:'Mais pedido'}),
+      h(Field,{label:'Tag',k:'tag',ph:'Novidades'})
+    ),
+    h(Field,{label:'Descricao',k:'desc',multi:true}),
+    h('div',{style:{display:'flex',gap:10,marginTop:4}},
+      h('button',{className:'adm-btn',style:{flex:1,padding:'11px'},onClick:saveEdit},'Salvar prato'),
+      h('button',{className:'adm-btn-ghost',style:{padding:'11px 18px'},onClick:function(){setEditing(null);}},'Cancelar')
+    )
+  );
+
+  return h('div',null,
+    h('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}},
+      h('div',{className:'adm-section-title',style:{margin:0}},dishes.length+' pratos'),
+      h('div',{style:{display:'flex',gap:8}},
+        h('button',{className:'adm-btn-ghost',style:{padding:'6px 12px',fontSize:10},onClick:resetDishes},'Restaurar'),
+        h('button',{className:'adm-btn',style:{padding:'6px 14px',fontSize:11},onClick:function(){openEdit('new');}},'+ Novo prato')
+      )
+    ),
+    h('div',{style:{display:'flex',flexDirection:'column',gap:8,maxHeight:460,overflowY:'auto',scrollbarWidth:'thin'}},
+      dishes.map(function(d,i){
+        return h('div',{key:i,style:{display:'flex',alignItems:'center',gap:12,padding:'12px 14px',background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.06)',borderRadius:12}},
+          h('div',{style:{fontSize:26,flexShrink:0}},d.e),
+          h('div',{style:{flex:1,minWidth:0}},
+            h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:13,fontWeight:700,color:'#f0e6d3',marginBottom:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},d.name),
+            h('div',{style:{fontFamily:'Inter,sans-serif',fontSize:10,color:'rgba(200,180,160,.4)'}},d.from+' - R$'+d.price+' - '+d.stars+'*')
+          ),
+          h('div',{style:{display:'flex',gap:6,flexShrink:0}},
+            h('button',{className:'adm-btn-ghost',style:{padding:'5px 10px',fontSize:10},onClick:function(){openEdit(i);}},'\u270F\uFE0F Editar'),
+            h('button',{className:'adm-btn',style:{padding:'5px 10px',fontSize:10,background:'linear-gradient(135deg,#e74c3c,#c0392b)'},onClick:function(){deleteDish(i);}},'X')
+          )
+        );
+      })
+    )
+  );
+}
 
 /* ════════════════════════════════════════════════════════════
    CHEF LOGS COMPONENT
@@ -956,6 +1060,7 @@ function AdminDashboard({c,open,onClose,dishes,restaurants}){
     {id:'ratings',icon:'⭐',label:'Avaliações',badge:ratingAlerts.length||null},
     {id:'heatmap',icon:'🗺',label:'Heatmap'},
     {id:'content',icon:'✏️',label:'Conteúdo'},
+    {id:'cardapio',icon:'🍴',label:'Cardápio'},
     {id:'chatlogs',icon:'💬',label:'Chef Logs',badge:(()=>{const l=LS.get('sab_chef_logs',[]);return l.length||null;})()},
     {id:'settings',icon:'⚙️',label:'Config'},
   ];
@@ -969,6 +1074,7 @@ function AdminDashboard({c,open,onClose,dishes,restaurants}){
     ratings:{title:'Avaliações',sub:'Monitoramento dos restaurantes parceiros'},
     heatmap:{title:'Heatmap',sub:'Mapa de calor de cliques dos visitantes'},
     content:{title:'Conteúdo',sub:'Edite textos e destaques em tempo real'},
+    cardapio:{title:'Cardápio',sub:'Gerencie os pratos exibidos no site'},
     chatlogs:{title:'Chef Logs',sub:'Conversas dos clientes com o Chef René'},
     settings:{title:'Config',sub:'Configurações do painel e dados'},
   };
@@ -1301,6 +1407,9 @@ function AdminDashboard({c,open,onClose,dishes,restaurants}){
               h('button',{className:'adm-btn-ghost',onClick:()=>{setBannerText('');setDailyOverride('');}}, 'Limpar tudo')
             )
           ),
+
+          /* ── TAB: CARDAPIO ── */
+          tab==='cardapio'&&h(DishManager,null),
 
           /* ── TAB: CHEF LOGS ── */
           tab==='chatlogs'&&h(ChefLogs,{c}),
