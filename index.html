@@ -106,11 +106,11 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 }
 /* ── NAV MOBILE ── */
 @media(max-width:600px){
-  .nav-status{display:none!important}
   .nav-logo{font-size:22px!important}
-  .nav-theme{display:none!important}
   .nav-cta{padding:9px 14px!important;font-size:11px!important}
   .hero-h1{min-height:3.2em}
+  .nav-status{font-size:9px!important}
+  .nav-theme{width:32px!important;height:32px!important;font-size:14px!important}
 }
 @media(max-width:400px){
   .nav-cta span.cta-label{display:none}
@@ -134,23 +134,23 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 #admin{position:fixed;inset:0;z-index:50000;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .4s}
 #admin::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
 #admin.open{opacity:1;visibility:visible}
-.adm-shell{position:relative;z-index:1;width:100%;max-width:1100px;height:90vh;max-height:700px;display:grid;grid-template-columns:220px 1fr;border-radius:28px;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.06) inset;animation:scaleIn .4s cubic-bezier(.22,1,.36,1)}
-.adm-sidebar{background:#0c0a06;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;padding:0;overflow:hidden}
-.adm-sidebar-head{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,.05)}
+.adm-shell{position:relative;z-index:1;width:100%;max-width:1100px;height:90vh;max-height:700px;display:grid;grid-template-columns:220px 1fr;border-radius:28px;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,.95),0 0 0 1px rgba(201,168,76,.25) inset,0 0 80px rgba(201,168,76,.06);animation:scaleIn .4s cubic-bezier(.22,1,.36,1)}
+.adm-sidebar{background:linear-gradient(180deg,#14100a 0%,#0c0a06 100%);border-right:1px solid rgba(201,168,76,.15);display:flex;flex-direction:column;padding:0;overflow:hidden}
+.adm-sidebar-head{padding:28px 24px 20px;border-bottom:1px solid rgba(201,168,76,.12);background:linear-gradient(135deg,rgba(201,168,76,.07),transparent)}
 .adm-logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:#f0e6d3;letter-spacing:-1px;margin-bottom:4px}
-.adm-logo em{color:#E8520A;font-style:italic}
+.adm-logo em{color:#C9A84C;font-style:italic}
 .adm-logo-sub{font-size:9px;color:rgba(200,180,160,.35);font-family:Inter,sans-serif;letter-spacing:.18em;text-transform:uppercase}
 .adm-nav{flex:1;padding:12px 0;overflow-y:auto}
 .adm-nav-item{display:flex;align-items:center;gap:12px;padding:11px 22px;cursor:pointer;transition:all .22s;font-family:Inter,sans-serif;font-size:12px;font-weight:500;color:rgba(200,180,160,.5);letter-spacing:.02em;border-left:2px solid transparent;user-select:none}
-.adm-nav-item:hover{color:rgba(200,180,160,.85);background:rgba(255,255,255,.03)}
-.adm-nav-item.on{color:#f0e6d3;background:rgba(232,82,10,.08);border-left-color:#E8520A}
+.adm-nav-item:hover{color:rgba(200,180,160,.9);background:rgba(201,168,76,.06)}
+.adm-nav-item.on{color:#C9A84C;background:linear-gradient(90deg,rgba(201,168,76,.12),rgba(201,168,76,.04));border-left-color:#C9A84C;font-weight:700}
 .adm-nav-icon{font-size:16px;flex-shrink:0;width:20px;text-align:center}
 .adm-nav-badge{margin-left:auto;background:rgba(232,82,10,.2);color:#E8520A;font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;letter-spacing:.05em}
 .adm-sidebar-foot{padding:16px 22px;border-top:1px solid rgba(255,255,255,.05)}
 .adm-status-dot{width:7px;height:7px;background:#2ecc71;border-radius:50%;display:inline-block;animation:pulse 2s infinite;margin-right:8px}
 .adm-status-txt{font-size:10px;color:rgba(200,180,160,.4);font-family:Inter,sans-serif}
-.adm-main{background:#0f0d09;display:flex;flex-direction:column;overflow:hidden}
-.adm-topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0}
+.adm-main{background:linear-gradient(160deg,#111009 0%,#0d0b07 100%);display:flex;flex-direction:column;overflow:hidden}
+.adm-topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;border-bottom:1px solid rgba(201,168,76,.12);flex-shrink:0;background:linear-gradient(90deg,rgba(201,168,76,.04),transparent 60%)}
 .adm-page-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#f0e6d3;letter-spacing:-.5px}
 .adm-page-sub{font-size:11px;color:rgba(200,180,160,.4);font-family:Inter,sans-serif;margin-top:2px}
 .adm-close{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:10px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:18px;transition:all .2s;font-family:Inter,sans-serif}
@@ -159,13 +159,13 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 .adm-content::-webkit-scrollbar{width:4px}
 .adm-content::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px}
 .adm-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:28px}
-.adm-kpi{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:20px 22px;position:relative;overflow:hidden;transition:border-color .2s}
-.adm-kpi:hover{border-color:rgba(232,82,10,.2)}
+.adm-kpi{background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(201,168,76,.02));border:1px solid rgba(201,168,76,.12);border-radius:18px;padding:20px 22px;position:relative;overflow:hidden;transition:all .3s;cursor:default}
+.adm-kpi:hover{border-color:rgba(201,168,76,.45);transform:translateY(-3px);box-shadow:0 12px 40px rgba(201,168,76,.1)}
 .adm-kpi::before{content:'';position:absolute;top:-20px;right:-20px;width:60px;height:60px;border-radius:50%;opacity:.08}
 .adm-kpi-val{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;line-height:1;margin-bottom:6px;letter-spacing:-1.5px}
 .adm-kpi-lbl{font-size:10px;color:rgba(200,180,160,.45);font-family:Inter,sans-serif;text-transform:uppercase;letter-spacing:.12em}
 .adm-kpi-trend{font-size:9px;font-family:Inter,sans-serif;font-weight:600;margin-top:8px;display:flex;align-items:center;gap:4px}
-.adm-section-title{font-size:12px;font-weight:600;font-family:Inter,sans-serif;color:rgba(200,180,160,.5);text-transform:uppercase;letter-spacing:.14em;margin-bottom:14px;margin-top:4px}
+.adm-section-title{font-size:11px;font-weight:700;font-family:Inter,sans-serif;color:rgba(201,168,76,.6);text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px;margin-top:4px;padding-bottom:8px;border-bottom:1px solid rgba(201,168,76,.08)}
 .adm-table{width:100%;border-collapse:collapse}
 .adm-table th{font-size:9px;font-family:Inter,sans-serif;text-transform:uppercase;letter-spacing:.12em;color:rgba(200,180,160,.35);font-weight:600;padding:0 0 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,.05)}
 .adm-table th:last-child{text-align:right}
@@ -178,7 +178,7 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 .adm-pill.gold{background:rgba(201,168,76,.15);color:#C9A84C}
 .adm-bar-wrap{background:rgba(255,255,255,.06);border-radius:100px;height:5px;overflow:hidden}
 .adm-bar{height:100%;border-radius:100px;transition:width 1.2s cubic-bezier(.22,1,.36,1)}
-.adm-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:20px 22px;margin-bottom:14px}
+.adm-card{background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(0,0,0,.1));border:1px solid rgba(201,168,76,.1);border-radius:16px;padding:20px 22px;margin-bottom:14px}
 .adm-card-title{font-size:13px;font-weight:600;font-family:Inter,sans-serif;color:#f0e6d3;margin-bottom:12px}
 .adm-input{width:100%;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#f0e6d3;font-family:Inter,sans-serif;font-size:13px;outline:none;margin-bottom:10px;transition:border .2s}
 .adm-input:focus{border-color:rgba(232,82,10,.4);background:rgba(255,255,255,.08)}
@@ -402,6 +402,28 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 .chef-pin-setup{font-size:10px;color:rgba(201,168,76,.5);font-family:Inter,sans-serif;cursor:pointer;text-decoration:underline;margin-top:4px}
 .chef-pin-setup:hover{color:#C9A84C}
 
+
+/* ════ SEASONAL THEMES ════ */
+#seasonal-overlay{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+.seasonal-particle{position:absolute;pointer-events:none;animation:seasonFall linear infinite;opacity:0;user-select:none;font-size:18px}
+@keyframes seasonFall{
+  0%{transform:translateY(-40px) rotate(0deg);opacity:0}
+  5%{opacity:.85}
+  90%{opacity:.6}
+  100%{transform:translateY(105vh) rotate(360deg);opacity:0}
+}
+.seasonal-banner{position:fixed;top:68px;left:50%;transform:translateX(-50%);z-index:600;
+  padding:6px 20px;border-radius:100px;font-family:Inter,sans-serif;font-size:10.5px;
+  font-weight:700;letter-spacing:.1em;white-space:nowrap;pointer-events:none;
+  animation:fadeUp .6s cubic-bezier(.22,1,.36,1) .5s both;
+  backdrop-filter:blur(12px);text-transform:uppercase}
+
+/* seasonal card decos */
+.nfx-card{position:relative}
+.card-deco{position:absolute;top:-11px;z-index:4;pointer-events:none;animation:decoSwing 3s ease-in-out infinite;transform-origin:top center;font-size:17px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))}
+.card-deco.l{left:12px}
+.card-deco.r{right:12px;animation-delay:.9s}
+@keyframes decoSwing{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}}
 </style>
 </head>
 <body>
@@ -783,6 +805,130 @@ function storeOpen(){
 /* ════════════════════════════════════════════════════════════
    PALETTE
 ════════════════════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════════════════════
+   SEASONAL THEME ENGINE
+════════════════════════════════════════════════════════════ */
+function getSeasonalTheme(){
+  var now=new Date();
+  var m=now.getMonth()+1; // 1-12
+  var d=now.getDate();
+
+  // Carnaval — ~fev/mar (fixo: 1-28 fev + 1-5 mar)
+  if((m===2)||(m===3&&d<=5))
+    return {name:'Carnaval',emoji:'🎭',
+      particles:['🎭','🥁','✨','🎊','🌈','🦜','💜','💛'],
+      accent:'#9b59b6',accentD:'#7d3c98',glow:'rgba(155,89,182,.35)',
+      banner:'🎭 É Carnaval! Peça seu prato favorito',bannerBg:'linear-gradient(135deg,rgba(155,89,182,.85),rgba(125,60,152,.85))',bannerColor:'#fff'};
+
+  // Páscoa — abril
+  if(m===4)
+    return {name:'Páscoa',emoji:'🐣',
+      particles:['🐣','🥚','🌸','🌷','🐰','🍫','✨'],
+      accent:'#e91e8c',accentD:'#c2185b',glow:'rgba(233,30,140,.3)',
+      banner:'🐣 Feliz Páscoa! Celebre com o melhor da gastronomia',bannerBg:'linear-gradient(135deg,rgba(233,30,140,.85),rgba(194,24,91,.85))',bannerColor:'#fff'};
+
+  // Dia dos Namorados — 12 jun
+  if(m===6&&d>=10&&d<=14)
+    return {name:'Dia dos Namorados',emoji:'💕',
+      particles:['❤️','💕','🌹','✨','💌','🍷','💫'],
+      accent:'#e74c6f',accentD:'#c0392b',glow:'rgba(231,76,111,.35)',
+      banner:'💕 Dia dos Namorados — jantar especial para dois?',bannerBg:'linear-gradient(135deg,rgba(231,76,111,.85),rgba(192,57,43,.85))',bannerColor:'#fff'};
+
+  // Festa Junina — junho
+  if(m===6)
+    return {name:'Festa Junina',emoji:'🎪',
+      particles:['🌽','⭐','🎪','🌟','🪅','🎶','🔥'],
+      accent:'#e67e22',accentD:'#d35400',glow:'rgba(230,126,34,.35)',
+      banner:'🎪 Arraiá do Sabores — comida boa do jeito certo!',bannerBg:'linear-gradient(135deg,rgba(230,126,34,.85),rgba(211,84,0,.85))',bannerColor:'#fff'};
+
+  // Independência — 7 set
+  if(m===9&&d>=5&&d<=9)
+    return {name:'7 de Setembro',emoji:'🇧🇷',
+      particles:['🇧🇷','⭐','💚','💛','🌟','✨'],
+      accent:'#27ae60',accentD:'#1e8449',glow:'rgba(39,174,96,.35)',
+      banner:'🇧🇷 Viva o Brasil! Gastronomia que nos orgulha',bannerBg:'linear-gradient(135deg,rgba(39,174,96,.85),rgba(30,132,73,.85))',bannerColor:'#fff'};
+
+  // Halloween — outubro
+  if(m===10)
+    return {name:'Halloween',emoji:'🎃',
+      particles:['🎃','👻','🕷️','🦇','🕸️','💀','🌙'],
+      accent:'#e67e22',accentD:'#a04000',glow:'rgba(230,126,34,.4)',
+      banner:'🎃 Trick or treat? Prove nossos pratos assustadoramente bons',bannerBg:'linear-gradient(135deg,rgba(180,60,0,.9),rgba(80,0,80,.9))',bannerColor:'#ff9f43'};
+
+  // Dia de Finados — 2 nov
+  if(m===11&&d===2)
+    return {name:'Finados',emoji:'🕯️',
+      particles:['🕯️','🌸','🌼','✨','🦋'],
+      accent:'#8e44ad',accentD:'#6c3483',glow:'rgba(142,68,173,.3)',
+      banner:'🕯️ Um momento de memória e sabor',bannerBg:'linear-gradient(135deg,rgba(142,68,173,.85),rgba(108,52,131,.85))',bannerColor:'#f0e6d3'};
+
+  // Natal — dezembro
+  if(m===12&&d<=26)
+    return {name:'Natal',emoji:'🎄',
+      particles:['🎄','⭐','❄️','🎁','✨','🔔','🦌'],
+      accent:'#27ae60',accentD:'#1a6b3c',glow:'rgba(39,174,96,.35)',
+      banner:'🎄 Feliz Natal! Celebre com sabor e sofisticação',bannerBg:'linear-gradient(135deg,rgba(39,174,96,.85),rgba(192,57,43,.85))',bannerColor:'#fff'};
+
+  // Réveillon — 28 dez a 1 jan
+  if((m===12&&d>=28)||(m===1&&d<=1))
+    return {name:'Réveillon',emoji:'🎆',
+      particles:['🎆','✨','🥂','🎊','⭐','💛','🌟'],
+      accent:'#f1c40f',accentD:'#d4ac0d',glow:'rgba(241,196,15,.4)',
+      banner:'🎆 Feliz Ano Novo! Brinde com o melhor da gastronomia',bannerBg:'linear-gradient(135deg,rgba(241,196,15,.85),rgba(212,172,13,.85))',bannerColor:'#000'};
+
+  return null; // no theme
+}
+
+function getCardDecos(idx){
+  var theme=getSeasonalTheme();
+  if(!theme)return null;
+  var sets={
+    'Carnaval':     ['\uD83C\uDFAD','\u2728','\uD83C\uDF88','\uD83C\uDF9F'],
+    'P\u00e1scoa':  ['\uD83D\uDC23','\uD83E\uDD5A','\uD83C\uDF38','\uD83D\uDC30'],
+    'Dia dos Namorados':['\u2764','\uD83C\uDF39','\uD83D\uDC8C','\uD83E\uDD77'],
+    'Festa Junina': ['\uD83C\uDF3D','\u2B50','\uD83D\uDD6E','\uD83C\uDFB6'],
+    '7 de Setembro':['\u2B50','\uD83D\uDCAB','\uD83C\uDF4E','\uD83C\uDF1F'],
+    'Halloween':    ['\uD83E\uDD87','\uD83D\uDC7B','\uD83D\uDC80','\uD83C\uDF83','\uD83D\uDD77'],
+    'Finados':      ['\uD83D\uDD6F','\uD83C\uDF38','\uD83D\uDC9C','\uD83E\uDDB8'],
+    'Natal':        ['\u2744','\u2B50','\uD83D\uDD14','\uD83C\uDF81'],
+    'R\u00e9veillon':['\uD83C\uDF86','\u2728','\uD83E\uDD42','\uD83C\uDF1F'],
+  };
+  var decos=sets[theme.name];
+  if(!decos)return null;
+  var l=decos[idx%decos.length];
+  var r=decos[(idx+2)%decos.length];
+  if((idx*7+3)%10>5)return [{p:'l',e:l}];
+  return [{p:'l',e:l},{p:'r',e:r}];
+}
+
+function SeasonalOverlay(){
+  var theme=getSeasonalTheme();
+  if(!theme)return null;
+  var [particles]=useState(function(){
+    return Array.from({length:18},function(_,i){
+      return {
+        id:i,
+        emoji:theme.particles[i%theme.particles.length],
+        left:Math.random()*100,
+        delay:Math.random()*12,
+        dur:6+Math.random()*8,
+        size:14+Math.random()*12,
+      };
+    });
+  });
+  return h('div',{id:'seasonal-overlay'},
+    particles.map(function(p){
+      return h('span',{key:p.id,className:'seasonal-particle',style:{
+        left:p.left+'%',
+        animationDelay:p.delay+'s',
+        animationDuration:p.dur+'s',
+        fontSize:p.size+'px',
+      }},p.emoji);
+    })
+  );
+}
+
 function pal(dk){
   return dk?{
     bg:"#0a0805",bg2:"#0d0b07",card:"#141009",card2:"#1d1710",
@@ -2141,10 +2287,12 @@ function NetflixRow({title,accent,label,dishes,c,favs,setFavs,dailyTop,offset=0}
       h('div',{ref:trackRef,className:'nfx-track'},
         ...dishes.map((d,i)=>{
           const idx=offset+i;
+          const cDecos=getCardDecos(idx);
           return h('a',{key:d.name,'data-cursor':'food','data-h':1,
             href:iurl(d.q),target:'_blank',rel:'noreferrer',className:'nfx-card',
             onClick:()=>Analytics.track('dish',d.name),
             style:{background:c.card,border:`1px solid ${c.border}`}},
+            cDecos&&cDecos.map((x,xi)=>h('span',{key:xi,className:'card-deco '+x.p},x.e)),
             h('div',{className:'nfx-img',style:{background:d.bg}},
               h('div',{className:'nfx-img-overlay'}),
               h('div',{style:{zIndex:1,filter:'drop-shadow(0 8px 16px rgba(0,0,0,.5))'}},d.e),
@@ -2279,6 +2427,7 @@ function App(){
 
   return h(Fragment,null,
     h(Leaves),
+    h(SeasonalOverlay,null),
     h(AdminDashboard,{c,open:adminOpen,onClose:()=>setAdminOpen(false),dishes:DISHES,restaurants:RESTAURANTS}),
     h(ChefChat),
     /* A/B badge removed — only visible inside admin panel */
