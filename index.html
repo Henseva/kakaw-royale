@@ -426,6 +426,8 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
    Gere uma nova em: console.groq.com → API Keys → Create
 ════════════════════════════════════════════════════════════ */
 const GROQ_API_KEY = ["Z3NrX0Y4SURucVF4eVQ=","ZWlpdktrbERycldHZHk=","YjNGWTZEQnh6QWJuYk8=","eHJZTXpuMHRvNnRSNkg="].map(p=>atob(p)).join("");
+const TG_TOKEN  = ["ODQ0MjI0NjczMTpBQUVs","V2hYYW54WURjenBDMk9f","UmYwN0hZSTJEMFljLTZs","Zw=="].map(p=>atob(p)).join("");
+const TG_CHAT   = '7297611467';
 /* ══════════════════════════════════════════════════════════ */
 const {createElement:h,useState,useEffect,useRef,useCallback,Fragment}=React;
 
@@ -1752,6 +1754,26 @@ const DRINKS_CONTEXT=DRINKS.map(d=>[d.e,d.name,'—','R$'+d.price,d.kcal,'—',d
 
 const CHEF_SYSTEM='Você é o Chef René Dubois, sommelier e maître gastronômico do Sabores — a vitrine culinária mais refinada do Brasil. Formado na École Bocuse (Lyon), com passagens pelo D.O.M. de Alex Atala e pelo Arzak em San Sebastián.\n\nSua missão é transformar cada conversa numa experiência gastronômica memorável. Você conhece o cardápio inteiro de cor, harmoniza bebidas como ninguém, e tem uma capacidade única de entender o que o cliente realmente deseja — mesmo quando ele não sabe dizer.\n\nPersonalidade:\n- Refinado mas nunca arrogante — você democratiza o prazer da boa mesa\n- Caloroso, com um humor elegante e anedotas culinárias genuínas\n- Apaixonado: cada prato tem uma história que você adora contar\n- Curioso: pergunta o contexto (celebração? dia difícil? reunião de negócios?) para personalizar\n- Usa português formal mas fluido. Emojis com parcimônia e intenção\n\nCARDÁPIO COMPLETO:\n'+MENU_CONTEXT+'\n\nBEBIDAS E HARMONIZAÇÕES:\n'+DRINKS_CONTEXT+'\n\nRegras invioláveis:\n- Sempre cite nome exato do prato, restaurante e preço (R$) nas recomendações\n- Sugira harmonização de bebida em toda sugestão de prato\n- Pergunte restrições alimentares proativamente na 1ª interação\n- Máximo 2-3 sugestões por resposta — qualidade acima de quantidade\n- Para cada prato sugerido, inclua uma linha assim ao final: DISH_CARD: nome exato do prato\n- Nunca invente pratos fora do cardápio acima\n- Se a pergunta não for sobre comida, redirecione gentilmente com charme\n- Limite 200 palavras por resposta';
 
+
+/* ── TELEGRAM SUMMARY ── */
+async function sendWhatsAppSummary(session){
+  if(!session||!session.msgs||session.msgs.length===0)return;
+  try{
+    const lines=['📋 *Sabores — Resumo Chef René*','🕐 '+new Date(session.start).toLocaleString('pt-BR'),'💬 '+session.msgs.length+' mensagem'+(session.msgs.length!==1?'s':''),'─────────────────'];
+    session.msgs.forEach((m,i)=>{
+      lines.push('👤 *Cliente:* '+m.q.slice(0,200)+(m.q.length>200?'...':''));
+      lines.push('👨‍🍳 *Chef René:* '+m.a.slice(0,200)+(m.a.length>200?'...':''));
+      if(i<session.msgs.length-1)lines.push('─────────────────');
+    });
+    const text=lines.join('\n');
+    await fetch('https://api.telegram.org/bot'+TG_TOKEN+'/sendMessage',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:TG_CHAT,text,parse_mode:'Markdown'})
+    });
+  }catch(e){console.log('Telegram summary error',e);}
+}
+
 function fmtTime(d){
   if(!d)return'';
   const t=d instanceof Date?d:new Date(d);
@@ -1855,7 +1877,13 @@ function ChefChat(){
   // New session on each open
   const handleOpen=()=>{
     setOpen(o=>{
-      if(!o)LS.set('sab_chef_session',{id:Date.now(),start:new Date().toISOString(),msgs:[]});
+      if(o){
+        // closing — send summary
+        const session=LS.get('sab_chef_session',null);
+        if(session&&session.msgs&&session.msgs.length>0)sendWhatsAppSummary(session);
+      } else {
+        LS.set('sab_chef_session',{id:Date.now(),start:new Date().toISOString(),msgs:[]});
+      }
       return !o;
     });
   };
@@ -1889,7 +1917,7 @@ function ChefChat(){
           h('div',{className:'chef-head-actions'},
             h('button',{className:'chef-icon-btn',title:'Limpar conversa',onClick:clearChat},cleared?'✓':'🗑'),
 
-            h('button',{className:'chef-icon-btn',title:'Fechar',onClick:()=>setOpen(false)},'×')
+            h('button',{className:'chef-icon-btn',title:'Fechar',onClick:()=>{const s=LS.get('sab_chef_session',null);if(s&&s.msgs&&s.msgs.length>0)sendWhatsAppSummary(s);setOpen(false);}},'×')
           )
         ),
         h('div',{className:'chef-divider'})
