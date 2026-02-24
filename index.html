@@ -1334,6 +1334,24 @@ function AdminDashboard({c,open,onClose,dishes,restaurants}){
               ))
             ),
             h('div',{className:'adm-card'},
+              h('div',{className:'adm-card-title'},'Notificações Telegram'),
+              h('div',{style:{fontSize:12,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',lineHeight:1.75,marginBottom:14}},'Teste se os resumos do Chef René estão chegando no seu Telegram.'),
+              h('button',{className:'adm-btn',style:{padding:'10px 20px',fontSize:12},
+                onClick:async()=>{
+                  try{
+                    const res=await fetch('https://api.telegram.org/bot'+TG_TOKEN+'/sendMessage',{
+                      method:'POST',
+                      headers:{'Content-Type':'application/json'},
+                      body:JSON.stringify({chat_id:TG_CHAT,text:'✅ *Sabores — Teste de notificação*\n\nSistema funcionando! Você receberá os resumos das conversas aqui.',parse_mode:'Markdown'})
+                    });
+                    const d=await res.json();
+                    if(d.ok)Toast.show('✅ Verifique o Telegram!');
+                    else Toast.show('❌ Erro: '+d.description);
+                  }catch(e){Toast.show('❌ Erro de conexão');}
+                }
+              },'📨 Enviar mensagem de teste')
+            ),
+            h('div',{className:'adm-card'},
               h('div',{className:'adm-card-title'},'Atalhos do painel'),
               ...[
                 ['5× logo','Abrir painel admin'],
