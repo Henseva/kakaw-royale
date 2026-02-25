@@ -231,9 +231,9 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 .nfx-row-title em{color:#E8520A;font-style:italic}
 .nfx-row-seeall{font-family:Inter,sans-serif;font-size:11px;font-weight:600;color:rgba(232,82,10,.8);text-decoration:none;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;white-space:nowrap}
 .nfx-row-seeall:hover{color:#E8520A}
-.nfx-track{display:flex;gap:16px;overflow-x:auto;padding:8px 28px 16px;scrollbar-width:none;-ms-overflow-style:none;scroll-snap-type:x proximity}
+.nfx-track{display:flex;gap:16px;overflow-x:auto;padding:8px 28px 16px;scrollbar-width:none;-ms-overflow-style:none;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scroll-padding-left:28px}
 .nfx-track::-webkit-scrollbar{display:none}
-.nfx-card{flex:0 0 260px;border-radius:20px;overflow:hidden;text-decoration:none;display:block;scroll-snap-align:start;transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s;position:relative;transform-origin:left center}
+.nfx-card{flex:0 0 260px;border-radius:20px;overflow:hidden;text-decoration:none;display:block;scroll-snap-align:start;scroll-snap-stop:always;transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s;position:relative;transform-origin:left center}
 .nfx-card:hover{transform:scale(1.04) translateY(-4px);z-index:10}
 .nfx-card:first-child{margin-left:0}
 .nfx-img{height:160px;display:flex;align-items:center;justify-content:center;font-size:60px;position:relative;overflow:hidden}
@@ -340,6 +340,7 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 /* Reactions */
 .chef-reactions{display:flex;gap:5px;margin-top:5px;opacity:0;transition:opacity .2s}
 .chef-msg-wrap:hover .chef-reactions{opacity:1}
+.chef-react-btn.disliked{background:rgba(231,76,60,.12);border-color:rgba(231,76,60,.4);color:#e74c3c}
 .chef-react-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:2px 7px;font-size:10px;cursor:pointer;color:rgba(200,180,160,.5);transition:all .18s;font-family:Inter,sans-serif}
 .chef-react-btn:hover{background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.3);color:#C9A84C}
 .chef-react-btn.liked{background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.4);color:#C9A84C}
@@ -406,7 +407,7 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 
 
 /* ════ SEASONAL THEMES ════ */
-#seasonal-overlay{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;opacity:.65}
+#seasonal-overlay{position:fixed;top:0;left:0;right:0;height:55vh;pointer-events:none;z-index:3;overflow:hidden;opacity:.7}
 .seasonal-particle{position:absolute;pointer-events:none;animation:seasonFall linear infinite;opacity:0;user-select:none;font-size:16px}
 .nfx-section,.nfx-card,.nfx-slider-wrap,.grain,[id='pratos'],[id='bebidas'],[id='categorias'],[id='como'],[id='restaurantes'],[id='depoimentos']{position:relative;z-index:2}
 @keyframes seasonFall{
@@ -427,6 +428,30 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 .card-deco.l{left:14px}
 .card-deco.r{right:14px;animation-delay:.9s}
 @keyframes decoSwing{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}}
+
+/* ════ SECTION TRANSITIONS ════ */
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+.reveal.left{transform:translateX(-36px)}
+.reveal.right{transform:translateX(36px)}
+.reveal.zoom{transform:scale(.95);opacity:0}
+.reveal.visible{opacity:1!important;transform:none!important}
+.low-perf .reveal{opacity:1!important;transform:none!important;transition:none!important}
+
+/* ════ LOW-PERF MODE — applied automatically on weak devices ════ */
+.low-perf *{
+  animation-duration:.01ms!important;
+  animation-iteration-count:1!important;
+  transition-duration:.01ms!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+.low-perf #seasonal-overlay{display:none!important}
+.low-perf .card-deco{display:none!important}
+.low-perf .tilt{transform:none!important;transform-style:flat!important}
+.low-perf #cur,.low-perf #cur-r,.low-perf #cur-emoji{display:none!important}
+.low-perf #prog{animation:none!important}
+.low-perf .grain::before{display:none!important}
+.low-perf .ldr-fill{animation:none!important;width:100%!important}
 </style>
 </head>
 <body>
@@ -446,6 +471,27 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 <script>
 'use strict';
 
+/* ════════════════════════════════════════════════════════════
+   ⚡ PERFORMANCE DETECTOR — auto-adapts to device capability
+════════════════════════════════════════════════════════════ */
+const PERF = (function(){
+  let score = 0;
+  // CPU cores (low-end = 2 or less)
+  if(navigator.hardwareConcurrency) score += Math.min(navigator.hardwareConcurrency, 8);
+  else score += 2;
+  // RAM in GB (low-end = 2GB or less) — not all browsers support
+  if(navigator.deviceMemory) score += Math.min(navigator.deviceMemory * 2, 8);
+  else score += 4;
+  // Reduced motion preference
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) score = 0;
+  // Slow connection
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if(conn && (conn.saveData || conn.effectiveType === '2g' || conn.effectiveType === 'slow-2g')) score = 0;
+  // score < 8 = low-end device
+  const isLow = score < 8;
+  if(isLow) document.documentElement.classList.add('low-perf');
+  return { isLow, score };
+})();
 /* ════════════════════════════════════════════════════════════
    ⚙️  CONFIGURAÇÃO — troque a chave aqui quando necessário
    Gere uma nova em: console.groq.com → API Keys → Create
@@ -473,19 +519,152 @@ const {createElement:h,useState,useEffect,useRef,useCallback,Fragment}=React;
 // ── Service Worker (offline cache) ──
 if('serviceWorker' in navigator){
   const sw=`
-    const V='sabores-v1';
-    self.addEventListener('install',e=>e.waitUntil(caches.open(V).then(c=>c.addAll(['./',location.href]))));
-    self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));
+    const V='sabores-v3';
+    const STATIC=['./',location.href];
+    self.addEventListener('install',e=>{
+      e.waitUntil(caches.open(V).then(c=>c.addAll(STATIC)).then(()=>self.skipWaiting()));
+    });
+    self.addEventListener('activate',e=>{
+      e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));
+    });
+    self.addEventListener('fetch',e=>{
+      if(e.request.method!=='GET')return;
+      e.respondWith(
+        caches.match(e.request).then(cached=>{
+          const net=fetch(e.request).then(res=>{
+            if(res&&res.status===200){
+              const clone=res.clone();
+              caches.open(V).then(c=>c.put(e.request,clone));
+            }
+            return res;
+          }).catch(()=>cached);
+          return cached||net;
+        })
+      );
+    });
   `;
   const blob=new Blob([sw],{type:'text/javascript'});
   navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+  // Offline banner
+  function updateOnline(){
+    let b=document.getElementById('offline-banner');
+    if(!navigator.onLine){
+      if(!b){b=document.createElement('div');b.id='offline-banner';b.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(20,16,9,.96);border:1px solid rgba(231,76,60,.4);color:#e74c3c;font-family:Inter,sans-serif;font-size:11px;font-weight:600;padding:8px 20px;border-radius:100px;z-index:9990;letter-spacing:.06em;backdrop-filter:blur(12px);white-space:nowrap;';b.textContent='📵 Sem conexão — exibindo versão salva';document.body.appendChild(b);}
+    } else {
+      if(b){b.style.animation='fadeOut .4s forwards';setTimeout(()=>b&&b.remove(),400);}
+    }
+  }
+  window.addEventListener('online',updateOnline);
+  window.addEventListener('offline',updateOnline);
+  updateOnline();
 }
 
+
+// ── Section Reveal on Scroll ──
+(function(){
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
+  },{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+  function initReveal(){
+    document.querySelectorAll('[data-reveal]').forEach(el=>{
+    const t=el.getAttribute('data-reveal-type')||'up';
+    el.classList.add('reveal');
+    if(t==='left')el.classList.add('left');
+    if(t==='right')el.classList.add('right');
+    if(t==='zoom')el.classList.add('zoom');
+    obs.observe(el);
+  });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initReveal);
+  else setTimeout(initReveal,600);
+})();
+
+
 // ── Storage helpers ──
+
 const LS={
   get:(k,def=null)=>{try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):def;}catch{return def;}},
   set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}},
 };
+
+// ── Weekly Report (Sunday 23h → Telegram) ──
+(function(){
+  const now=new Date();
+  const isSunday=now.getDay()===0;
+  const isReportHour=now.getHours()===23;
+  if(!isSunday||!isReportHour)return;
+  const lastKey='sab_last_report';
+  const lastReport=LS.get(lastKey,0);
+  const weekMs=7*24*60*60*1000;
+  if(Date.now()-lastReport < weekMs)return;
+  LS.set(lastKey,Date.now());
+  // Build report
+  setTimeout(()=>{
+    try{
+      const dishes=LS.get('sab_clicks_dish',{});
+      const cats=LS.get('sab_clicks_cat',{});
+      const logs=LS.get('sab_chef_logs',[]);
+      const topDishes=Object.entries(dishes).sort((a,b)=>b[1]-a[1]).slice(0,5);
+      const topCats=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,3);
+      const totalClicks=Object.values(dishes).reduce((a,b)=>a+b,0);
+      let msg='';
+      msg+='\uD83D\uDCCB *Relat\u00f3rio Semanal \u2014 Sabores*\n';
+      msg+='\uD83D\uDDD3 '+new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})+'\n';
+      msg+='\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n';
+      msg+='\uD83C\uDF7D *Pratos mais clicados:*\n';
+      topDishes.forEach(([name,n],i)=>{msg+=(i+1)+'. '+name+' \u2014 '+n+' cliques\n';});
+      msg+='\n\uD83D\uDCC2 *Categorias favoritas:*\n';
+      topCats.forEach(([cat,n])=>{msg+='\u2022 '+cat+' \u2014 '+n+' cliques\n';});
+      msg+='\n\uD83D\uDCAC *Chef Ren\u00e9:* '+logs.length+' conversas esta semana\n';
+      msg+='\uD83D\uDCCA *Total de cliques:* '+totalClicks+'\n';
+      msg+='\n_Gerado automaticamente pelo Sabores_';
+      fetch('https://api.telegram.org/bot'+TG_TOKEN+'/sendMessage',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({chat_id:TG_CHAT,text:msg,parse_mode:'Markdown'})
+      }).catch(()=>{});
+    }catch(e){}
+  },2000);
+})();
+
+
+// ── VIP Mode ──
+const VIP=(function(){
+  const key='sab_visits';
+  const visits=(LS.get(key,0)||0)+1;
+  LS.set(key,visits);
+  const isVip=visits>=3;
+  return{visits,isVip};
+})();
+
+
+
+// ── Access Log → Telegram ──
+(function(){
+  const key='sab_access_logged';
+  const last=LS.get(key,0);
+  // Only log once per 30 minutes per device
+  if(Date.now()-last < 30*60*1000)return;
+  LS.set(key,Date.now());
+  setTimeout(()=>{
+    try{
+      const visits=LS.get('sab_visits',1);
+      const isVip=visits>=3;
+      const ua=navigator.userAgent;
+      const isMobile=/Mobile|Android|iPhone/.test(ua);
+      const device=isMobile?'📱 Mobile':'🖥️ Desktop';
+      const browser=ua.includes('Chrome')?'Chrome':ua.includes('Firefox')?'Firefox':ua.includes('Safari')?'Safari':'Outro';
+      const msg='\uD83D\uDC64 *Novo acesso — Sabores*\n'
+        +'\uD83D\uDD50 '+new Date().toLocaleString('pt-BR')+'\n'
+        +device+' · '+browser+'\n'
+        +(isVip?'\n\uD83D\uDC51 Cliente VIP ('+visits+'ª visita)':'\n\uD83D\uDD35 Visita #'+visits)+'\n'
+        +'\n_'+navigator.language+' · '+screen.width+'x'+screen.height+'_';
+      fetch('https://api.telegram.org/bot'+TG_TOKEN+'/sendMessage',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({chat_id:TG_CHAT,text:msg,parse_mode:'Markdown'})
+      }).catch(()=>{});
+    }catch(e){}
+  },3000);
+})();
 
 // ── Analytics Engine ──
 const Analytics={
@@ -500,6 +679,29 @@ const Analytics={
     sess.clicks++;
     sess.pages[id]=(sess.pages[id]||0)+1;
     LS.set('sab_session',sess);
+    // Spike detection for dishes
+    if(type==='dish') Analytics.checkSpike(id,data[id]);
+  },
+  checkSpike(name,total){
+    const spKey='sab_spike_alerted';
+    const alerted=LS.get(spKey,{});
+    // Alert at 5, 10, 20, 50 clicks
+    const thresholds=[5,10,20,50];
+    const hit=thresholds.find(t=>total===t);
+    if(!hit||alerted[name+'_'+hit])return;
+    alerted[name+'_'+hit]=true;
+    LS.set(spKey,alerted);
+    // Send Telegram alert
+    const msg=`🔥 *Prato em alta!*
+
+"${name}" atingiu *${hit} cliques*!
+
+📊 Total acumulado: ${total} cliques
+🕐 ${new Date().toLocaleString('pt-BR')}`;
+    fetch('https://api.telegram.org/bot'+TG_TOKEN+'/sendMessage',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:TG_CHAT,text:msg,parse_mode:'Markdown'})
+    }).catch(()=>{});
   },
   // Get sorted items by click count
   sort(type,items,idKey){
@@ -799,6 +1001,10 @@ const HOURS=[
 
 const iurl=q=>`https://www.ifood.com.br/delivery/busca?q=${q}`;
 function storeOpen(){
+  // Manual override from admin panel
+  const ov=LS.get('sab_open_override',null);
+  if(ov!==null&&typeof ov==='object'&&ov.until&&Date.now()<ov.until) return ov.open;
+  // Auto schedule
   const n=new Date(),d=n.getDay(),hr=n.getHours()+n.getMinutes()/60;
   if(d===0)return hr>=10&&hr<22; if(d===6)return hr>=10;
   if(d===5)return hr>=11;        if(d===4)return hr>=11&&hr<23;
@@ -820,7 +1026,7 @@ function getSeasonalTheme(){
   // Carnaval — ~fev/mar (fixo: 1-28 fev + 1-5 mar)
   if((m===2)||(m===3&&d<=5))
     return {name:'Carnaval',emoji:'🎭',
-      particles:['🎭','✨','🎊','🎈','💜','💛','🎉','🎀'],
+      particles:['🎭','🥁','✨','🎊','🌈','🦜','💜','💛'],
       accent:'#9b59b6',accentD:'#7d3c98',glow:'rgba(155,89,182,.35)',
       banner:'🎭 É Carnaval! Peça seu prato favorito',bannerBg:'linear-gradient(135deg,rgba(155,89,182,.85),rgba(125,60,152,.85))',bannerColor:'#fff'};
 
@@ -884,10 +1090,11 @@ function getSeasonalTheme(){
 }
 
 function getCardDecos(idx){
+  if(PERF.isLow)return null;
   var theme=getSeasonalTheme();
   if(!theme)return null;
   var sets={
-    'Carnaval':     ['\uD83C\uDFAD','\u2728','\uD83C\uDF88','\uD83C\uDF9F'],
+    'Carnaval':     ['\uD83C\uDFAD','\u2728','\uD83C\uDF88','\uD83C\uDF89'],
     'P\u00e1scoa':  ['\uD83D\uDC23','\uD83E\uDD5A','\uD83C\uDF38','\uD83D\uDC30'],
     'Dia dos Namorados':['\u2764','\uD83C\uDF39','\uD83D\uDC8C','\uD83E\uDD77'],
     'Festa Junina': ['\uD83C\uDF3D','\u2B50','\uD83D\uDD6E','\uD83C\uDFB6'],
@@ -907,7 +1114,7 @@ function getCardDecos(idx){
 
 function SeasonalOverlay(){
   var theme=getSeasonalTheme();
-  if(!theme)return null;
+  if(!theme||PERF.isLow)return null;
   var [particles]=useState(function(){
     return Array.from({length:8},function(_,i){
       return {
@@ -1592,6 +1799,32 @@ function AdminDashboard({c,open,onClose,dishes,restaurants}){
               ))
             ),
             h('div',{className:'adm-card'},
+              h('div',{className:'adm-card-title'},'Horário de Funcionamento'),
+              (()=>{
+                const ov=LS.get('sab_open_override',null);
+                const hasOv=ov!==null&&typeof ov==='object'&&ov.until&&Date.now()<ov.until;
+                const autoOpen=storeOpen();
+                return h(Fragment,null,
+                  h('div',{style:{fontSize:12,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',lineHeight:1.75,marginBottom:14}},
+                    hasOv
+                      ? h('span',null,'Override ativo: ',h('strong',{style:{color:ov.open?'#2ecc71':'#e74c3c'}},ov.open?'Forçado ABERTO':'Forçado FECHADO'),' · expira em ',Math.round((ov.until-Date.now())/60000),'min')
+                      : h('span',null,'Status automático: ',h('strong',{style:{color:autoOpen?'#2ecc71':'#e74c3c'}},autoOpen?'Aberto':'Fechado'))
+                  ),
+                  h('div',{style:{display:'flex',gap:8,flexWrap:'wrap'}},
+                    h('button',{className:'adm-btn',style:{background:'linear-gradient(135deg,#27ae60,#1e8449)',fontSize:11,padding:'8px 16px'},
+                      onClick:()=>{LS.set('sab_open_override',{open:true,until:Date.now()+8*60*60*1000});Toast.show('✅ Loja forçada ABERTA por 8h');}
+                    },'🟢 Forçar Aberto (8h)'),
+                    h('button',{className:'adm-btn',style:{background:'linear-gradient(135deg,#c0392b,#96281b)',fontSize:11,padding:'8px 16px'},
+                      onClick:()=>{LS.set('sab_open_override',{open:false,until:Date.now()+24*60*60*1000});Toast.show('🔴 Loja forçada FECHADA por 24h');}
+                    },'🔴 Forçar Fechado (24h)'),
+                    hasOv&&h('button',{className:'adm-btn-ghost',style:{fontSize:11,padding:'8px 16px'},
+                      onClick:()=>{LS.set('sab_open_override',null);Toast.show('↩️ Voltou ao horário automático');}
+                    },'↩️ Restaurar automático')
+                  )
+                );
+              })()
+            ),
+            h('div',{className:'adm-card'},
               h('div',{className:'adm-card-title'},'Notificações Telegram'),
               h('div',{style:{fontSize:12,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',lineHeight:1.75,marginBottom:14}},'Teste se os resumos do Chef René estão chegando no seu Telegram.'),
               h('button',{className:'adm-btn',style:{padding:'10px 20px',fontSize:12},
@@ -1702,6 +1935,7 @@ function bootProgress(){
 }
 
 function applyTilt(el,e){
+  if(PERF.isLow)return;
   const r=el.getBoundingClientRect();
   // Normalized -0.5 to 0.5 position within card
   const nx=(e.clientX-r.left)/r.width-.5;
@@ -1751,17 +1985,6 @@ function TypeWriter({color}){
     return()=>clearTimeout(t);
   },[]);
   return h('span',{style:{borderRight:`2px solid ${color}`,paddingRight:4,animation:'blink .8s step-end infinite',fontStyle:'italic',color}},txt);
-}
-
-/* ── Leaves ── */
-function Leaves(){
-  const [ls,setLs]=useState([]);
-  useEffect(()=>{
-    const em=['🍃','🌿','🍂','🌾'];
-    const id=setInterval(()=>setLs(p=>[...p.slice(-6),{id:Date.now(),x:Math.random()*95,d:5+Math.random()*5,e:em[0|Math.random()*4]}]),4200);
-    return()=>clearInterval(id);
-  },[]);
-  return h(Fragment,null,...ls.map(l=>h('div',{key:l.id,style:{position:'fixed',top:'-6%',left:l.x+'%',zIndex:8000,pointerEvents:'none',fontSize:15,animation:`fallLeaf ${l.d}s linear forwards`,opacity:.65}},l.e)));
 }
 
 /* ── Animated Counter ── */
@@ -2028,7 +2251,23 @@ function MomentoSection({c}){
 const MENU_CONTEXT=DISHES.map(d=>[d.e,d.name,'('+d.from+')','—','R$'+d.price,d.time+'min, frete '+d.frete,d.stars+'⭐',d.reviews+' avaliações','—',d.desc].join(' ')).join('\n');
 const DRINKS_CONTEXT=DRINKS.map(d=>[d.e,d.name,'—','R$'+d.price,d.kcal,'—',d.desc].join(' ')).join('\n');
 
-const CHEF_SYSTEM='Você é o Chef René Dubois, sommelier e maître gastronômico do Sabores — a vitrine culinária mais refinada do Brasil. Formado na École Bocuse (Lyon), com passagens pelo D.O.M. de Alex Atala e pelo Arzak em San Sebastián.\n\nSua missão é transformar cada conversa numa experiência gastronômica memorável. Você conhece o cardápio inteiro de cor, harmoniza bebidas como ninguém, e tem uma capacidade única de entender o que o cliente realmente deseja — mesmo quando ele não sabe dizer.\n\nPersonalidade:\n- Refinado mas nunca arrogante — você democratiza o prazer da boa mesa\n- Caloroso, com um humor elegante e anedotas culinárias genuínas\n- Apaixonado: cada prato tem uma história que você adora contar\n- Curioso: pergunta o contexto (celebração? dia difícil? reunião de negócios?) para personalizar\n- Usa português formal mas fluido. Emojis com parcimônia e intenção\n\nCARDÁPIO COMPLETO:\n'+MENU_CONTEXT+'\n\nBEBIDAS E HARMONIZAÇÕES:\n'+DRINKS_CONTEXT+'\n\nRegras invioláveis:\n- Sempre cite nome exato do prato, restaurante e preço (R$) nas recomendações\n- Sugira harmonização de bebida em toda sugestão de prato\n- Pergunte restrições alimentares proativamente na 1ª interação\n- Máximo 2-3 sugestões por resposta — qualidade acima de quantidade\n- Para cada prato sugerido, inclua uma linha assim ao final: DISH_CARD: nome exato do prato\n- Nunca invente pratos fora do cardápio acima\n- Se a pergunta não for sobre comida, redirecione gentilmente com charme\n- Limite 200 palavras por resposta';
+function buildChefSystem(){
+  const mem=LS.get('sab_chef_memory',{});
+  const hr=new Date().getHours();
+  const timeCtx=hr>=0&&hr<6?'CONTEXTO: É madrugada. Tom mais íntimo e exclusivo — "a esta hora, só o que vale perder o sono...". Sugira pratos que funcionam bem tarde.':hr>=6&&hr<12?'CONTEXTO: É manhã. Tom energizante e leve.':hr>=12&&hr<15?'CONTEXTO: É horário de almoço. Tom direto e prático.':hr>=18?'CONTEXTO: É noite ou jantar. Tom mais sofisticado e romântico.':'';
+  const memLines=[];
+  if(mem.name)memLines.push('- Nome do cliente: '+mem.name+' (use naturalmente na conversa)');
+  if(mem.dishes&&mem.dishes.length)memLines.push('- Pratos que já gostou: '+mem.dishes);
+  if(mem.dislikes&&mem.dislikes.length)memLines.push('- NÃO GOSTAR / evitar: '+mem.dislikes+' (NUNCA sugira estes)');
+  if(mem.lastOrder)memLines.push('- Último pedido: '+mem.lastOrder);
+  if(mem.occasion)memLines.push('- Ocasião especial detectada: '+mem.occasion);
+  const memCtx=memLines.length?'\n\nMEMÓRIA DO CLIENTE:\n'+memLines.join('\n'):'';
+  const timeBlock=timeCtx?'\n\n'+timeCtx:'';
+  return 'Você é o Chef René Dubois, sommelier e maître gastronômico do Sabores.\n\nSua missão é transformar cada conversa numa experiência memorável. Você conhece o cardápio inteiro de cor, harmoniza bebidas como ninguém, e tem capacidade única de entender o que o cliente deseja.\n\nPERSONALIDADE:\n- Refinado mas caloroso — democratiza o prazer da boa mesa\n- Humor elegante e anedotas culinárias genuínas\n- Apaixonado: cada prato tem uma história\n- MODO HUMOR: se o cliente brincar ou usar gírias, responda com leveza e uma piada culinária\n- MODO RÁPIDO: se detectar "rápido", "com pressa", "resumo" — responda em máx 3 linhas diretas\n- IDIOMA: responda sempre no idioma do cliente (inglês, espanhol, etc.) mantendo o charme francês\n\nEMOJIS COMO INTENÇÃO:\n🔥 = quer algo intenso/picante | 😢 = comfort food, algo aconchegante | 💚 = leve/saudável | 🍷 = harmonização especial | 💸 = econômico | 👑 = o melhor disponível\n\nOCASIÕES ESPECIAIS: se detectar aniversário, casamento, namorado/a, pedido de namoro, formatura — entre em MODO OCASIÃO: sugira decoração, mensagem personalizada, harmonização premium e sobremesa especial.\n\nFUNCIONALIDADES ESPECIAIS:\n- COMBO: se o cliente mencionar orçamento (ex: "tenho R$100"), monte entrada+prato+bebida dentro do valor\n- COMPARAR: se pedir comparação entre dois pratos, analise lado a lado com prós de cada um\n- SURPRESA: se pedir "surpreenda-me" ou "escolha você", faça uma apresentação dramática e escolha algo inesperado\n- AVALIAÇÃO: após recomendar, pergunte "Gostou desta sugestão? (👍 sim / 👎 não)" e aprenda com a resposta\n\nCARDÁPIO COMPLETO:\n'+MENU_CONTEXT+'\n\nBEBIDAS E HARMONIZAÇÕES:\n'+DRINKS_CONTEXT+'\n\nREGRAS:\n- Cite nome exato, restaurante e preço (R$)\n- Sugira harmonização em toda recomendação\n- Máximo 2-3 sugestões por resposta\n- DISH_CARD: nome exato do prato (ao final de cada sugestão)\n- Nunca invente pratos fora do cardápio\n- Limite 220 palavras por resposta'
+  +timeBlock+memCtx;
+}
+function getChefSystem(){return buildChefSystem();}
+const CHEF_SYSTEM=buildChefSystem();
 
 
 /* ── TELEGRAM SUMMARY ── */
@@ -2084,7 +2323,7 @@ function ChefChat(){
 
   const [msgs,setMsgs]=useState([{
     role:'ai',
-    text:'Bonsoir! Sou o Chef René Dubois — sommelier e curador gastronômico do Sabores.\n\nAntes de começar, posso perguntar: tem alguma restrição alimentar? E que tipo de experiência busca hoje — algo para celebrar, para confortar, ou simplesmente o melhor que temos?',
+    text:(()=>{const mem=LS.get('sab_chef_memory',{});return mem.name?'Bonsoir, '+mem.name+'! Que prazer tê-lo de volta. Estou pronto para uma nova experiência gastronômica — em que posso servi-lo hoje?':'Bonsoir! Sou o Chef René Dubois — sommelier e curador gastronômico do Sabores.\n\nAntes de começar, posso perguntar: tem alguma restrição alimentar? E que tipo de experiência busca hoje — algo para celebrar, para confortar, ou simplesmente o melhor que temos?';})(),
     time:new Date(),
     liked:false,
   }]);
@@ -2101,6 +2340,7 @@ function ChefChat(){
     {cat:'Ocasião',chips:['🎉 Comemorando algo','💑 Jantar a dois','💼 Almoço de negócios','🎂 Aniversário']},
     {cat:'Humor',chips:['🔥 Faminto agora','🌿 Quero algo leve','😴 Dia cansativo','💪 Pré-treino']},
     {cat:'Culinária',chips:['🍱 Japonês premium','🍝 Italiana clássica','🌮 Mexicano','🍔 Hambúrguer gourmet']},
+    {cat:'Especial',chips:['🎲 Surpreenda-me!','💰 Monte um combo R$80','⚡ Rápido — top 1 agora','🆚 Compare dois pratos']},
   ];
 
   useEffect(()=>{
@@ -2122,7 +2362,7 @@ function ChefChat(){
         body:JSON.stringify({
           model:'llama-3.3-70b-versatile',
           max_tokens:600,
-          messages:[{role:'system',content:CHEF_SYSTEM},...history,{role:'user',content:q}]
+          messages:[{role:'system',content:getChefSystem()},...history,{role:'user',content:q}]
         })
       });
       const data=await res.json();
@@ -2132,6 +2372,21 @@ function ChefChat(){
       const logs=LS.get('sab_chef_logs',[]);
       const session=LS.get('sab_chef_session',{id:Date.now(),start:new Date().toISOString(),msgs:[]});
       session.msgs.push({q,a:reply.slice(0,200),t:new Date().toISOString()});
+      // ── Memory Learning ──
+      const mem=LS.get('sab_chef_memory',{});
+      let memChanged=false;
+      // Name detection
+      const nameMatcher=q.match(/(?:me chamo|meu nome é|sou o|sou a)\s+([A-ZÀ-Ú][a-zà-ú]+)/i);
+      if(nameMatcher){mem.name=nameMatcher[1];memChanged=true;}
+      // Dish preferences from cards
+      if(cards.length>0){mem.dishes=(mem.dishes?mem.dishes+', ':'')+cards[0];mem.lastOrder=cards[0];memChanged=true;}
+      // Dislikes detection
+      const dislikeMatcher=q.match(/(?:não gosto|detesto|odeio|alérgico|sem|não quero)\s+(?:de\s+)?([a-zà-ú]+)/i);
+      if(dislikeMatcher){mem.dislikes=(mem.dislikes?mem.dislikes+', ':'')+dislikeMatcher[1];memChanged=true;}
+      // Occasion detection
+      const occasionMap=[['aniversário','Aniversário 🎂'],['casamento','Casamento 💍'],['namorado','Jantar romântico 💑'],['namorada','Jantar romântico 💑'],['formatura','Formatura 🎓'],['pedido de namoro','Pedido especial 💝'],['noivado','Noivado 💍']];
+      for(const[kw,label]of occasionMap){if(q.toLowerCase().includes(kw)){mem.occasion=label;memChanged=true;break;}}
+      if(memChanged)LS.set('sab_chef_memory',mem);
       LS.set('sab_chef_session',session);
       if(!logs.find(l=>l.id===session.id))logs.unshift(session);
       else{const i=logs.findIndex(l=>l.id===session.id);logs[i]=session;}
@@ -2144,6 +2399,30 @@ function ChefChat(){
   };
 
   const handleKey=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}};
+
+  // Proactive suggestion after 30s inactivity
+  const proactiveTimer=useRef(null);
+  const proactiveSent=useRef(false);
+  useEffect(()=>{
+    if(!open||proactiveSent.current)return;
+    proactiveTimer.current=setTimeout(()=>{
+      if(!loading&&proactiveSent.current===false){
+        proactiveSent.current=true;
+        const proactiveMsgs=[
+          'Posso sugerir algo especial para hoje? Temos opções incríveis para cada paladar 🍽',
+          'Está com dificuldade de escolher? Me conte o que você está com vontade — doce, salgado, leve ou sofisticado 🎭',
+          'Permitam-me uma sugestão: nosso prato do dia está recebendo críticas excepcionais. Quer saber qual é? ✨',
+        ];
+        const txt=proactiveMsgs[Math.floor(Math.random()*proactiveMsgs.length)];
+        setMsgs(m=>[...m,{role:'ai',text:txt,time:new Date(),liked:false}]);
+      }
+    },30000);
+    return()=>clearTimeout(proactiveTimer.current);
+  },[open]);
+  // Reset timer on user activity
+  const resetProactive=()=>{
+    clearTimeout(proactiveTimer.current);
+  };
   const toggleLike=i=>setMsgs(m=>m.map((msg,idx)=>idx===i?{...msg,liked:!msg.liked}:msg));
   const clearChat=()=>{
     setMsgs([{role:'ai',text:'Conversation effacée. Bonjour à nouveau! Em que posso ajudá-lo?',time:new Date(),liked:false}]);
@@ -2235,10 +2514,23 @@ function ChefChat(){
             parsed.cards.length>0&&h('div',{style:{display:'flex',flexDirection:'column',gap:8,marginTop:6}},
               ...parsed.cards.map(function(name,ci){return h(ChefDishCard,{key:ci,name});})
             ),
-            isAi&&h('div',{className:'chef-reactions'},
-              h('button',{className:'chef-react-btn'+(m.liked?' liked':''),onClick:()=>toggleLike(i)},
-                m.liked?'👍 Obrigado!':'👍 Útil'
-              ),
+            isAi&&i>0&&h('div',{className:'chef-reactions'},
+              h('button',{className:'chef-react-btn'+(m.rating===1?' liked':''),
+                onClick:()=>{
+                  setMsgs(ms=>ms.map((msg,idx)=>idx===i?{...msg,rating:1}:msg));
+                  const mem=LS.get('sab_chef_memory',{});
+                  if(!mem.liked)mem.liked=[];
+                  const dishInMsg=msgs[i]&&msgs[i].text&&msgs[i].text.match(/DISH_CARD:\s*([^\n]+)/);
+                  if(dishInMsg)mem.liked.push(dishInMsg[1].trim());
+                  LS.set('sab_chef_memory',mem);
+                }
+              },m.rating===1?'👍 Ótima sugestão!':'👍'),
+              h('button',{className:'chef-react-btn'+(m.rating===-1?' disliked':''),
+                onClick:()=>{
+                  setMsgs(ms=>ms.map((msg,idx)=>idx===i?{...msg,rating:-1}:msg));
+                  setTimeout(()=>send('Não gostei desta sugestão. Pode indicar algo diferente?'),300);
+                }
+              },m.rating===-1?'👎 Entendido!':'👎'),
               h('button',{className:'chef-react-btn',onClick:()=>send('Me dê mais opções como esta')},
                 '+ Mais opções'
               )
@@ -2323,6 +2615,33 @@ function NetflixRow({title,accent,label,dishes,c,favs,setFavs,dailyTop,offset=0}
   );
 }
 
+function VipWelcome({c}){
+  const [show,setShow]=useState(false);
+  useEffect(()=>{
+    if(VIP.isVip&&VIP.visits===3){
+      const t=setTimeout(()=>setShow(true),2200);
+      return()=>clearTimeout(t);
+    }
+  },[]);
+  useEffect(()=>{
+    if(show){const t=setTimeout(()=>setShow(false),6000);return()=>clearTimeout(t);}
+  },[show]);
+  if(!show)return null;
+  return h('div',{style:{
+    position:'fixed',top:80,left:'50%',transform:'translateX(-50%)',
+    zIndex:8500,background:'linear-gradient(135deg,rgba(201,168,76,.15),rgba(232,82,10,.1))',
+    border:'1px solid rgba(201,168,76,.45)',borderRadius:20,
+    padding:'16px 28px',fontFamily:'Inter,sans-serif',
+    backdropFilter:'blur(20px)',boxShadow:'0 8px 40px rgba(0,0,0,.6)',
+    animation:'fadeUp .5s cubic-bezier(.22,1,.36,1)',
+    textAlign:'center',maxWidth:320,width:'90vw',
+  }},
+    h('div',{style:{fontSize:22,marginBottom:6}},'👑'),
+    h('div',{style:{fontSize:13,fontWeight:700,color:'#C9A84C',letterSpacing:'.04em',marginBottom:4}},'Cliente VIP — Bem-vindo de volta!'),
+    h('div',{style:{fontSize:11,color:'rgba(200,180,160,.65)',lineHeight:1.6}},'Você faz parte do seleto grupo de clientes especiais do Sabores.')
+  );
+}
+
 /* ════════════════════════════════════════════════════════════
    APP
 ════════════════════════════════════════════════════════════ */
@@ -2382,15 +2701,27 @@ function App(){
   const ctaLabels={'A':'🍽 Explorar Pratos','B':'🔥 Ver os Melhores','C':'🍕 Pedir Agora'};
   const ctaLabel=ctaLabels[abVariant]||ctaLabels['A'];
 
-  // Logo tap counter (5 taps = admin panel)
+  // Logo tap counter (5 taps = PIN screen)
+  const [showPin,setShowPin]=useState(false);
+  const [pin,setPin]=useState('');
+  const [pinErr,setPinErr]=useState(false);
+  const ADMIN_PIN=LS.get('sab_admin_pin','2137');
   const handleLogoTap=()=>{
     setLogoTaps(n=>{
       const next=n+1;
       clearTimeout(logoTapTimer.current);
-      if(next>=5){setAdminOpen(true);Toast.show('🔐 Painel admin desbloqueado!');return 0;}
+      if(next>=5){setShowPin(true);setPin('');setPinErr(false);return 0;}
       logoTapTimer.current=setTimeout(()=>setLogoTaps(0),2000);
       return next;
     });
+  };
+  const handlePin=(d)=>{
+    const np=pin+d;
+    setPin(np);
+    if(np.length===4){
+      if(np===ADMIN_PIN){setShowPin(false);setAdminOpen(true);Toast.show('🔐 Painel desbloqueado!');}
+      else{setPinErr(true);setTimeout(()=>{setPin('');setPinErr(false);},800);}
+    }
   };
 
   // testimonial rotation (isolated timer, still causes App re-render but testimonials are cheap)
@@ -2429,8 +2760,25 @@ function App(){
   };
 
   return h(Fragment,null,
-    h(Leaves),
     h(SeasonalOverlay,null),
+    h(VipWelcome,{c}),
+    showPin&&h('div',{style:{position:'fixed',inset:0,background:'rgba(0,0,0,.85)',zIndex:9500,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(8px)'}},
+      h('div',{style:{background:'#0f0d09',border:'1px solid rgba(201,168,76,.3)',borderRadius:24,padding:'36px 32px',textAlign:'center',width:280,boxShadow:'0 40px 80px rgba(0,0,0,.8)'}},
+        h('div',{style:{fontSize:28,marginBottom:8}},'🔐'),
+        h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:20,color:'#f0e6d3',marginBottom:4}},'Admin'),
+        h('div',{style:{fontSize:11,color:'rgba(200,180,160,.4)',fontFamily:'Inter,sans-serif',marginBottom:24,letterSpacing:'.1em'}},'DIGITE O PIN'),
+        h('div',{style:{display:'flex',justifyContent:'center',gap:10,marginBottom:24}},
+          [0,1,2,3].map(i=>h('div',{key:i,style:{width:14,height:14,borderRadius:'50%',background:pin.length>i?(pinErr?'#e74c3c':'#C9A84C'):'rgba(255,255,255,.12)',transition:'all .2s',boxShadow:pin.length>i?'0 0 8px rgba(201,168,76,.5)':'none'}}))
+        ),
+        h('div',{style:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}},
+          [...[1,2,3,4,5,6,7,8,9,'',0,'⌫']].map((d,i)=>h('button',{key:i,
+            onClick:()=>d===''?null:d==='⌫'?setPin(p=>p.slice(0,-1)):handlePin(String(d)),
+            style:{padding:'16px 8px',background:d===''?'transparent':'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.07)',borderRadius:12,color:d==='⌫'?'#e74c3c':'#f0e6d3',fontSize:18,fontFamily:"'Playfair Display',serif",cursor:d===''?'default':'pointer',transition:'all .2s'},
+          },d))
+        ),
+        h('button',{onClick:()=>setShowPin(false),style:{marginTop:16,background:'none',border:'none',color:'rgba(200,180,160,.3)',fontSize:11,fontFamily:'Inter,sans-serif',cursor:'pointer',letterSpacing:'.1em'}},'CANCELAR')
+      )
+    ),
     h(AdminDashboard,{c,open:adminOpen,onClose:()=>setAdminOpen(false),dishes:DISHES,restaurants:RESTAURANTS}),
     h(ChefChat),
     /* A/B badge removed — only visible inside admin panel */
@@ -2526,7 +2874,7 @@ function App(){
       h(MomentoSection,{c}),
 
 /* ════ COMO FUNCIONA ════ */
-      h('section',{id:'como',style:{padding:'96px 28px',background:c.bg,borderTop:`1px solid ${c.div}`}},
+      h('section',{'data-reveal':'','data-reveal-type':'left',id:'como',style:{padding:'96px 28px',background:c.bg,borderTop:`1px solid ${c.div}`}},
         h('div',{style:{maxWidth:1100,margin:'0 auto'}},
           h(Rv,null,h(SH,{label:'Simples assim',title:'Como',accent:'funciona',c})),
           h('div',{className:'how-grid',style:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:24}},
@@ -2546,7 +2894,7 @@ function App(){
       ),
 
 /* ════ CATEGORIAS ════ */
-      h('section',{id:'categorias',style:{padding:'96px 28px',background:c.bg2,borderTop:`1px solid ${c.div}`}},
+      h('section',{'data-reveal':'','data-reveal-type':'zoom',id:'categorias',style:{padding:'96px 28px',background:c.bg2,borderTop:`1px solid ${c.div}`}},
         h('div',{style:{maxWidth:1200,margin:'0 auto'}},
           h(Rv,null,h(SH,{label:'Culinária mundial',title:'Explore por',accent:'categoria',c})),
           h('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(90px,1fr))',gap:12}},
@@ -2635,7 +2983,7 @@ function App(){
       ),
 
 /* ════ RESTAURANTES ════ */
-      h('section',{id:'restaurantes',style:{padding:'0 28px 96px',background:c.bg}},
+      h('section',{'data-reveal':'','data-reveal-type':'right',id:'restaurantes',style:{padding:'0 28px 96px',background:c.bg}},
         h('div',{style:{maxWidth:1200,margin:'0 auto'}},
           h(Rv,null,h(SH,{label:'Parceiros exclusivos',title:'Restaurantes em',accent:'destaque',c})),
           h('div',{className:'ns',style:{display:'flex',gap:16,overflowX:'auto',paddingBottom:10}},
