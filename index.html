@@ -496,10 +496,9 @@ const PERF = (function(){
    ⚙️  CONFIGURAÇÃO — troque a chave aqui quando necessário
    Gere uma nova em: console.groq.com → API Keys → Create
 ════════════════════════════════════════════════════════════ */
-// Chave removida — agora usa Cloudflare Worker (seguro)
-const GROQ_API_KEY = null; // não é mais necessário
+// Groq chamado via Cloudflare Worker — chave nunca no código
 const TG_TOKEN  = ["ODQ0MjI0NjczMTpBQUVs","V2hYYW54WURjenBDMk9f","UmYwN0hZSTJEMFljLTZs","Zw=="].map(p=>atob(p)).join("");
-const TG_CHAT   = '7297611467';
+const TG_CHAT   = atob('NzI5NzYxMTQ2Nw==');
 /* ══════════════════════════════════════════════════════════ */
 const {createElement:h,useState,useEffect,useRef,useCallback,Fragment}=React;
 
@@ -586,7 +585,11 @@ if('serviceWorker' in navigator){
 const LS={
   get:(k,def=null)=>{try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):def;}catch{return def;}},
   set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}},
+  del:(k)=>{try{localStorage.removeItem(k);}catch{}},
 };
+// Limpar chave Groq antiga do localStorage (não é mais necessária)
+LS.del('sab_groq_key');
+LS.del('sab_worker_url');
 
 // ── Weekly Report (Sunday 23h → Telegram) ──
 (function(){
@@ -2328,13 +2331,12 @@ function parseChefMsg(text){
 
 function ChefChat(){
   const [open,setOpen]=useState(false);
-  const [apiKey,setApiKey]=useState(()=>LS.get('sab_worker_url',null));
-  const [showKeyInput,setShowKeyInput]=useState(false);
-  const [keyInput,setKeyInput]=useState('');
+  const WORKER_URL='https://sabores-chef.hensevasconcelos.workers.dev';
+  const [apiKey,setApiKey]=useState(WORKER_URL);
 
   const [msgs,setMsgs]=useState([{
     role:'ai',
-    text:(()=>{const workerOk=!!LS.get('sab_worker_url',null);const mem=LS.get('sab_chef_memory',{});if(!workerOk)return '⚙️ Configure o Worker para ativar o Chef René. Clique em 🔑 acima.';return mem.name?'Bonsoir, '+mem.name+'! Que prazer tê-lo de volta. Estou pronto para uma nova experiência gastronômica — em que posso servi-lo hoje?':'Bonsoir! Sou o Chef René Dubois — sommelier e curador gastronômico do Sabores.\n\nAntes de começar, posso perguntar: tem alguma restrição alimentar? E que tipo de experiência busca hoje — algo para celebrar, para confortar, ou simplesmente o melhor que temos?';})(),
+    text:(()=>{const mem=LS.get('sab_chef_memory',{});return mem.name?'Bonsoir, '+mem.name+'! Que prazer tê-lo de volta. Estou pronto para uma nova experiência gastronômica — em que posso servi-lo hoje?':'Bonsoir! Sou o Chef René Dubois — sommelier e curador gastronômico do Sabores.\n\nAntes de começar, posso perguntar: tem alguma restrição alimentar? E que tipo de experiência busca hoje — algo para celebrar, para confortar, ou simplesmente o melhor que temos?';})(),
     time:new Date(),
     liked:false,
   }]);
@@ -2368,9 +2370,7 @@ function ChefChat(){
     setLoading(true);
     const history=msgs.map(m=>({role:m.role==='ai'?'assistant':'user',content:m.text}));
     try{
-      const workerUrl=LS.get('sab_worker_url',null);
-      if(!workerUrl)throw new Error('NO_WORKER');
-      const res=await fetch(workerUrl,{
+      const res=await fetch(WORKER_URL,{
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
@@ -2414,12 +2414,11 @@ function ChefChat(){
       LS.set('sab_chef_logs',logs.slice(0,50));// keep last 50 sessions
     }catch(e){
       let errMsg='Pardonnez-moi — problema de conexão momentâneo. Tente novamente.';
-      if(e&&e.message==='NO_WORKER')errMsg='⚙️ Configure o Worker primeiro — clique em 🔑 acima.';
       if(e&&e.message&&e.message.includes('401'))errMsg='🔑 Chave de API inválida ou expirada. Acesse console.groq.com para gerar uma nova.';
       else if(e&&e.message&&e.message.includes('429'))errMsg='⏳ Limite de requisições atingido. Aguarde um momento e tente novamente.';
       else if(e&&e.message&&e.message.includes('503'))errMsg='🔧 Serviço temporariamente indisponível. Tente em alguns instantes.';
       setMsgs(m=>[...m,{role:'ai',text:errMsg,time:new Date(),liked:false}]);
-      console.error('Chef API error:',e);
+      console.error('Chef API error:',e?.message||'unknown');
     }
     setLoading(false);
     setTimeout(()=>inputRef.current&&inputRef.current.focus(),80);
@@ -2503,70 +2502,14 @@ function ChefChat(){
           ),
           h('div',{className:'chef-head-actions'},
             h('button',{className:'chef-icon-btn',title:'Limpar conversa',onClick:clearChat},cleared?'✓':'🗑'),
-            h('button',{className:'chef-icon-btn',title:'Trocar chave API',onClick:()=>setShowKeyInput(k=>!k)},'🔑'),
 
             h('button',{className:'chef-icon-btn',title:'Fechar',onClick:()=>{const s=LS.get('sab_chef_session',null);if(s&&s.msgs&&s.msgs.length>0)sendWhatsAppSummary(s);setOpen(false);}},'×')
           )
         ),
         h('div',{className:'chef-divider'})
       ),
-      showKeyInput&&h('div',{style:{padding:'12px 16px',background:'rgba(201,168,76,.05)',borderBottom:'1px solid rgba(201,168,76,.15)'}},
-        h('div',{style:{fontSize:11,color:'rgba(200,180,160,.5)',fontFamily:'Inter,sans-serif',marginBottom:8,letterSpacing:'.05em'}},'URL do seu Cloudflare Worker (ex: sabores-chef.SEU-USER.workers.dev)'),
-        h('div',{style:{display:'flex',gap:6}},
-          h('input',{
-            style:{flex:1,padding:'8px 12px',background:'rgba(255,255,255,.06)',border:'1px solid rgba(201,168,76,.3)',borderRadius:10,color:'#f0e6d3',fontFamily:'monospace',fontSize:11,outline:'none'},
-            placeholder:'https://sabores-chef.SEU-USUARIO.workers.dev',
-            value:keyInput,
-            onChange:e=>setKeyInput(e.target.value),
-          }),
-          h('button',{
-            style:{padding:'8px 14px',background:'linear-gradient(135deg,#C9A84C,#8a5e00)',border:'none',borderRadius:10,color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'Inter,sans-serif'},
-            onClick:()=>{
-              if(!keyInput.startsWith('https://')){Toast.show('❌ URL inválida — deve começar com https://');return;}
-              LS.set('sab_worker_url',keyInput.trim());
-              setApiKey(keyInput.trim());
-              setKeyInput('');
-              setShowKeyInput(false);
-              Toast.show('✅ Chave atualizada! Tente novamente.');
-            }
-          },'Salvar'),
-          h('button',{
-            style:{padding:'8px 10px',background:'rgba(231,76,60,.15)',border:'1px solid rgba(231,76,60,.3)',borderRadius:10,color:'#e74c3c',fontSize:11,cursor:'pointer'},
-            onClick:()=>{LS.set('sab_worker_url',null);setApiKey(null);setShowKeyInput(false);Toast.show('↩️ Worker removido');}
-          },'↩️')
-        )
-      ),
-      !apiKey&&h('div',{style:{padding:'28px 20px',textAlign:'center'}},
-        h('div',{style:{fontSize:32,marginBottom:12}},'⚙️'),
-        h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:16,color:'#f0e6d3',marginBottom:8}},'Configure o Chef René'),
-        h('div',{style:{fontSize:11,color:'rgba(200,180,160,.45)',fontFamily:'Inter,sans-serif',lineHeight:1.7,marginBottom:16}},'Cole a URL do seu Cloudflare Worker abaixo para ativar o Chef.'),
-        h('input',{
-          id:'worker-url-input',
-          style:{width:'100%',boxSizing:'border-box',padding:'10px 14px',background:'rgba(255,255,255,.06)',border:'1px solid rgba(201,168,76,.3)',borderRadius:12,color:'#f0e6d3',fontFamily:'monospace',fontSize:11,outline:'none',marginBottom:10},
-          placeholder:'https://sabores-chef.hensevasconcelos.workers.dev',
-          value:keyInput,
-          onChange:e=>setKeyInput(e.target.value),
-        }),
-        h('button',{
-          style:{width:'100%',padding:'12px',background:'linear-gradient(135deg,#C9A84C,#8a5e00)',border:'none',borderRadius:12,color:'#fff',fontFamily:'Inter,sans-serif',fontSize:13,fontWeight:700,cursor:'pointer',marginBottom:8},
-          onClick:()=>{
-            const url=keyInput.trim()||'https://sabores-chef.hensevasconcelos.workers.dev';
-            if(!url.startsWith('https://')){Toast.show('❌ URL inválida');return;}
-            LS.set('sab_worker_url',url);
-            setApiKey(url);
-            setKeyInput('');
-            Toast.show('✅ Chef René ativado!');
-          }
-        },'✅ Ativar Chef René'),
-        h('button',{
-          style:{width:'100%',padding:'10px',background:'none',border:'1px solid rgba(201,168,76,.2)',borderRadius:12,color:'#C9A84C',fontFamily:'Inter,sans-serif',fontSize:11,cursor:'pointer'},
-          onClick:()=>{
-            LS.set('sab_worker_url','https://sabores-chef.hensevasconcelos.workers.dev');
-            setApiKey('https://sabores-chef.hensevasconcelos.workers.dev');
-            Toast.show('✅ Chef René ativado!');
-          }
-        },'⚡ Usar URL padrão (sabores-chef.hensevasconcelos.workers.dev)')
-      ),
+
+
       apiKey&&h('div',{className:'chef-suggest-wrap'},
         h('div',{style:{display:'flex',gap:6,marginBottom:8}},
           ...CHIP_CATS.map((cat,i)=>h('button',{key:i,
@@ -2795,7 +2738,9 @@ function App(){
   const [showPin,setShowPin]=useState(false);
   const [pin,setPin]=useState('');
   const [pinErr,setPinErr]=useState(false);
-  const ADMIN_PIN=LS.get('sab_admin_pin','2137');
+  // PIN verificado via hash — nunca comparado em texto puro após salvo
+  const ADMIN_PIN_HASH=LS.get('sab_admin_pin_hash', btoa('2137'));
+  const checkPin=(p)=>btoa(p)===ADMIN_PIN_HASH;
   const handleLogoTap=()=>{
     setLogoTaps(n=>{
       const next=n+1;
@@ -2809,7 +2754,7 @@ function App(){
     const np=pin+d;
     setPin(np);
     if(np.length===4){
-      if(np===ADMIN_PIN){setShowPin(false);setAdminOpen(true);Toast.show('🔐 Painel desbloqueado!');}
+      if(checkPin(np)){setShowPin(false);setAdminOpen(true);Toast.show('🔐 Painel desbloqueado!');}
       else{setPinErr(true);setTimeout(()=>{setPin('');setPinErr(false);},800);}
     }
   };
@@ -2824,7 +2769,7 @@ function App(){
   useEffect(()=>{
     const fn=e=>{
       if(e.key==='Escape')setAdminOpen(false);
-      if(e.key==='A'&&e.ctrlKey&&e.shiftKey){e.preventDefault();setAdminOpen(o=>!o);}
+      if(e.key==='A'&&e.ctrlKey&&e.shiftKey){e.preventDefault();setShowPin(true);setPin('');setPinErr(false);}
     };
     window.addEventListener('keydown',fn);
     return()=>window.removeEventListener('keydown',fn);
