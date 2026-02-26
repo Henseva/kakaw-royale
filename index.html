@@ -24,9 +24,12 @@ body{overflow-x:hidden;background:#0a0805;cursor:none}
 
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:3px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#E8520A,#C9A84C,#E8520A);background-size:100% 200%;border-radius:2px;animation:scrollThumbShimmer 2s linear infinite}
-@keyframes scrollThumbShimmer{0%{background-position:0 0}100%{background-position:0 200%}}
+::-webkit-scrollbar-track{background:rgba(255,255,255,.03);border-radius:2px}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#E8520A 0%,#C9A84C 50%,#E8520A 100%);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#ff6b2b,#d4af37,#ff6b2b)}
+/* Firefox */
+*{scrollbar-width:thin;scrollbar-color:#E8520A rgba(255,255,255,.03)}
+.nfx-card{scrollbar-width:none}
 .nfx-card::-webkit-scrollbar{display:none!important}
 
 /* ── CURSOR ── */
@@ -116,7 +119,6 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
   /* Admin ChefLogs grid */
   .chef-logs-grid{grid-template-columns:1fr!important}
   /* Share + btt buttons spacing */
-  .share-btn{bottom:148px!important;right:16px!important}
   #btt{bottom:90px!important;right:16px!important}
   /* Push prompt full width */
   .push-prompt{width:92vw!important;max-width:none!important}
@@ -510,9 +512,6 @@ body.light-mode .chef-panel,body.light-mode .adm-shell{box-shadow:0 20px 60px rg
 
 @media(max-width:700px){.how-arrow{display:none!important}}
 
-.share-btn{position:fixed;bottom:148px;right:20px;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#25D366,#128C7E);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;z-index:600;box-shadow:0 4px 20px rgba(37,211,102,.4);transition:all .3s;opacity:0;transform:scale(.7) translateY(10px)}
-.share-btn.vis{opacity:1;transform:scale(1) translateY(0)}
-.share-btn:hover{transform:scale(1.1) translateY(0)!important}
 
 .chef-voice-btn{background:none;border:none;cursor:pointer;font-size:18px;color:rgba(200,180,160,.4);transition:all .25s;padding:4px;border-radius:50%;flex-shrink:0}
 .chef-voice-btn:hover{color:#C9A84C}
@@ -529,6 +528,28 @@ body.light-mode .chef-panel,body.light-mode .adm-shell{box-shadow:0 20px 60px rg
 #btt:hover svg{transform:translateY(-3px)}
 #btt:hover::before{animation-duration:.8s}
 #btt:active svg{transform:translateY(-1px) scale(.95)}
+
+/* ── Twinkling Stars ── */
+.star-field{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.star{position:absolute;border-radius:50%;background:#C9A84C;animation:twinkle var(--dur,3s) var(--delay,0s) ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:var(--op,.8);transform:scale(1)}}
+
+/* ── Card shimmer on hover ── */
+.nfx-card::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.12) 50%,transparent 60%);z-index:5;pointer-events:none;transition:none}
+.nfx-card:hover::before{left:160%;transition:left .55s ease}
+
+/* ── Chef wave on open ── */
+@keyframes chefWave{0%{transform:rotate(0deg)}15%{transform:rotate(-18deg) scale(1.15)}35%{transform:rotate(14deg) scale(1.1)}55%{transform:rotate(-10deg) scale(1.08)}75%{transform:rotate(8deg) scale(1.05)}100%{transform:rotate(0deg) scale(1)}}
+.chef-portrait.waving{animation:chefWave .9s cubic-bezier(.22,1,.36,1) forwards!important}
+
+/* ── Thought bubbles ── */
+.thought-bubbles{position:absolute;bottom:100%;left:0;width:60px;height:50px;pointer-events:none;overflow:visible}
+.thought-bubble{position:absolute;font-size:14px;animation:thoughtFloat 1.8s ease-in-out infinite;opacity:0}
+@keyframes thoughtFloat{0%{opacity:0;transform:translateY(0) scale(.6)}30%{opacity:1;transform:translateY(-12px) scale(1)}70%{opacity:.6;transform:translateY(-28px) scale(.9)}100%{opacity:0;transform:translateY(-42px) scale(.7)}}
+
+/* ── Flying heart on fav ── */
+.fly-heart{position:fixed;font-size:20px;pointer-events:none;z-index:9000;animation:heartFly 1.1s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes heartFly{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-90px) scale(1.6)}}
 </style>
 </head>
 <body>
@@ -2476,7 +2497,7 @@ function buildChefSystem(isKid){
   const histCtx=histLines?'\n\nHISTÓRICO DE VISITAS ANTERIORES (use para personalizar, mas não mencione explicitamente a menos que relevante):\n'+histLines:''
   const dayCtx='CONTEXTO DIA: Hoje é '+dayName+(isWeekend?' (fim de semana — clientes com mais tempo, sugestões mais elaboradas e especiais)':' (dia útil — clientes podem estar ocupados, equilibre rapidez com sofisticação)')+'.';
   const timeBlock=timeCtx?'\n\n'+timeCtx+'\n'+dayCtx:'\n\n'+dayCtx;
-  return 'Você é o Chef René Dubois, sommelier e maître gastronômico do Sabores.\n\nSua missão é transformar cada conversa numa experiência memorável. Você conhece o cardápio inteiro de cor, harmoniza bebidas como ninguém, e tem capacidade única de entender o que o cliente deseja.\n\nPERSONALIDADE:\n- Refinado mas caloroso — democratiza o prazer da boa mesa\n- Humor elegante e anedotas culinárias genuínas\n- Apaixonado: cada prato tem uma história\n- MODO HUMOR: se o cliente brincar ou usar gírias, responda com leveza e uma piada culinária\n- MODO RÁPIDO: se detectar "rápido", "com pressa", "resumo" — responda em máx 3 linhas diretas\n- IDIOMA: responda sempre no idioma do cliente (inglês, espanhol, etc.) mantendo o charme francês\n\nEMOJIS COMO INTENÇÃO:\n🔥 = quer algo intenso/picante | 😢 = comfort food, algo aconchegante | 💚 = leve/saudável | 🍷 = harmonização especial | 💸 = econômico | 👑 = o melhor disponível\n\nOCASIÕES ESPECIAIS: se detectar aniversário, casamento, namorado/a, pedido de namoro, formatura — entre em MODO OCASIÃO: sugira decoração, mensagem personalizada, harmonização premium e sobremesa especial.\n\nFUNCIONALIDADES ESPECIAIS:\n- COMBO: se o cliente mencionar orçamento (ex: "tenho R$100"), monte entrada+prato+bebida dentro do valor\n- COMPARAR: se pedir comparação entre dois pratos, analise lado a lado com prós de cada um\n- SURPRESA: se pedir "surpreenda-me" ou "escolha você", faça uma apresentação dramática e escolha algo inesperado\n- AVALIAÇÃO: após recomendar, pergunte "Gostou desta sugestão? (👍 sim / 👎 não)" e aprenda com a resposta\n\nCARDÁPIO COMPLETO:\n'+MENU_CONTEXT+'\n\nBEBIDAS E HARMONIZAÇÕES:\n'+DRINKS_CONTEXT+'\n\nREGRAS:\n- Cite nome exato, restaurante e preço (R$)\n- Sugira harmonização em toda recomendação\n- Máximo 2-3 sugestões por resposta\n- DISH_CARD: nome exato do prato (ao final de cada sugestão)\n- Nunca invente pratos fora do cardápio\n- Limite 220 palavras por resposta'
+  return 'Você é o Chef René Dubois, sommelier e maître gastronômico do Sabores.\n\nSua missão é transformar cada conversa numa experiência memorável. Você conhece o cardápio inteiro de cor, harmoniza bebidas como ninguém, e tem capacidade única de entender o que o cliente deseja.\n\nPERSONALIDADE:\n- Refinado mas caloroso — democratiza o prazer da boa mesa\n- Humor elegante e anedotas culinárias genuínas\n- Apaixonado: cada prato tem uma história\n- MODO HUMOR: se o cliente brincar ou usar gírias, responda com leveza e uma piada culinária\n- MODO RÁPIDO: se detectar "rápido", "com pressa", "resumo" — responda em máx 3 linhas diretas\n- IDIOMA PADRÃO: sempre responda em PORTUGUÊS DO BRASIL (pt-BR), independente do que o sistema disser. APENAS mude o idioma se o cliente escrever uma frase completa em outro idioma — nunca mude por uma única palavra estrangeira\n\nEMOJIS COMO INTENÇÃO:\n🔥 = quer algo intenso/picante | 😢 = comfort food, algo aconchegante | 💚 = leve/saudável | 🍷 = harmonização especial | 💸 = econômico | 👑 = o melhor disponível\n\nOCASIÕES ESPECIAIS: se detectar aniversário, casamento, namorado/a, pedido de namoro, formatura — entre em MODO OCASIÃO: sugira decoração, mensagem personalizada, harmonização premium e sobremesa especial.\n\nFUNCIONALIDADES ESPECIAIS:\n- COMBO: se o cliente mencionar orçamento (ex: "tenho R$100"), monte entrada+prato+bebida dentro do valor\n- COMPARAR: se pedir comparação entre dois pratos, analise lado a lado com prós de cada um\n- SURPRESA: se pedir "surpreenda-me" ou "escolha você", faça uma apresentação dramática e escolha algo inesperado\n- AVALIAÇÃO: após recomendar, pergunte "Gostou desta sugestão? (👍 sim / 👎 não)" e aprenda com a resposta\n\nCARDÁPIO COMPLETO:\n'+MENU_CONTEXT+'\n\nBEBIDAS E HARMONIZAÇÕES:\n'+DRINKS_CONTEXT+'\n\nREGRAS:\n- Cite nome exato, restaurante e preço (R$)\n- Sugira harmonização em toda recomendação\n- Máximo 2-3 sugestões por resposta\n- DISH_CARD: nome exato do prato (ao final de cada sugestão)\n- Nunca invente pratos fora do cardápio\n- Limite 220 palavras por resposta'
   +(isKid?'\n\nMODO CRIANÇA ATIVADO 🧒:\n- Mude completamente o nome: você agora é o "Chef Renezinho" 🧑‍🍳\n- Tom divertido, animado, com comparações do universo infantil\n- Use muitos emojis coloridos e exclamações!\n- Fale palavras simples — nada de "harmonização" ou "sommelier"\n- Sugira apenas pratos que crianças adoram: pizza, macarrão, nuggets, hambúrguer, suco\n- Pergunte sobre personagens favoritos e compare a comida com aventuras\n- Termine sempre com uma frase de incentivo tipo "Você vai arrasar! 🦸"\n- NUNCA sugira bebidas alcoólicas — apenas sucos, vitaminas, refrigerante\n- Máximo 3 frases curtas por resposta\n- Exemplo de tom: "Oi! Eu sou o Chef Renezinho! 🧑‍🍳 Hoje temos uma pizza INCRÍVEL, igual à da festa do Mario! 🍕⭐"':'' )
   +timeBlock+memCtx;
 }
@@ -2513,7 +2534,9 @@ function getChefSystem(msgHistory,currentMsg){
   const moodWords=['cansado','cansada','estressado','estressada','dia horrível','péssimo dia','dia ruim','difícil','exausto','exausta','frustrado','frustrada','triste','ansioso','ansiosa'];
   const hasBadMood=currentMsg&&moodWords.some(w=>currentMsg.toLowerCase().includes(w));
   const moodBlock=hasBadMood?'\n\nMODO COMFORT FOOD ATIVADO 🤗: O cliente teve um dia difícil. Tom extra carinhoso, empático e acolhedor. Sugira pratos reconfortantes, quentinhos, cremosos. Diga algo como "Dias assim pedem uma comida que abraça de dentro pra fora..." Priorize: macarrão cremoso, caldos, hambúrgueres suculentos, chocolates quentes.':'';
-  const langBlock=lang!=='pt'?'\n\n*** LANGUAGE OVERRIDE — MANDATORY ***: The client is writing in '+( langNames[lang]||lang)+'. You MUST respond ENTIRELY in that language ('+lang+'). Not a single word in Portuguese. Maintain your French chef personality and charm but write EXCLUSIVELY in the client language. If the language uses a non-Latin script (Chinese, Japanese, Arabic, etc), write in that script.':'';
+  // Only override if client wrote 3+ words in foreign language (not just a single foreign word)
+  const wordCount=(currentMsg||'').trim().split(/\s+/).length;
+  const langBlock=(lang!=='pt'&&wordCount>=3)?'\n\n*** LANGUAGE OVERRIDE ***: O cliente escreveu em '+( langNames[lang]||lang)+'. Responda NESTE idioma ('+lang+'). Mantenha a personalidade do Chef René.':'';
   return buildChefSystem(isKid)+langBlock+moodBlock;
 }
 const CHEF_SYSTEM=buildChefSystem();
@@ -2570,11 +2593,18 @@ function ChefChat(){
   const [open,setOpen]=useState(false);
   // Track opens for abandonment metric
   const openTracked=useRef(false);
+  const [waving,setWaving]=useState(false);
   useEffect(()=>{
-    if(open&&!openTracked.current){
-      openTracked.current=true;
-      const opens=LS.get('sab_chef_opens',0);
-      LS.set('sab_chef_opens',opens+1);
+    if(open){
+      if(!openTracked.current){
+        openTracked.current=true;
+        const opens=LS.get('sab_chef_opens',0);
+        LS.set('sab_chef_opens',opens+1);
+      }
+      // Wave on every open
+      setWaving(true);
+      const t=setTimeout(()=>setWaving(false),950);
+      return()=>clearTimeout(t);
     }
   },[open]);
   const WORKER_URL='https://sabores-chef.hensevasconcelos.workers.dev';
@@ -2793,7 +2823,7 @@ function ChefChat(){
         h('div',{className:'chef-head-bg'}),
         h('div',{className:'chef-head-glow'}),
         h('div',{className:'chef-head-content'},
-          h('div',{className:'chef-portrait '+(loading?'thinking':'idle')},
+          h('div',{className:'chef-portrait '+(waving?'waving':loading?'thinking':'idle')},
             '👨‍🍳',
             h('span',{className:'chef-online'})
           ),
@@ -2881,7 +2911,14 @@ function ChefChat(){
             )
           );
         }),
-        loading&&h('div',{className:'chef-typing-wrap'},
+        loading&&h('div',{className:'chef-typing-wrap',style:{position:'relative'}},
+          h('div',{className:'thought-bubbles'},
+            ...['🍕','🥩','🍷','🍣','🍝'].map((e,i)=>h('span',{key:i,className:'thought-bubble',style:{
+              left:(i*10)+'px',
+              animationDelay:(i*.35)+'s',
+              animationDuration:(1.6+i*.15)+'s',
+            }},e))
+          ),
           h('div',{className:'chef-typing-avatar'},'👨‍🍳'),
           h('div',{style:{display:'flex',flexDirection:'column'}},
             h('div',{className:'chef-typing-bubble'},h('span'),h('span'),h('span')),
@@ -2949,7 +2986,7 @@ function NetflixRow({title,accent,label,dishes,c,favs,setFavs,dailyTop,offset=0}
               h('div',{className:'nfx-img-overlay'}),
               h('div',{style:{zIndex:1,filter:'drop-shadow(0 8px 16px rgba(0,0,0,.5))'}},d.e),
               d.name===dailyTop.name&&h('div',{style:{position:'absolute',bottom:8,left:10,background:'linear-gradient(135deg,#E8520A,#C9A84C)',color:'#fff',fontSize:8,fontWeight:800,padding:'2px 9px',borderRadius:100,letterSpacing:'.1em',fontFamily:'Inter,sans-serif',zIndex:3,boxShadow:'0 2px 10px rgba(232,82,10,.5)'}},'🔥 DIA'),
-              h('button',{onClick:ev=>{ev.preventDefault();ev.stopPropagation();setFavs(f=>({...f,[idx]:!f[idx]}));},
+              h('button',{onClick:ev=>{ev.preventDefault();ev.stopPropagation();if(!favs[idx])flyHeart(ev);setFavs(f=>({...f,[idx]:!f[idx]}));},
                 style:{position:'absolute',top:8,right:8,width:28,height:28,background:'rgba(0,0,0,.7)',border:'none',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:12,color:favs[idx]?'#E8520A':'rgba(255,255,255,.6)',transition:'all .2s',zIndex:3}},
                 favs[idx]?'♥':'♡')
             ),
@@ -3004,6 +3041,25 @@ function VipWelcome({c}){
 ════════════════════════════════════════════════════════════ */
 
 
+
+function StarField(){
+  const stars=useMemo(()=>[...Array(28)].map((_,i)=>({
+    id:i,
+    x:Math.random()*100,
+    y:Math.random()*100,
+    size:Math.random()*2+1,
+    dur:(Math.random()*3+2).toFixed(1),
+    delay:(Math.random()*4).toFixed(1),
+    op:(Math.random()*.6+.2).toFixed(2),
+  })),[]);
+  return h('div',{className:'star-field'},
+    ...stars.map(s=>h('div',{key:s.id,className:'star',style:{
+      left:s.x+'%',top:s.y+'%',
+      width:s.size+'px',height:s.size+'px',
+      '--dur':s.dur+'s','--delay':s.delay+'s','--op':s.op,
+    }}))
+  );
+}
 function ReturningBanner(){
   const [show,setShow]=useState(false);
   useEffect(()=>{
@@ -3083,6 +3139,16 @@ function App(){
   });
   // Persist favs to LS on change
   useEffect(()=>{LS.set('sab_favs',favs);},[favs]);
+  const flyHeart=(ev)=>{
+    if(!ev)return;
+    const el=document.createElement('div');
+    el.className='fly-heart';
+    el.textContent='❤️';
+    el.style.left=(ev.clientX-10)+'px';
+    el.style.top=(ev.clientY-10)+'px';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),1100);
+  };
   const [bnr,  setBnr]  =useState(true);
   const [tIdx, setTIdx] =useState(0);
   const [srch, setSrch]    =useState('');
@@ -3573,11 +3639,7 @@ function App(){
       ),
 
 /* ════ FIXED: BACK TO TOP ════ */
-      h('button',{className:'share-btn'+(top?' vis':''),onClick:()=>{
-        const txt='🍽️ Olha esse site incrível pra pedir comida gourmet! O Chef René escolhe o prato perfeito pra você: '+window.location.href;
-        if(navigator.share){navigator.share({title:'Sabores',text:txt,url:window.location.href}).catch(()=>{});}
-        else{window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');}
-      }},'📤'),
+
       h('button',{id:'btt','data-h':1,onClick:()=>window.scrollTo({top:0,behavior:'smooth'}),
   style:{
     opacity:top?1:0,
