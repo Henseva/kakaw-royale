@@ -2539,8 +2539,33 @@ function ChefChat(){
       !apiKey&&h('div',{style:{padding:'28px 20px',textAlign:'center'}},
         h('div',{style:{fontSize:32,marginBottom:12}},'⚙️'),
         h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:16,color:'#f0e6d3',marginBottom:8}},'Configure o Chef René'),
-        h('div',{style:{fontSize:11,color:'rgba(200,180,160,.45)',fontFamily:'Inter,sans-serif',lineHeight:1.7,marginBottom:16}},'Clique em 🔑 acima e cole a URL do seu Cloudflare Worker para ativar o Chef.'),
-        h('a',{href:'https://dash.cloudflare.com',target:'_blank',style:{display:'inline-block',padding:'10px 20px',background:'linear-gradient(135deg,#C9A84C,#8a5e00)',borderRadius:10,color:'#fff',fontFamily:'Inter,sans-serif',fontSize:12,fontWeight:700,textDecoration:'none'}},'Criar Worker grátis →')
+        h('div',{style:{fontSize:11,color:'rgba(200,180,160,.45)',fontFamily:'Inter,sans-serif',lineHeight:1.7,marginBottom:16}},'Cole a URL do seu Cloudflare Worker abaixo para ativar o Chef.'),
+        h('input',{
+          id:'worker-url-input',
+          style:{width:'100%',boxSizing:'border-box',padding:'10px 14px',background:'rgba(255,255,255,.06)',border:'1px solid rgba(201,168,76,.3)',borderRadius:12,color:'#f0e6d3',fontFamily:'monospace',fontSize:11,outline:'none',marginBottom:10},
+          placeholder:'https://sabores-chef.hensevasconcelos.workers.dev',
+          value:keyInput,
+          onChange:e=>setKeyInput(e.target.value),
+        }),
+        h('button',{
+          style:{width:'100%',padding:'12px',background:'linear-gradient(135deg,#C9A84C,#8a5e00)',border:'none',borderRadius:12,color:'#fff',fontFamily:'Inter,sans-serif',fontSize:13,fontWeight:700,cursor:'pointer',marginBottom:8},
+          onClick:()=>{
+            const url=keyInput.trim()||'https://sabores-chef.hensevasconcelos.workers.dev';
+            if(!url.startsWith('https://')){Toast.show('❌ URL inválida');return;}
+            LS.set('sab_worker_url',url);
+            setApiKey(url);
+            setKeyInput('');
+            Toast.show('✅ Chef René ativado!');
+          }
+        },'✅ Ativar Chef René'),
+        h('button',{
+          style:{width:'100%',padding:'10px',background:'none',border:'1px solid rgba(201,168,76,.2)',borderRadius:12,color:'#C9A84C',fontFamily:'Inter,sans-serif',fontSize:11,cursor:'pointer'},
+          onClick:()=>{
+            LS.set('sab_worker_url','https://sabores-chef.hensevasconcelos.workers.dev');
+            setApiKey('https://sabores-chef.hensevasconcelos.workers.dev');
+            Toast.show('✅ Chef René ativado!');
+          }
+        },'⚡ Usar URL padrão (sabores-chef.hensevasconcelos.workers.dev)')
       ),
       apiKey&&h('div',{className:'chef-suggest-wrap'},
         h('div',{style:{display:'flex',gap:6,marginBottom:8}},
