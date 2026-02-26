@@ -24,8 +24,10 @@ body{overflow-x:hidden;background:#0a0805;cursor:none}
 
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:3px}
-::-webkit-scrollbar-thumb{background:linear-gradient(#E8520A,#C9A84C);border-radius:2px}
 ::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#E8520A,#C9A84C,#E8520A);background-size:100% 200%;border-radius:2px;animation:scrollThumbShimmer 2s linear infinite}
+@keyframes scrollThumbShimmer{0%{background-position:0 0}100%{background-position:0 200%}}
+.nfx-card::-webkit-scrollbar{display:none!important}
 
 /* ── CURSOR ── */
 #cur{width:12px;height:12px;background:#E8520A;border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s,height .2s,background .2s,border-radius .2s,opacity .2s}
@@ -97,12 +99,31 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
   .hero-floats{display:none!important}
   .stats-grid{grid-template-columns:1fr 1fr!important}
   .footer-grid{grid-template-columns:1fr 1fr!important}
+  .promo-grid{padding:40px 28px!important}
+}
+@media(max-width:700px){
+  .how-grid{grid-template-columns:1fr!important}
+  /* Peak hours chart on mobile */
+  #peak-chart{font-size:6px!important}
 }
 @media(max-width:600px){
   .stats-grid{grid-template-columns:1fr 1fr!important}
   .footer-grid{grid-template-columns:1fr!important}
-  .promo-grid{grid-template-columns:1fr!important}
+  .promo-grid{grid-template-columns:1fr!important;padding:32px 20px!important;text-align:center}
   .how-grid{grid-template-columns:1fr!important}
+  /* Favs section pills wrap nicely */
+  .favs-row{gap:8px!important}
+  /* Admin ChefLogs grid */
+  .chef-logs-grid{grid-template-columns:1fr!important}
+  /* Share + btt buttons spacing */
+  .share-btn{bottom:148px!important;right:16px!important}
+  #btt{bottom:90px!important;right:16px!important}
+  /* Push prompt full width */
+  .push-prompt{width:92vw!important;max-width:none!important}
+  /* Returning banner full width */
+  .returning-banner{width:92vw!important;max-width:none!important}
+  /* Voice button always visible on mobile */
+  .chef-voice-btn{opacity:1!important;color:rgba(200,180,160,.5)!important}
 }
 /* ── NAV MOBILE ── */
 @media(max-width:600px){
@@ -116,6 +137,10 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
   .nav-cta span.cta-label{display:none}
   .nav-status .status-text{display:none}
   .nav-cta{padding:8px 10px!important}
+  /* Extra small — stack admin KPIs */
+  .adm-kpi-grid{grid-template-columns:1fr 1fr!important}
+  /* Chip overflow on very small screens */
+  .chef-chips-row{padding:0 12px!important}
 }
 
 
@@ -349,7 +374,7 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 .chef-react-btn:hover{background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.3);color:#C9A84C}
 .chef-react-btn.liked{background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.4);color:#C9A84C}
 
-@media(max-width:480px){#chef-panel{width:100vw;border-radius:24px 24px 0 0}#chef-btn{bottom:88px;left:16px}}
+@media(max-width:480px){#chef-panel{width:100vw;border-radius:24px 24px 0 0}#chef-btn{bottom:88px;left:16px}#chef-panel.open{height:100dvh;max-height:100dvh;border-radius:0}}
 
 
 /* ── SABOR DO MOMENTO ── */
@@ -427,7 +452,7 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
   backdrop-filter:blur(12px);text-transform:uppercase}
 
 /* seasonal card decos */
-.nfx-card{position:relative;overflow:visible!important}
+.nfx-card{position:relative;overflow:visible!important}.nfx-card-inner{border-radius:20px;overflow:hidden;height:100%}
 .card-deco{position:absolute;top:-13px;z-index:4;pointer-events:none;animation:decoSwing 3s ease-in-out infinite;transform-origin:top center;font-size:16px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))}
 .card-deco.l{left:14px}
 .card-deco.r{right:14px;animation-delay:.9s}
@@ -482,6 +507,28 @@ body.light-mode .chef-panel,body.light-mode .adm-shell{box-shadow:0 20px 60px rg
 .returning-banner-title{font-size:13px;font-weight:700;color:#C9A84C;margin-bottom:3px}
 .returning-banner-sub{font-size:11px;color:rgba(200,180,160,.5)}
 @keyframes fadeDown{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+@media(max-width:700px){.how-arrow{display:none!important}}
+
+.share-btn{position:fixed;bottom:148px;right:20px;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#25D366,#128C7E);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;z-index:600;box-shadow:0 4px 20px rgba(37,211,102,.4);transition:all .3s;opacity:0;transform:scale(.7) translateY(10px)}
+.share-btn.vis{opacity:1;transform:scale(1) translateY(0)}
+.share-btn:hover{transform:scale(1.1) translateY(0)!important}
+
+.chef-voice-btn{background:none;border:none;cursor:pointer;font-size:18px;color:rgba(200,180,160,.4);transition:all .25s;padding:4px;border-radius:50%;flex-shrink:0}
+.chef-voice-btn:hover{color:#C9A84C}
+.chef-voice-btn.listening{color:#E8520A;animation:voicePulse .6s ease-in-out infinite}
+@keyframes voicePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+@media(hover:none){.chef-voice-btn{color:rgba(200,180,160,.55)}}
+
+/* ── Back to Top — estilizado ── */
+#btt{position:fixed;bottom:90px;right:20px;width:44px;height:52px;border:none;border-radius:14px;cursor:pointer;z-index:600;transition:all .42s cubic-bezier(.22,1,.36,1);overflow:hidden;display:flex;align-items:center;justify-content:center;padding:0;background:transparent}
+#btt::before{content:'';position:absolute;inset:0;border-radius:14px;background:linear-gradient(180deg,#E8520A,#C9A84C,#E8520A);background-size:100% 200%;animation:bttShimmer 2s linear infinite;transition:all .3s}
+@keyframes bttShimmer{0%{background-position:0 0}100%{background-position:0 200%}}
+#btt::after{content:'';position:absolute;inset:0;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:linear-gradient(135deg,rgba(255,255,255,.15) 0%,transparent 60%);pointer-events:none}
+#btt svg{position:relative;z-index:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,.4));transition:transform .25s cubic-bezier(.22,1,.36,1)}
+#btt:hover svg{transform:translateY(-3px)}
+#btt:hover::before{animation-duration:.8s}
+#btt:active svg{transform:translateY(-1px) scale(.95)}
 </style>
 </head>
 <body>
@@ -703,6 +750,12 @@ const VIP=(function(){
   // Only log once per 30 minutes per device
   if(Date.now()-last < 30*60*1000)return;
   LS.set(key,Date.now());
+  // Track hourly access for peak hours chart
+  const hourlyKey='sab_hourly_access';
+  const hourly=LS.get(hourlyKey,{});
+  const h=new Date().getHours();
+  hourly[h]=(hourly[h]||0)+1;
+  LS.set(hourlyKey,hourly);
   setTimeout(()=>{
     try{
       const visits=LS.get('sab_visits',1);
@@ -1401,7 +1454,7 @@ function ChefLogs(){
     h('div',{style:{fontFamily:'Inter,sans-serif',fontSize:12,color:'rgba(200,180,160,.3)',textAlign:'center'}},'Nenhuma conversa registrada ainda.\nQuando clientes usarem o Chef René, aparecerá aqui.')
   );
 
-  return h('div',{style:{display:'grid',gridTemplateColumns:selected?'1fr 1.5fr':'1fr',gap:16,height:'100%'}},
+  return h('div',{className:'chef-logs-grid',style:{display:'grid',gridTemplateColumns:selected?'1fr 1.5fr':'1fr',gap:16,height:'100%'}},
     // Sessions list
     h('div',null,
       h('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}},
@@ -1490,6 +1543,7 @@ function AdminDashboard({c,open,onClose,dishes,restaurants}){
     {id:'content',icon:'✏️',label:'Conteúdo'},
     {id:'cardapio',icon:'🍴',label:'Cardápio'},
     {id:'chatlogs',icon:'💬',label:'Chef Logs',badge:(()=>{const l=LS.get('sab_chef_logs',[]);return l.length||null;})()},
+    {id:'peak',icon:'📈',label:'Horários'},
     {id:'settings',icon:'⚙️',label:'Config'},
   ];
 
@@ -1504,6 +1558,7 @@ function AdminDashboard({c,open,onClose,dishes,restaurants}){
     content:{title:'Conteúdo',sub:'Edite textos e destaques em tempo real'},
     cardapio:{title:'Cardápio',sub:'Gerencie os pratos exibidos no site'},
     chatlogs:{title:'Chef Logs',sub:'Conversas dos clientes com o Chef René'},
+    peak:{title:'Horários de Pico',sub:'Em quais horas o site recebe mais acessos'},
     settings:{title:'Config',sub:'Configurações do painel e dados'},
   };
 
@@ -1843,6 +1898,76 @@ function AdminDashboard({c,open,onClose,dishes,restaurants}){
           tab==='chatlogs'&&h(ChefLogs,{c}),
 
           /* ── TAB: SETTINGS ── */
+          tab==='peak'&&h('div',null,
+            h('div',{className:'adm-card'},
+              h('div',{className:'adm-card-title'},'Acessos por hora do dia'),
+              h('div',{style:{fontFamily:'Inter,sans-serif',fontSize:11,color:'rgba(200,180,160,.4)',marginBottom:16}},'Cada acesso único registrado (janela de 30min por dispositivo)'),
+              (()=>{
+                const hourly=LS.get('sab_hourly_access',{});
+                const max=Math.max(1,...Object.values(hourly));
+                return h('div',{id:'peak-chart',style:{display:'flex',alignItems:'flex-end',gap:2,height:100,paddingBottom:20,position:'relative',overflowX:'auto',overflowY:'hidden'}},
+
+                  ...[...Array(24)].map((_,i)=>{
+                    const val=hourly[i]||0;
+                    const pct=(val/max)*100;
+                    const isNow=new Date().getHours()===i;
+                    return h('div',{key:i,style:{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:3}},
+                      val>0&&h('div',{style:{fontFamily:'monospace',fontSize:7,color:'rgba(201,168,76,.6)',marginBottom:2}},''+val),
+                      h('div',{title:i+'h: '+val+' acessos',style:{
+                        width:'100%',height:Math.max(2,pct)+'%',
+                        background:isNow?'linear-gradient(180deg,#E8520A,#C9A84C)':'rgba(201,168,76,'+(val>0?'.4':'.1')+')',
+                        borderRadius:'3px 3px 0 0',transition:'height .3s',minHeight:2,
+                        boxShadow:isNow?'0 0 8px rgba(232,82,10,.5)':'none'
+                      }}),
+                      h('div',{style:{fontFamily:'monospace',fontSize:7,color:isNow?'#E8520A':'rgba(200,180,160,.3)',fontWeight:isNow?700:400}},i%3===0?i+'h':'')
+                    );
+                  })
+                );
+              })()
+            ),
+            h('div',{className:'adm-card'},
+              h('div',{className:'adm-card-title'},'Top chips do Chef usados'),
+              (()=>{
+                const logs=LS.get('sab_chef_logs',[]);
+                const questions=logs.flatMap(s=>s.msgs?.map(m=>m.q)||[]);
+                const chips=['Surpreenda','combo','Rápido','Compare','aniversário','Jantar a dois','japonês','pizza','hambúrguer','leve','Kids'];
+                const counts=chips.map(w=>({w,n:questions.filter(q=>q.toLowerCase().includes(w.toLowerCase())).length}))
+                  .filter(x=>x.n>0).sort((a,b)=>b.n-a.n);
+                if(!counts.length)return h('div',{style:{fontFamily:'Inter,sans-serif',fontSize:11,color:'rgba(200,180,160,.3)',padding:'12px 0'}},'Ainda sem dados de chips.');
+                const max=counts[0].n;
+                return h('div',{style:{display:'flex',flexDirection:'column',gap:8}},
+                  ...counts.map((x,i)=>h('div',{key:i,style:{display:'flex',alignItems:'center',gap:10}},
+                    h('div',{style:{fontFamily:'Inter,sans-serif',fontSize:11,color:'rgba(200,180,160,.6)',width:80,flexShrink:0,textOverflow:'ellipsis',overflow:'hidden',whiteSpace:'nowrap'}},x.w),
+                    h('div',{style:{flex:1,height:6,background:'rgba(255,255,255,.04)',borderRadius:3,overflow:'hidden'}},
+                      h('div',{style:{height:'100%',width:(x.n/max*100)+'%',background:'linear-gradient(90deg,#C9A84C,#E8520A)',borderRadius:3,transition:'width .4s'}})
+                    ),
+                    h('div',{style:{fontFamily:'monospace',fontSize:10,color:'#C9A84C',fontWeight:700,width:24,textAlign:'right'}},x.n)
+                  ))
+                );
+              })()
+            ),
+            h('div',{className:'adm-card'},
+              h('div',{className:'adm-card-title'},'Abandonos no Chef René'),
+              h('div',{style:{fontFamily:'Inter,sans-serif',fontSize:11,color:'rgba(200,180,160,.4)',lineHeight:1.7}},
+                (()=>{
+                  const logs=LS.get('sab_chef_logs',[]);
+                  const opens=LS.get('sab_chef_opens',0);
+                  const withMsg=logs.length;
+                  const abandoned=Math.max(0,opens-withMsg);
+                  const rate=opens>0?Math.round((abandoned/opens)*100):0;
+                  return h('div',null,
+                    h('div',{style:{display:'flex',gap:20,marginBottom:8}},
+                      h('div',null,h('div',{style:{fontSize:20,fontWeight:700,color:'#C9A84C',fontFamily:'Inter,sans-serif'}},''+opens),h('div',{style:{fontSize:9,color:'rgba(200,180,160,.3)',textTransform:'uppercase',letterSpacing:'.08em'}},'Aberturas')),
+                      h('div',null,h('div',{style:{fontSize:20,fontWeight:700,color:'#2ecc71',fontFamily:'Inter,sans-serif'}},''+withMsg),h('div',{style:{fontSize:9,color:'rgba(200,180,160,.3)',textTransform:'uppercase',letterSpacing:'.08em'}},'Conversaram')),
+                      h('div',null,h('div',{style:{fontSize:20,fontWeight:700,color:rate>30?'#e74c3c':'#f39c12',fontFamily:'Inter,sans-serif'}},''+rate+'%'),h('div',{style:{fontSize:9,color:'rgba(200,180,160,.3)',textTransform:'uppercase',letterSpacing:'.08em'}},'Abandonaram'))
+                    ),
+                    rate>30?h('div',{style:{color:'#e74c3c',fontSize:11}},'⚠️ Taxa alta — considere melhorar a mensagem de boas-vindas do Chef.'):
+                    h('div',{style:{color:'#2ecc71',fontSize:11}},'✅ Taxa de engajamento saudável.')
+                  );
+                })()
+              )
+            )
+          ),
           tab==='settings'&&h('div',null,
             h('div',{className:'adm-card'},
               h('div',{className:'adm-card-title'},'Dados e privacidade'),
@@ -2326,8 +2451,15 @@ const DRINKS_CONTEXT=DRINKS.map(d=>[d.e,d.name,'—','R$'+d.price,d.kcal,'—',d
 function buildChefSystem(isKid){
   const mem=LS.get('sab_chef_memory',{});
   const hr=new Date().getHours();
+  const dayNames=['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+  const dayName=dayNames[new Date().getDay()];
+  const isWeekend=new Date().getDay()===0||new Date().getDay()===6;
   const timeCtx=hr>=0&&hr<6?'CONTEXTO: É madrugada. Tom mais íntimo e exclusivo — "a esta hora, só o que vale perder o sono...". Sugira pratos que funcionam bem tarde.':hr>=6&&hr<12?'CONTEXTO: É manhã. Tom energizante e leve.':hr>=12&&hr<15?'CONTEXTO: É horário de almoço. Tom direto e prático.':hr>=18?'CONTEXTO: É noite ou jantar. Tom mais sofisticado e romântico.':'';
   const memLines=[];
+  // Top dish this week
+  const topDishData=LS.get('sab_clicks_dish',{});
+  const topDishEntry=Object.entries(topDishData).sort((a,b)=>b[1]-a[1])[0];
+  if(topDishEntry&&topDishEntry[1]>3)memLines.push('- Prato mais clicado esta semana: '+topDishEntry[0]+' ('+topDishEntry[1]+' cliques) — mencione proativamente se relevante');
   if(mem.name)memLines.push('- Nome do cliente: '+mem.name+' (use naturalmente na conversa)');
   if(mem.dishes&&mem.dishes.length)memLines.push('- Pratos que já gostou: '+mem.dishes);
   if(mem.dislikes&&mem.dislikes.length)memLines.push('- NÃO GOSTAR / evitar: '+mem.dislikes+' (NUNCA sugira estes)');
@@ -2342,7 +2474,8 @@ function buildChefSystem(isKid){
     return '['+ago+' — '+new Date(s.date).toLocaleDateString('pt-BR')+']\n'+items;
   }).join('\n');
   const histCtx=histLines?'\n\nHISTÓRICO DE VISITAS ANTERIORES (use para personalizar, mas não mencione explicitamente a menos que relevante):\n'+histLines:''
-  const timeBlock=timeCtx?'\n\n'+timeCtx:'';
+  const dayCtx='CONTEXTO DIA: Hoje é '+dayName+(isWeekend?' (fim de semana — clientes com mais tempo, sugestões mais elaboradas e especiais)':' (dia útil — clientes podem estar ocupados, equilibre rapidez com sofisticação)')+'.';
+  const timeBlock=timeCtx?'\n\n'+timeCtx+'\n'+dayCtx:'\n\n'+dayCtx;
   return 'Você é o Chef René Dubois, sommelier e maître gastronômico do Sabores.\n\nSua missão é transformar cada conversa numa experiência memorável. Você conhece o cardápio inteiro de cor, harmoniza bebidas como ninguém, e tem capacidade única de entender o que o cliente deseja.\n\nPERSONALIDADE:\n- Refinado mas caloroso — democratiza o prazer da boa mesa\n- Humor elegante e anedotas culinárias genuínas\n- Apaixonado: cada prato tem uma história\n- MODO HUMOR: se o cliente brincar ou usar gírias, responda com leveza e uma piada culinária\n- MODO RÁPIDO: se detectar "rápido", "com pressa", "resumo" — responda em máx 3 linhas diretas\n- IDIOMA: responda sempre no idioma do cliente (inglês, espanhol, etc.) mantendo o charme francês\n\nEMOJIS COMO INTENÇÃO:\n🔥 = quer algo intenso/picante | 😢 = comfort food, algo aconchegante | 💚 = leve/saudável | 🍷 = harmonização especial | 💸 = econômico | 👑 = o melhor disponível\n\nOCASIÕES ESPECIAIS: se detectar aniversário, casamento, namorado/a, pedido de namoro, formatura — entre em MODO OCASIÃO: sugira decoração, mensagem personalizada, harmonização premium e sobremesa especial.\n\nFUNCIONALIDADES ESPECIAIS:\n- COMBO: se o cliente mencionar orçamento (ex: "tenho R$100"), monte entrada+prato+bebida dentro do valor\n- COMPARAR: se pedir comparação entre dois pratos, analise lado a lado com prós de cada um\n- SURPRESA: se pedir "surpreenda-me" ou "escolha você", faça uma apresentação dramática e escolha algo inesperado\n- AVALIAÇÃO: após recomendar, pergunte "Gostou desta sugestão? (👍 sim / 👎 não)" e aprenda com a resposta\n\nCARDÁPIO COMPLETO:\n'+MENU_CONTEXT+'\n\nBEBIDAS E HARMONIZAÇÕES:\n'+DRINKS_CONTEXT+'\n\nREGRAS:\n- Cite nome exato, restaurante e preço (R$)\n- Sugira harmonização em toda recomendação\n- Máximo 2-3 sugestões por resposta\n- DISH_CARD: nome exato do prato (ao final de cada sugestão)\n- Nunca invente pratos fora do cardápio\n- Limite 220 palavras por resposta'
   +(isKid?'\n\nMODO CRIANÇA ATIVADO 🧒:\n- Mude completamente o nome: você agora é o "Chef Renezinho" 🧑‍🍳\n- Tom divertido, animado, com comparações do universo infantil\n- Use muitos emojis coloridos e exclamações!\n- Fale palavras simples — nada de "harmonização" ou "sommelier"\n- Sugira apenas pratos que crianças adoram: pizza, macarrão, nuggets, hambúrguer, suco\n- Pergunte sobre personagens favoritos e compare a comida com aventuras\n- Termine sempre com uma frase de incentivo tipo "Você vai arrasar! 🦸"\n- NUNCA sugira bebidas alcoólicas — apenas sucos, vitaminas, refrigerante\n- Máximo 3 frases curtas por resposta\n- Exemplo de tom: "Oi! Eu sou o Chef Renezinho! 🧑‍🍳 Hoje temos uma pizza INCRÍVEL, igual à da festa do Mario! 🍕⭐"':'' )
   +timeBlock+memCtx;
@@ -2376,8 +2509,12 @@ function getChefSystem(msgHistory,currentMsg){
   // Language detection — current message only (user may switch mid-chat)
   const lang=detectLanguage(currentMsg||'');
   const langNames={en:'English',es:'Spanish/español',fr:'French/français',it:'Italian/italiano',de:'German/Deutsch',zh:'Chinese/中文',ja:'Japanese/日本語',ar:'Arabic/العربية',ru:'Russian/русский',hi:'Hindi/हिन्दी',ko:'Korean/한국어'};
+  // Detect bad mood in current message
+  const moodWords=['cansado','cansada','estressado','estressada','dia horrível','péssimo dia','dia ruim','difícil','exausto','exausta','frustrado','frustrada','triste','ansioso','ansiosa'];
+  const hasBadMood=currentMsg&&moodWords.some(w=>currentMsg.toLowerCase().includes(w));
+  const moodBlock=hasBadMood?'\n\nMODO COMFORT FOOD ATIVADO 🤗: O cliente teve um dia difícil. Tom extra carinhoso, empático e acolhedor. Sugira pratos reconfortantes, quentinhos, cremosos. Diga algo como "Dias assim pedem uma comida que abraça de dentro pra fora..." Priorize: macarrão cremoso, caldos, hambúrgueres suculentos, chocolates quentes.':'';
   const langBlock=lang!=='pt'?'\n\n*** LANGUAGE OVERRIDE — MANDATORY ***: The client is writing in '+( langNames[lang]||lang)+'. You MUST respond ENTIRELY in that language ('+lang+'). Not a single word in Portuguese. Maintain your French chef personality and charm but write EXCLUSIVELY in the client language. If the language uses a non-Latin script (Chinese, Japanese, Arabic, etc), write in that script.':'';
-  return buildChefSystem(isKid)+langBlock;
+  return buildChefSystem(isKid)+langBlock+moodBlock;
 }
 const CHEF_SYSTEM=buildChefSystem();
 
@@ -2431,6 +2568,15 @@ function parseChefMsg(text){
 
 function ChefChat(){
   const [open,setOpen]=useState(false);
+  // Track opens for abandonment metric
+  const openTracked=useRef(false);
+  useEffect(()=>{
+    if(open&&!openTracked.current){
+      openTracked.current=true;
+      const opens=LS.get('sab_chef_opens',0);
+      LS.set('sab_chef_opens',opens+1);
+    }
+  },[open]);
   const WORKER_URL='https://sabores-chef.hensevasconcelos.workers.dev';
   const [apiKey,setApiKey]=useState(WORKER_URL);
 
@@ -2456,6 +2602,8 @@ function ChefChat(){
   const [showChips,setShowChips]=useState(0);
   const msgsRef=useRef(null);
   const inputRef=useRef(null);
+  const recognition=useRef(null);
+  const [listening,setListening]=useState(false);
 
 
 
@@ -2743,8 +2891,21 @@ function ChefChat(){
       ),
       apiKey&&h('div',{className:'chef-footer'},
         h('div',{className:'chef-input-row'},
+          h('button',{className:'chef-voice-btn'+(listening?' listening':''),
+            title:listening?'Parar':'Enviar por voz',
+            onClick:()=>{
+              if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){Toast.show('🎙️ Voz não suportada neste navegador');return;}
+              if(listening){recognition.current&&recognition.current.stop();setListening(false);return;}
+              const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+              recognition.current=new SR();
+              recognition.current.lang='pt-BR';recognition.current.interimResults=false;
+              recognition.current.onresult=e=>{const t=e.results[0][0].transcript;setInput(t);setListening(false);setTimeout(()=>send(t),150);};
+              recognition.current.onerror=()=>setListening(false);
+              recognition.current.onend=()=>setListening(false);
+              recognition.current.start();setListening(true);
+            }},'🎙️'),
           h('textarea',{ref:inputRef,className:'chef-input',
-            placeholder:'Pergunte ao Chef René...',
+            placeholder:listening?'🎙️ Ouvindo...':'Pergunte ao Chef René...',
             value:input,onChange:function(e){setInput(e.target.value);},
             onKeyDown:handleKey,rows:1}),
           h('button',{className:'chef-send',disabled:loading||!input.trim(),onClick:function(){send();}},
@@ -2915,7 +3076,13 @@ function App(){
   const [sc,   setSc]   =useState(false);
   const [top,  setTop]  =useState(false);
   const [filt, setFilt] =useState('Todos');
-  const [favs, setFavs] =useState({});
+  const [favs, setFavs] =useState(()=>{
+    const saved=LS.get('sab_favs',{});
+    // Convert saved dish names back to index-based obj
+    return saved;
+  });
+  // Persist favs to LS on change
+  useEffect(()=>{LS.set('sab_favs',favs);},[favs]);
   const [bnr,  setBnr]  =useState(true);
   const [tIdx, setTIdx] =useState(0);
   const [srch, setSrch]    =useState('');
@@ -3152,7 +3319,7 @@ function App(){
                 h('div',{style:{fontSize:40,marginBottom:20}},hw.icon),
                 h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:24,fontWeight:700,color:c.cream,marginBottom:12,letterSpacing:'-.5px'}},hw.title),
                 h('div',{style:{fontSize:14,color:c.muted,lineHeight:1.75,fontFamily:'Inter,sans-serif',fontWeight:300}},hw.desc),
-                i<HOW.length-1&&h('div',{style:{position:'absolute',right:-14,top:'50%',transform:'translateY(-50%)',width:28,height:28,borderRadius:'50%',background:c.orange,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:12,zIndex:2,boxShadow:`0 4px 16px rgba(232,82,10,.4)`}},'→')
+                i<HOW.length-1&&h('div',{className:'how-arrow',style:{position:'absolute',right:-14,top:'50%',transform:'translateY(-50%)',width:28,height:28,borderRadius:'50%',background:c.orange,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:12,zIndex:2,boxShadow:`0 4px 16px rgba(232,82,10,.4)`}},'→')
               )
             ))
           )
@@ -3184,6 +3351,50 @@ function App(){
         )
       ),
 
+
+      /* ── Seção favoritos ── */
+      Object.values(favs).some(Boolean)&&(()=>{
+        const favDishes=DISHES.filter((_,i)=>favs[i]);
+        if(!favDishes.length)return null;
+        return h('section',{style:{padding:'0 28px 40px',background:c.bg}},
+          h('div',{style:{maxWidth:1200,margin:'0 auto'}},
+            h('div',{style:{display:'flex',alignItems:'center',gap:12,marginBottom:20}},
+              h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:22,color:c.cream,fontWeight:700}},'❤️ Seus'),
+              h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:22,color:c.orange,fontWeight:700,fontStyle:'italic'}},'Favoritos'),
+              h('span',{style:{fontFamily:'Inter,sans-serif',fontSize:10,color:c.muted,padding:'3px 10px',border:`1px solid ${c.border}`,borderRadius:100,marginLeft:4}},'Salvos localmente')
+            ),
+            h('div',{style:{display:'flex',gap:12,flexWrap:'wrap'}},
+              ...favDishes.map((d,i)=>h('a',{key:i,'data-h':1,href:iurl(d.q),target:'_blank',rel:'noreferrer',
+                style:{display:'flex',alignItems:'center',gap:10,padding:'10px 16px',background:c.card,border:`1px solid rgba(232,82,10,.25)`,borderRadius:100,textDecoration:'none',transition:'all .25s'},
+                onMouseEnter:e=>{e.currentTarget.style.borderColor=c.orange;e.currentTarget.style.background=c.card2;},
+                onMouseLeave:e=>{e.currentTarget.style.borderColor='rgba(232,82,10,.25)';e.currentTarget.style.background=c.card;}},
+                h('span',{style:{fontSize:18}},d.e),
+                h('span',{style:{fontFamily:'Inter,sans-serif',fontSize:12,color:c.cream,fontWeight:600}},d.name),
+                h('span',{style:{fontFamily:'Inter,sans-serif',fontSize:11,color:c.orange,fontWeight:700}},'R$'+d.price)
+              ))
+            )
+          )
+        );
+      })(),
+      Object.values(favs).some(Boolean)&&h('section',{style:{padding:'0 28px 40px',background:c.bg}},
+        h('div',{style:{maxWidth:1200,margin:'0 auto'}},
+          h('div',{style:{display:'flex',alignItems:'center',gap:10,marginBottom:16}},
+            h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:22,color:c.cream,fontWeight:700}},'❤️ Seus'),
+            h('div',{style:{fontFamily:"'Playfair Display',serif",fontSize:22,color:c.orange,fontWeight:700,fontStyle:'italic'}},' Favoritos'),
+            h('span',{style:{fontFamily:'Inter,sans-serif',fontSize:10,color:c.muted,padding:'3px 10px',border:`1px solid ${c.border}`,borderRadius:100,marginLeft:4}},'Salvos')
+          ),
+          h('div',{style:{display:'flex',gap:10,flexWrap:'wrap'}},
+            ...DISHES.filter((_,i)=>favs[i]).map((d,i)=>h('a',{key:i,'data-h':1,href:iurl(d.q),target:'_blank',rel:'noreferrer',
+              style:{display:'flex',alignItems:'center',gap:8,padding:'8px 14px',background:c.card,border:'1px solid rgba(232,82,10,.3)',borderRadius:100,textDecoration:'none',transition:'all .25s'},
+              onMouseEnter:e=>{e.currentTarget.style.borderColor=c.orange;e.currentTarget.style.background=c.card2;},
+              onMouseLeave:e=>{e.currentTarget.style.borderColor='rgba(232,82,10,.3)';e.currentTarget.style.background=c.card;}},
+              h('span',null,d.e),
+              h('span',{style:{fontFamily:'Inter,sans-serif',fontSize:12,color:c.cream,fontWeight:600}},d.name),
+              h('span',{style:{fontFamily:'Inter,sans-serif',fontSize:11,color:c.orange,fontWeight:700}},'R$'+d.price)
+            ))
+          )
+        )
+      ),
 /* ════ PRATOS (NETFLIX ROWS) ════ */
       h('section',{id:'pratos',style:{paddingTop:60,paddingBottom:32,background:c.bg,position:'relative',zIndex:3}},
         h(Rv,{style:{padding:'0 28px',maxWidth:1200,margin:'0 auto',marginBottom:40}},
@@ -3362,7 +3573,22 @@ function App(){
       ),
 
 /* ════ FIXED: BACK TO TOP ════ */
-      h('button',{'data-h':1,onClick:()=>window.scrollTo({top:0,behavior:'smooth'}),style:{position:'fixed',bottom:90,right:28,width:40,height:40,background:`linear-gradient(135deg,${c.orange},${c.orangeD})`,border:'none',borderRadius:'50%',color:'#fff',fontSize:17,cursor:'pointer',zIndex:600,opacity:top?1:0,transform:top?'scale(1) translateY(0)':'scale(.7) translateY(10px)',transition:'all .42s cubic-bezier(.22,1,.36,1)',pointerEvents:top?'auto':'none',boxShadow:'0 4px 20px rgba(232,82,10,.42)'}},'↑')
+      h('button',{className:'share-btn'+(top?' vis':''),onClick:()=>{
+        const txt='🍽️ Olha esse site incrível pra pedir comida gourmet! O Chef René escolhe o prato perfeito pra você: '+window.location.href;
+        if(navigator.share){navigator.share({title:'Sabores',text:txt,url:window.location.href}).catch(()=>{});}
+        else{window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');}
+      }},'📤'),
+      h('button',{id:'btt','data-h':1,onClick:()=>window.scrollTo({top:0,behavior:'smooth'}),
+  style:{
+    opacity:top?1:0,
+    transform:top?'scale(1) translateY(0)':'scale(.8) translateY(16px)',
+    pointerEvents:top?'auto':'none',
+    boxShadow:top?'0 6px 28px rgba(232,82,10,.55),0 2px 8px rgba(201,168,76,.3)':'none',
+  }},
+  h('svg',{width:20,height:20,viewBox:'0 0 24 24',fill:'none',stroke:'#fff',strokeWidth:2.8,strokeLinecap:'round',strokeLinejoin:'round'},
+    h('polyline',{points:'18 15 12 9 6 15'})
+  )
+)
 
     ) // end main div
   ); // end Fragment
