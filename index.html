@@ -536,10 +536,12 @@ body.ch #cur-r{width:60px;height:60px;border-color:rgba(201,168,76,.45);backgrou
 100%{opacity:0;transform:translateY(-90px) scale(1.6)}}
 
 /* ── Card shimmer on hover (inner div approach) ── */
-.nfx-shine{position:absolute;inset:0;border-radius:20px;overflow:hidden;pointer-events:none;z-index:6}
-.nfx-shine::after{content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.13) 50%,transparent 65%);transition:none}
-.nfx-card.nfx-card.nfx-card.shine-active .nfx-shine::after{left:160%;transition:left .55s ease}
 
+
+.nfx-card.nfx-card
+
+.nfx-shine{position:absolute;inset:0;border-radius:20px;pointer-events:none;z-index:6;background:radial-gradient(circle at var(--sx,50%) var(--sy,50%),rgba(255,255,255,.13) 0%,transparent 55%);opacity:0;transition:opacity .3s}
+.nfx-card.shine-on .nfx-card.shine-on .nfx-shine{opacity:1}
 /* ══ Chef Avatar ══ */
 .c-avatar{position:relative;width:72px;height:72px;flex-shrink:0;z-index:5;overflow:visible}
 .c-avatar__ring{position:absolute;inset:-4px;border-radius:50%;
@@ -3025,7 +3027,7 @@ function NetflixRow({title,accent,label,dishes,c,favs,setFavs,flyHeart,dailyTop,
           return h('div',{key:d.name,style:{position:'relative',flexShrink:0,scrollSnapAlign:'start',scrollSnapStop:'always'}},
             h('a',{'data-cursor':'food','data-h':1,
               href:iurl(d.q),target:'_blank',rel:'noreferrer',className:'nfx-card',
-              onClick:(e)=>{Analytics.track('dish',d.name);const card=e.currentTarget;card.classList.add('shine-active');setTimeout(()=>card.classList.remove('shine-active'),700);},
+              onClick:()=>Analytics.track('dish',d.name),onMouseMove:(e)=>{const r=e.currentTarget.getBoundingClientRect();const x=((e.clientX-r.left)/r.width*100).toFixed(1);const y=((e.clientY-r.top)/r.height*100).toFixed(1);e.currentTarget.style.setProperty('--sx',x+'%');e.currentTarget.style.setProperty('--sy',y+'%');e.currentTarget.classList.add('shine-on');},onMouseLeave:(e)=>e.currentTarget.classList.remove('shine-on'),onTouchMove:(e)=>{const t=e.touches[0];const r=e.currentTarget.getBoundingClientRect();const x=((t.clientX-r.left)/r.width*100).toFixed(1);const y=((t.clientY-r.top)/r.height*100).toFixed(1);e.currentTarget.style.setProperty('--sx',x+'%');e.currentTarget.style.setProperty('--sy',y+'%');e.currentTarget.classList.add('shine-on');},onTouchEnd:(e)=>e.currentTarget.classList.remove('shine-on'),
               style:{background:c.card,border:`1px solid ${c.border}`,display:'block'}},
               cDecos&&cDecos.map((x,xi)=>h('span',{key:xi,className:'card-deco '+x.p},x.e)),
               h('div',{className:'nfx-img',style:{background:d.bg}},
