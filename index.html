@@ -557,8 +557,6 @@ body{overflow-x:hidden;background:#0a0805;cursor:none}
 .chef-quick-reply:hover{background:rgba(232,82,10,.18);border-color:rgba(232,82,10,.5);transform:translateY(-1px)}
 
 
-/* ── ElevenLabs voice button active ── */
-.chef-icon-btn.el-active{color:#C9A84C!important;border-color:rgba(201,168,76,.4)!important;background:rgba(201,168,76,.08)!important}
 /* ── Chef Resume Bar ── */
 .chef-resume-bar{background:linear-gradient(135deg,rgba(201,168,76,.1),rgba(232,82,10,.06));border-bottom:1px solid rgba(201,168,76,.18);padding:12px 18px;flex-shrink:0;animation:fadeUp .3s ease}
 .chef-resume-text{font-family:Inter,sans-serif;font-size:12px;color:rgba(240,230,211,.85);font-weight:500;margin-bottom:8px}
@@ -2588,43 +2586,16 @@ function buildChefSystem(isKid){
   +(isKid?'\n\nMODO CRIANÇA ATIVADO 🧒:\n- Mude completamente o nome: você agora é o "Chef Renezinho" 🧑‍🍳\n- Tom divertido, animado, com comparações do universo infantil\n- Use muitos emojis coloridos e exclamações!\n- Fale palavras simples — nada de "harmonização" ou "sommelier"\n- Sugira apenas pratos que crianças adoram: pizza, macarrão, nuggets, hambúrguer, suco\n- Pergunte sobre personagens favoritos e compare a comida com aventuras\n- Termine sempre com uma frase de incentivo tipo "Você vai arrasar! 🦸"\n- NUNCA sugira bebidas alcoólicas — apenas sucos, vitaminas, refrigerante\n- Máximo 3 frases curtas por resposta\n- Exemplo de tom: "Oi! Eu sou o Chef Renezinho! 🧑‍🍳 Hoje temos uma pizza INCRÍVEL, igual à da festa do Mario! 🍕⭐"':'' )
   +timeBlock+memCtx;
 }
-function detectLanguage(text){
-  if(!text)return 'pt';
-  const t=text.toLowerCase();
-  const langs=[
-    {code:'en',words:['i want','i need','i am','what is','can you','please','recommend','hello','hi ','good morning','good evening','what are','how much','the best','suggest','for me','tonight','hungry','give me','i like','do you have','something','looking for']},
-    {code:'es',words:['quiero','necesito','hola','buenos','buenas','puedes','recomienda','para mi','esta noche','hambre','tienes','que me','algo','busco','quisiera','dame','me gustaria','tengo ganas']},
-    {code:'fr',words:['je veux','je voudrais','bonjour','bonsoir','pouvez','recommandez','pour moi','ce soir','faim','avez-vous','quelque chose','je cherche','donnez moi','sil vous plait']},
-    {code:'it',words:['voglio','vorrei','buongiorno','buonasera','puoi','raccomanda','per me','stasera','fame','avete','qualcosa','cerco','mi dai','per favore','cosa consigli']},
-    {code:'de',words:['ich möchte','ich will','guten morgen','guten abend','können sie','empfehlen','für mich','heute abend','hunger','haben sie','etwas','ich suche','bitte','was empfehlen']},
-    {code:'zh',words:['我想要','我需要','你好','晚上好','可以','推荐','为我','今晚','饥饿','你们有','什么','我在找']},
-    {code:'ja',words:['ください','おすすめ','こんにちは','こんばんは','何が','食べたい','腹が減った','ありますか']},
-    {code:'ar',words:['أريد','أحتاج','مرحبا','مساء الخير','أوصي','لي','الليلة','جائع','عندكم','شيء']},
-    {code:'ru',words:['я хочу','мне нужно','привет','добрый вечер','можете','порекомендуйте','для меня','сегодня вечером','голодный','есть ли у вас']},
-    {code:'hi',words:['मुझे चाहिए','नमस्ते','सुझाव','मेरे लिए','भूख','क्या आपके पास']},
-    {code:'ko',words:['원해요','필요해요','안녕하세요','추천','저를 위해','오늘 밤','배고파요','있나요']},
-  ];
-  for(const lang of langs){
-    if(lang.words.some(w=>t.includes(w)))return lang.code;
-  }
-  return 'pt';
-}
+
 function getChefSystem(msgHistory,currentMsg){
-  // Kid mode — current message + full history
   const kidSignals=['mamãe','papai','mãe','pai','tio','tia','vovó','vovô','escola','lanche','desenho','brincar','cartoon','nugget','macarrão','batata frita','suco de caixinha','sou criança','sou pequenininho','sou pequenininha','anos de idade','tenho 4','tenho 5','tenho 6','tenho 7','tenho 8','tenho 9','tenho 10','tenho 11','tenho 12','criança','infantil','meu filho','minha filha','para criança','estou pedindo para uma criança','sou uma criança'];
   const allText=((msgHistory||[]).map(m=>m.text||'').join(' ')+(currentMsg||'')).toLowerCase();
   const isKid=kidSignals.some(s=>allText.includes(s));
-  // Language detection — current message only (user may switch mid-chat)
-  const lang=detectLanguage(currentMsg||'');
-  const langNames={en:'English',es:'Spanish/español',fr:'French/français',it:'Italian/italiano',de:'German/Deutsch',zh:'Chinese/中文',ja:'Japanese/日本語',ar:'Arabic/العربية',ru:'Russian/русский',hi:'Hindi/हिन्दी',ko:'Korean/한국어'};
-  // Detect bad mood in current message
   const moodWords=['cansado','cansada','estressado','estressada','dia horrível','péssimo dia','dia ruim','difícil','exausto','exausta','frustrado','frustrada','triste','ansioso','ansiosa'];
   const hasBadMood=currentMsg&&moodWords.some(w=>currentMsg.toLowerCase().includes(w));
   const moodBlock=hasBadMood?'\n\nMODO COMFORT FOOD ATIVADO 🤗: O cliente teve um dia difícil. Tom extra carinhoso, empático e acolhedor. Sugira pratos reconfortantes, quentinhos, cremosos. Diga algo como "Dias assim pedem uma comida que abraça de dentro pra fora..." Priorize: macarrão cremoso, caldos, hambúrgueres suculentos, chocolates quentes.':'';
-  // Only override if client wrote 3+ words in foreign language (not just a single foreign word)
-  const wordCount=(currentMsg||'').trim().split(/\s+/).length;
-  const langBlock=(lang!=='pt'&&wordCount>=3)?'\n\n*** LANGUAGE OVERRIDE ***: O cliente escreveu em '+( langNames[lang]||lang)+'. Responda NESTE idioma ('+lang+'). Mantenha a personalidade do Chef René.':'';
-  return buildChefSystem(isKid)+langBlock+moodBlock;
+  const langRule='\n\nIDIOMA: Detecte o idioma da mensagem do cliente e responda SEMPRE no mesmo idioma. Se ele escreveu em português, responda em português. Se escreveu em inglês, responda em inglês. Se escreveu em espanhol, responda em espanhol. E assim por diante. NUNCA responda em idioma diferente do que o cliente usou.';
+  return buildChefSystem(isKid)+langRule+moodBlock;
 }
 const CHEF_SYSTEM=buildChefSystem();
 
@@ -2707,7 +2678,6 @@ function ChefChat(){
   },[open]);
   const WORKER_URL='https://sabores-chef.hensevasconcelos.workers.dev';
   // ElevenLabs key — pre-loaded
-  LS.set('sab_el_key','sk_f5a3d989687d03951fb4d9991c69dbf6334096434cc9a0e4'); // always restore
   const [apiKey,setApiKey]=useState(WORKER_URL);
 
   const [msgs,setMsgs]=useState([{
@@ -2900,79 +2870,7 @@ function ChefChat(){
   },[msgs,open]);
   const toggleLike=i=>setMsgs(m=>m.map((msg,idx)=>idx===i?{...msg,liked:!msg.liked}:msg));
   // Speech output
-  const [speakingIdx,setSpeakingIdx]=useState(-1);
-  const elAudioRef=useRef(null);
-  const elAbortRef=useRef(null);
-  const speakActiveRef=useRef(false);
 
-  const stopSpeak=()=>{
-    speakActiveRef.current=false;
-    if(elAbortRef.current){elAbortRef.current.abort();elAbortRef.current=null;}
-    if(elAudioRef.current){elAudioRef.current.pause();elAudioRef.current.src='';elAudioRef.current=null;}
-    window.speechSynthesis.cancel();
-    setSpeakingIdx(-1);
-  };
-
-  const speak=async(text,idx)=>{
-    // Ref síncrono — não tem problema de stale closure
-    if(speakActiveRef.current){stopSpeak();return;}
-
-    const clean=text.replace(/DISH_CARD:[^\n]*/g,'').replace(/[*_~`]/g,'').trim().slice(0,500);
-    const elKey=LS.get('sab_el_key','');
-
-    if(elKey){
-      speakActiveRef.current=true;
-      setSpeakingIdx(idx);
-      const controller=new AbortController();
-      elAbortRef.current=controller;
-      try{
-        // Charlie — parâmetros ajustados para soar mais jovem/infantil
-        const res=await fetch('https://api.elevenlabs.io/v1/text-to-speech/IKne3meq5aSn9XLyUdCD?output_format=mp3_44100_128',{
-          method:'POST',
-          signal:controller.signal,
-          headers:{'Content-Type':'application/json','xi-api-key':elKey},
-          body:JSON.stringify({
-            text:clean,
-            model_id:'eleven_multilingual_v2',
-            voice_settings:{stability:0.15,similarity_boost:1.0,style:0.8,use_speaker_boost:true}
-          })
-        });
-        elAbortRef.current=null;
-        if(!res.ok){
-          let errMsg='';
-          try{const j=await res.json();errMsg=j?.detail?.message||j?.detail||JSON.stringify(j);}catch(e){}
-          Toast.show('EL '+res.status+(errMsg?' — '+String(errMsg).slice(0,80):''));
-          speakActiveRef.current=false;setSpeakingIdx(-1);return;
-        }
-        // Checa ref síncrono — se foi cancelado durante o fetch não toca
-        if(!speakActiveRef.current)return;
-        const blob=await res.blob();
-        if(!speakActiveRef.current)return;
-        const url=URL.createObjectURL(blob);
-        const audio=new Audio(url);
-        elAudioRef.current=audio;
-        audio.onended=()=>{speakActiveRef.current=false;setSpeakingIdx(-1);URL.revokeObjectURL(url);elAudioRef.current=null;};
-        audio.onerror=()=>{speakActiveRef.current=false;setSpeakingIdx(-1);elAudioRef.current=null;};
-        audio.play();
-      }catch(e){
-        if(e.name==='AbortError'){return;}
-        speakActiveRef.current=false;setSpeakingIdx(-1);
-        Toast.show('Erro ao conectar ElevenLabs');
-      }
-    } else {
-      if(!('speechSynthesis' in window)){Toast.show('Voz não suportada');return;}
-      speakActiveRef.current=true;
-      setSpeakingIdx(idx);
-      const utt=new SpeechSynthesisUtterance(clean);
-      utt.lang='pt-BR';utt.rate=0.95;utt.pitch=1.2;utt.volume=1;
-      const voices=window.speechSynthesis.getVoices();
-      const ptVoice=voices.find(v=>v.lang.startsWith('pt')&&v.name.toLowerCase().includes('google'))||voices.find(v=>v.lang.startsWith('pt'))||null;
-      if(ptVoice)utt.voice=ptVoice;
-      utt.onend=()=>{speakActiveRef.current=false;setSpeakingIdx(-1);};
-      utt.onerror=()=>{speakActiveRef.current=false;setSpeakingIdx(-1);};
-      window.speechSynthesis.speak(utt);
-    }
-  };
 
   const clearChat=()=>{
     setMsgs([{role:'ai',text:'Conversa reiniciada. Em que posso ajudá-lo? 😊',time:new Date(),liked:false}]);
@@ -3098,13 +2996,7 @@ function ChefChat(){
                 h('button',{key:ri,className:'chef-quick-reply',onClick:()=>{if(!loading)send(r);}},r)
               ))
             ),
-            isAi&&h('div',{style:{display:'flex',alignItems:'center',gap:4,marginTop:4}},
-              h('button',{
-                className:'chef-speak-btn'+(speakingIdx===i?' speaking':''),
-                title:speakingIdx===i?'Parar':'Ouvir resposta',
-                onClick:()=>speak(m.text,i)
-              },speakingIdx===i?h('svg',{xmlns:'http://www.w3.org/2000/svg',width:15,height:15,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round'},h('polygon',{points:'11 5 6 9 2 9 2 15 6 15 11 19 11 5'}),h('line',{x1:23,y1:9,x2:17,y2:15}),h('line',{x1:17,y1:9,x2:23,y2:15})):h('svg',{xmlns:'http://www.w3.org/2000/svg',width:15,height:15,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round'},h('polygon',{points:'11 5 6 9 2 9 2 15 6 15 11 19 11 5'}),h('path',{d:'M15.54 8.46a5 5 0 0 1 0 7.07'}),h('path',{d:'M19.07 4.93a10 10 0 0 1 0 14.14'})))
-            ),
+
             isAi&&i>0&&h('div',{className:'chef-reactions'},
               h('button',{className:'chef-react-btn'+(m.rating===1?' liked':''),
                 onClick:()=>{
