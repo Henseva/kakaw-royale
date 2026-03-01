@@ -2902,40 +2902,47 @@ function ChefChat(){
   // Speech output
   const [speakingIdx,setSpeakingIdx]=useState(-1);
   const elAudioRef=useRef(null);
+  const elAbortRef=useRef(null);
+
+  const stopSpeak=()=>{
+    if(elAbortRef.current){elAbortRef.current.abort();elAbortRef.current=null;}
+    if(elAudioRef.current){elAudioRef.current.pause();elAudioRef.current.src='';elAudioRef.current=null;}
+    window.speechSynthesis.cancel();
+    setSpeakingIdx(-1);
+  };
 
   const speak=async(text,idx)=>{
-    // Stop if tapping same message or any audio playing
-    if(elAudioRef.current){
-      elAudioRef.current.pause();
-      elAudioRef.current.src='';
-      elAudioRef.current=null;
-      setSpeakingIdx(-1);
-      return;
-    }
-    if(speakingIdx===idx){setSpeakingIdx(-1);return;}
+    // Se já tem algo tocando/carregando — para tudo
+    if(speakingIdx!==-1){stopSpeak();return;}
 
     const clean=text.replace(/DISH_CARD:[^\n]*/g,'').replace(/[*_~`]/g,'').trim().slice(0,500);
     const elKey=LS.get('sab_el_key','');
 
     if(elKey){
       setSpeakingIdx(idx);
+      const controller=new AbortController();
+      elAbortRef.current=controller;
       try{
-        // Aria — jovem, expressiva, combina com o chibi
-        const res=await fetch('https://api.elevenlabs.io/v1/text-to-speech/IKne3meq5aSn9XLyUdCD?output_format=mp3_44100_128',{
+        // Liam — jovem masculino energético, combina com chibi
+        const res=await fetch('https://api.elevenlabs.io/v1/text-to-speech/TX3LPaxmHKxFdv7VOSVS?output_format=mp3_44100_128',{
           method:'POST',
+          signal:controller.signal,
           headers:{'Content-Type':'application/json','xi-api-key':elKey},
           body:JSON.stringify({
             text:clean,
             model_id:'eleven_turbo_v2_5',
-            voice_settings:{stability:0.45,similarity_boost:0.8}
+            voice_settings:{stability:0.4,similarity_boost:0.85}
           })
         });
+        elAbortRef.current=null;
         if(!res.ok){
           let errMsg='';
           try{const j=await res.json();errMsg=j?.detail?.message||j?.detail||JSON.stringify(j);}catch(e){}
           Toast.show('EL '+res.status+(errMsg?' — '+String(errMsg).slice(0,80):''));
           setSpeakingIdx(-1);return;
         }
+        // Check not cancelled during fetch
+        if(speakingIdx===-1)return;
         const blob=await res.blob();
         const url=URL.createObjectURL(blob);
         const audio=new Audio(url);
@@ -2944,6 +2951,7 @@ function ChefChat(){
         audio.onerror=()=>{setSpeakingIdx(-1);elAudioRef.current=null;};
         audio.play();
       }catch(e){
+        if(e.name==='AbortError'){return;}
         setSpeakingIdx(-1);
         Toast.show('Erro ao conectar ElevenLabs');
       }
@@ -2951,7 +2959,7 @@ function ChefChat(){
       if(!('speechSynthesis' in window)){Toast.show('Voz não suportada');return;}
       setSpeakingIdx(idx);
       const utt=new SpeechSynthesisUtterance(clean);
-      utt.lang='pt-BR';utt.rate=0.95;utt.pitch=1.1;utt.volume=1;
+      utt.lang='pt-BR';utt.rate=0.95;utt.pitch=1.15;utt.volume=1;
       const voices=window.speechSynthesis.getVoices();
       const ptVoice=voices.find(v=>v.lang.startsWith('pt')&&v.name.toLowerCase().includes('google'))||voices.find(v=>v.lang.startsWith('pt'))||null;
       if(ptVoice)utt.voice=ptVoice;
