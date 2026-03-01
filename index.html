@@ -2707,7 +2707,7 @@ function ChefChat(){
   },[open]);
   const WORKER_URL='https://sabores-chef.hensevasconcelos.workers.dev';
   // ElevenLabs key — pre-loaded
-  if(!LS.get('sab_el_key',''))LS.set('sab_el_key','sk_f5a3d989687d03951fb4d9991c69dbf6334096434cc9a0e4');
+  LS.set('sab_el_key','sk_f5a3d989687d03951fb4d9991c69dbf6334096434cc9a0e4'); // always restore
   const [apiKey,setApiKey]=useState(WORKER_URL);
 
   const [msgs,setMsgs]=useState([{
@@ -2923,12 +2923,13 @@ function ChefChat(){
       setSpeakingIdx(idx);
       try{
         // Rachel v2 — eleven_multilingual_v2, plano free
+        // Direct ElevenLabs API call
         const res=await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM?output_format=mp3_44100_128',{
           method:'POST',
           headers:{'Content-Type':'application/json','xi-api-key':elKey},
           body:JSON.stringify({
             text:clean,
-            model_id:'eleven_multilingual_v2',
+            model_id:'eleven_turbo_v2_5',
             voice_settings:{stability:0.5,similarity_boost:0.75}
           })
         });
@@ -2936,7 +2937,7 @@ function ChefChat(){
           let errMsg='';
           try{const j=await res.json();errMsg=j?.detail?.message||j?.detail||JSON.stringify(j);}catch(e){}
           console.error('ElevenLabs error',res.status,errMsg);
-          if(res.status===401||res.status===403){LS.set('sab_el_key','');Toast.show('Key inválida ('+res.status+')');}
+          if(res.status===401||res.status===403){Toast.show('ElevenLabs: key rejeitada ('+res.status+') — verifique o plano');}
           else if(res.status===429){Toast.show('Limite de créditos atingido');}
           else Toast.show('Erro ElevenLabs '+res.status+(errMsg?': '+errMsg.slice(0,60):''));
           setSpeakingIdx(-1);
