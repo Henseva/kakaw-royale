@@ -2926,15 +2926,15 @@ function ChefChat(){
       const controller=new AbortController();
       elAbortRef.current=controller;
       try{
-        // Fin — jovem garoto, leve, combina com chibi
-        const res=await fetch('https://api.elevenlabs.io/v1/text-to-speech/1tDEBGOo8EqEPApM49eJ?output_format=mp3_44100_128',{
+        // Charlie — parâmetros ajustados para soar mais jovem/infantil
+        const res=await fetch('https://api.elevenlabs.io/v1/text-to-speech/IKne3meq5aSn9XLyUdCD?output_format=mp3_44100_128',{
           method:'POST',
           signal:controller.signal,
           headers:{'Content-Type':'application/json','xi-api-key':elKey},
           body:JSON.stringify({
             text:clean,
-            model_id:'eleven_turbo_v2_5',
-            voice_settings:{stability:0.35,similarity_boost:0.9}
+            model_id:'eleven_multilingual_v2',
+            voice_settings:{stability:0.15,similarity_boost:1.0,style:0.8,use_speaker_boost:true}
           })
         });
         elAbortRef.current=null;
