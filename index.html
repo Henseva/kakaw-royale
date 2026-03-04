@@ -25,6 +25,15 @@ body{overflow-x:hidden;background:#0a0805;cursor:none}
 #cur,#cur-r,#cur-emoji{display:none}
 #chef-btn{left:auto;right:16px;bottom:90px}}
 
+/* ── CUSTOM CURSOR ── */
+#cur{width:8px;height:8px;background:#E8520A;border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:transform .15s,background .2s}
+#cur-r{width:32px;height:32px;border:1.5px solid rgba(232,82,10,.55);border-radius:50%;position:fixed;pointer-events:none;z-index:9997;transform:translate(-50%,-50%);transition:width .25s,height .25s,border-color .25s}
+#cur-emoji{position:fixed;pointer-events:none;z-index:9999;font-size:18px;transform:translate(8px,-22px);transition:opacity .2s}
+body.ch #cur{transform:translate(-50%,-50%) scale(2.2);background:#C9A84C}
+body.ch #cur-r{width:48px;height:48px;border-color:rgba(201,168,76,.45)}
+
+.sabores-nav{transition:padding .3s,box-shadow .3s}
+.sabores-nav.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.6)}
 /* ── PROGRESS ── */
 #prog{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,#E8520A,#C9A84C,#E8520A);background-size:200%;z-index:9999;width:0;transition:width .08s linear;animation:shimmer 2s linear infinite}
 @keyframes shimmer{to{background-position:200% 0}}
@@ -200,6 +209,7 @@ body{overflow-x:hidden;background:#0a0805;cursor:none}
 .nfx-row-title em{color:#E8520A;font-style:italic}
 .nfx-row-seeall{font-family:Inter,sans-serif;font-size:11px;font-weight:600;color:rgba(232,82,10,.8);text-decoration:none;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;white-space:nowrap}
 .nfx-row-seeall:hover{color:#E8520A}
+.nfx-row-wrap{position:relative;overflow:hidden}
 .nfx-track{display:flex;gap:16px;overflow-x:auto;padding:8px 28px 16px;scrollbar-width:none;-ms-overflow-style:none;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scroll-padding-left:28px}
 .nfx-track::-webkit-scrollbar{display:none}
 .nfx-card{flex:0 0 260px;border-radius:20px;overflow:visible;text-decoration:none;display:block;transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s;position:relative;transform-origin:left center}
@@ -236,7 +246,7 @@ body{overflow-x:hidden;background:#0a0805;cursor:none}
 .chef-head-bg{position:absolute;inset:0;overflow:hidden;border-radius:0;background:linear-gradient(135deg,rgba(201,168,76,.12) 0%,rgba(232,82,10,.08) 50%,transparent 100%)}
 .chef-head-glow{position:absolute;top:-60px;left:-60px;width:260px;height:260px;background:radial-gradient(circle,rgba(201,168,76,.18) 0%,rgba(232,82,10,.06) 40%,transparent 70%);pointer-events:none;filter:blur(20px)}
 .chef-head-content{position:relative;z-index:2;display:flex;align-items:center;gap:14px;padding:18px 20px 14px;overflow:visible}
-.chef-online{position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;background:#2ecc71;border-radius:50%;border:2px solid #090805;animation:pulse 2s infinite}
+
 .chef-info{flex:1;min-width:0}
 .chef-name{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:#f0e6d3;letter-spacing:-.4px;line-height:1.1}
 .chef-role{font-size:10px;color:rgba(201,168,76,.65);font-family:Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;font-weight:500}
@@ -332,11 +342,11 @@ body{overflow-x:hidden;background:#0a0805;cursor:none}
 
 /* ── API KEY GATE ── */
 
-.chef-apikey-input:focus{border-color:rgba(201,168,76,.7);background:rgba(255,255,255,.08)}
-.chef-apikey-input::placeholder{color:rgba(200,180,160,.25);font-family:Inter,sans-serif;letter-spacing:0;font-size:11px}
 
-.chef-apikey-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,.45)}
-.chef-apikey-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+
+
+
 
 .chef-apikey-hint a{color:rgba(201,168,76,.6);text-decoration:none}
 .chef-apikey-hint a:hover{color:#C9A84C}
@@ -345,13 +355,13 @@ body{overflow-x:hidden;background:#0a0805;cursor:none}
 
 .chef-pin-dot.filled{background:#C9A84C;border-color:#C9A84C;box-shadow:0 0 12px rgba(201,168,76,.5)}
 
-.chef-pin-key:hover{background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.35);color:#C9A84C;transform:scale(1.04)}
-.chef-pin-key:active{transform:scale(.96)}
-.chef-pin-key.del{font-size:16px;color:rgba(200,180,160,.5)}
-.chef-pin-key.ok{background:linear-gradient(135deg,#C9A84C,#8a5e00);border-color:#C9A84C;color:#fff;font-size:16px}
-.chef-pin-key.ok:hover{box-shadow:0 4px 20px rgba(201,168,76,.45)}
 
-.chef-pin-setup:hover{color:#C9A84C}
+
+
+
+
+
+
 
 /* ════ SEASONAL THEMES ════ */
 #seasonal-overlay{position:fixed;top:0;left:0;right:0;height:55vh;pointer-events:none;z-index:3;overflow:hidden;opacity:.7}
@@ -383,13 +393,12 @@ body{overflow-x:hidden;background:#0a0805;cursor:none}
 .reveal.visible{opacity:1!important;transform:none!important}
 .low-perf .reveal{opacity:1!important;transform:none!important;transition:none!important}
 
-/* ════ LOW-PERF MODE — applied automatically on weak devices ════ */
+/* ════ LOW-PERF MODE ════ */
 .low-perf *{
   animation-duration:.01ms!important;
   animation-iteration-count:1!important;
   transition-duration:.01ms!important;
   -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
-  -webkit-backdrop-filter:none!important;
 }
 .low-perf #seasonal-overlay{display:none!important}
 .low-perf .card-deco{display:none!important}
@@ -398,6 +407,17 @@ body{overflow-x:hidden;background:#0a0805;cursor:none}
 .low-perf #prog{animation:none!important}
 .low-perf .grain::before{display:none!important}
 .low-perf .ldr-fill{animation:none!important;width:100%!important}
+.low-perf .shine-on::after{display:none!important}
+.low-perf .fly-heart{display:none!important}
+.low-perf .nfx-card{transform:none!important}
+.low-perf .parallax-section{transform:none!important;will-change:auto!important}
+/* ════ MID-PERF MODE — mid-range devices ════ */
+.mid-perf #cur,.mid-perf #cur-r,.mid-perf #cur-emoji{display:none!important}
+.mid-perf *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+.mid-perf #seasonal-overlay{display:none!important}
+.mid-perf .card-deco{display:none!important}
+.mid-perf .shine-on::after{display:none!important}
+.mid-perf .parallax-section{will-change:auto!important}
 
 /* ── Parallax sections ── */
 .parallax-section{will-change:transform;transition:transform .1s linear}
@@ -427,6 +447,11 @@ body{overflow-x:hidden;background:#0a0805;cursor:none}
 @keyframes voicePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
 @media(hover:none){.chef-voice-btn{color:rgba(200,180,160,.55)}body{cursor:auto}#cur,#cur-r,#cur-emoji{display:none!important}.nfx-hover-overlay{display:none!important}.nfx-card:hover .nfx-hover-overlay{opacity:0!important}}
 
+/* ── Notif Strip ── */
+#notif-strip{position:fixed;top:0;left:0;right:0;z-index:8000;transform:translateY(-100%);transition:transform .4s cubic-bezier(.22,1,.36,1);pointer-events:none}
+#notif-strip.show{transform:translateY(0);pointer-events:auto}
+.notif-inner{background:linear-gradient(90deg,rgba(20,60,20,.97),rgba(10,40,10,.97));border-bottom:1px solid rgba(45,180,45,.25);padding:10px 20px;display:flex;align-items:center;gap:12px;font-family:'Inter',sans-serif;font-size:13px;color:rgba(160,240,160,.9)}
+
 /* ── Back to Top — estilizado ── */
 #btt{position:fixed;bottom:90px;right:20px;width:44px;height:52px;border:none;border-radius:14px;cursor:pointer;z-index:600;transition:all .42s cubic-bezier(.22,1,.36,1);overflow:hidden;display:flex;align-items:center;justify-content:center;padding:0;background:transparent}
 #btt::before{content:'';position:absolute;inset:0;border-radius:14px;background:linear-gradient(180deg,#E8520A,#C9A84C,#E8520A);background-size:100% 200%;animation:bttShimmer 2s linear infinite;transition:all .3s}
@@ -454,6 +479,8 @@ body{overflow-x:hidden;background:#0a0805;cursor:none}
 @keyframes favPop{0%{transform:scale(1)}30%{transform:scale(1.55)}60%{transform:scale(0.9)}80%{transform:scale(1.25)}100%{transform:scale(1.15)}}
 @keyframes favParticle{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(0);opacity:0}}
 .fav-particle{position:absolute;width:6px;height:6px;border-radius:50%;pointer-events:none;z-index:20;animation:favParticle .6s ease-out forwards}
+.fav-btn{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.12);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:transform .2s,background .2s;z-index:5}
+.fav-btn:hover{background:rgba(232,82,10,.35);transform:scale(1.15)}
 .fav-btn.is-fav{animation:favPop .4s cubic-bezier(.22,1,.36,1) forwards}
 
 /* ── Favorites Section ── */
@@ -501,7 +528,7 @@ body{overflow-x:hidden;background:#0a0805;cursor:none}
 .chef-resume-btn.primary:hover{background:linear-gradient(135deg,rgba(201,168,76,.35),rgba(201,168,76,.22));color:#e0c060}
 
 /* ── Chef Panel Premium Dark ── */
-#chef-panel{background:linear-gradient(180deg,rgba(14,11,6,.97) 0%,rgba(9,8,5,.99) 100%);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px)}
+#chef-panel{background:linear-gradient(180deg,rgba(14,11,6,.97) 0%,rgba(9,8,5,.99) 100%);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 #chef-panel::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 0%,rgba(201,168,76,.06) 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,rgba(232,82,10,.04) 0%,transparent 50%);pointer-events:none;z-index:0}
 .chef-head{position:relative;z-index:1}
 .chef-suggest-wrap{position:relative;z-index:1}
@@ -658,10 +685,12 @@ const PERF = (function(){
   // Slow connection
   const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   if(conn && (conn.saveData || conn.effectiveType === '2g' || conn.effectiveType === 'slow-2g')) score = 0;
-  // score < 8 = low-end device
+  // score < 8 = low-end, score < 14 = mid-range
   const isLow = score < 8;
+  const isMid = !isLow && score < 14;
   if(isLow) document.documentElement.classList.add('low-perf');
-  return { isLow, score };
+  else if(isMid) document.documentElement.classList.add('mid-perf');
+  return { isLow, isMid, score };
 })();
 /* ════════════════════════════════════════════════════════════
    ⚙️  CONFIGURAÇÃO — troque a chave aqui quando necessário
@@ -2190,7 +2219,7 @@ function NotifStrip(){
 ════════════════════════════════════════════════════════════ */
 function bootCursor(){
   const dot=document.getElementById('cur'),ring=document.getElementById('cur-r'),em=document.getElementById('cur-emoji');
-  if(!dot||!ring||window.innerWidth<=768)return;
+  if(!dot||!ring||window.innerWidth<=768||PERF.isLow||PERF.isMid)return;
   let mx=0,my=0,rx=0,ry=0,raf;
   const EMOJIS={food:'🍴',drink:'🥂',chat:'💬'};
   const move=e=>{
@@ -3062,7 +3091,7 @@ function ChefChat(){
           h('div',{className:'chef-head-actions'},
             
             h('div',{style:{position:'relative'}},
-              h('button',{className:'chef-icon-btn',title:'Tema',onClick:()=>setShowThemes(v=>!v),style:{fontSize:13}},'🎨'),
+              h('button',{className:'chef-icon-btn',title:'Tema',onClick:()=>setShowThemes(v=>!v),style:{padding:'4px',lineHeight:1,display:'flex',alignItems:'center',justifyContent:'center'}},h('svg',{width:18,height:18,viewBox:'0 0 18 18',style:{display:'block',flexShrink:0}},h('defs',null,h('clipPath',{id:'cc'},h('circle',{cx:9,cy:9,r:8}))),h('circle',{cx:9,cy:9,r:8,fill:ct.panel,stroke:ct.accentL,strokeWidth:1.5}),h('path',{d:'M9 1 A8 8 0 0 1 9 17 Z',fill:ct.accentL,clipPath:'url(#cc)'}))),
               showThemes&&h('div',{className:'chef-theme-picker'},
                 ...Object.entries(CHEF_THEMES).map(([k,t])=>
                   h('button',{key:k,className:'chef-theme-dot'+(themeKey===k?' active':''),
@@ -3220,7 +3249,7 @@ function NetflixRow({title,accent,label,dishes,c,favs,setFavs,flyHeart,dailyTop,
           return h('div',{key:d.name,style:{position:'relative',flexShrink:0,scrollSnapAlign:'start',scrollSnapStop:'always'}},
             h('a',{'data-cursor':'food','data-h':1,
               href:iurl(d.q),target:'_blank',rel:'noreferrer',className:'nfx-card',
-              onClick:()=>Analytics.track('dish',d.name),onMouseEnter:(e)=>{const c=e.currentTarget;c.classList.remove('shine-on');void c.offsetWidth;c.classList.add('shine-on');},onMouseLeave:(e)=>{const el=e.currentTarget;setTimeout(()=>el&&el.classList&&el.classList.remove('shine-on'),650);},onTouchStart:(e)=>{const c=e.currentTarget;c.classList.remove('shine-on');void c.offsetWidth;c.classList.add('shine-on');setTimeout(()=>c&&c.classList&&c.classList.remove('shine-on'),700);},
+              onClick:()=>Analytics.track('dish',d.name),onMouseEnter:(e)=>{if(PERF.isLow||PERF.isMid)return;const c=e.currentTarget;c.classList.remove('shine-on');void c.offsetWidth;c.classList.add('shine-on');},onMouseLeave:(e)=>{const el=e.currentTarget;setTimeout(()=>el&&el.classList&&el.classList.remove('shine-on'),650);},onTouchStart:(e)=>{const c=e.currentTarget;c.classList.remove('shine-on');void c.offsetWidth;c.classList.add('shine-on');setTimeout(()=>c&&c.classList&&c.classList.remove('shine-on'),700);},
               style:{background:c.card,border:`1px solid ${c.border}`,display:'block'}},
               cDecos&&cDecos.map((x,xi)=>h('span',{key:xi,className:'card-deco '+x.p},x.e)),
               h('div',{className:'nfx-img',style:{background:d.bg}},
@@ -3437,10 +3466,11 @@ function App(){
   // Persist favs to LS on change
   useEffect(()=>{LS.set('sab_favs',favs);},[favs]);
   const flyHeart=(ev)=>{
-    if(!ev)return;
+    if(!ev||PERF.isLow)return;
     const x=ev.clientX||(ev.touches&&ev.touches[0]?.clientX)||window.innerWidth/2;
     const y=ev.clientY||(ev.touches&&ev.touches[0]?.clientY)||window.innerHeight/2;
-    for(let i=0;i<5;i++){
+    const count=PERF.isMid?2:5;
+    for(let i=0;i<count;i++){
       const el=document.createElement('div');
       el.className='fly-heart';
       el.textContent='❤️';
@@ -3960,6 +3990,13 @@ function App(){
 )
 
     ) // end main div
+,
+/* ════ FIXED: PROGRESS BAR (top orange stripe) ════ */
+    h('div',{id:'prog'}),
+/* ════ FIXED: CUSTOM CURSOR ════ */
+    h('div',{id:'cur'}),
+    h('div',{id:'cur-r'}),
+    h('div',{id:'cur-emoji'})
   ); // end Fragment
 }
 
