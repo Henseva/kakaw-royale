@@ -2521,22 +2521,34 @@ function buildChefSystem(isKid){
   const isWeekend=new Date().getDay()===0||new Date().getDay()===6;
   const timeCtx=hr>=0&&hr<6?'CONTEXTO: É madrugada. Tom mais íntimo e exclusivo — "a esta hora, só o que vale perder o sono...". Sugira pratos que funcionam bem tarde.':hr>=6&&hr<12?'CONTEXTO: É manhã. Tom energizante e leve.':hr>=12&&hr<15?'CONTEXTO: É horário de almoço. Tom direto e prático.':hr>=18?'CONTEXTO: É noite ou jantar. Tom mais sofisticado e romântico.':'';
   const memLines=[];
-  // Top dish this week
+  const visits=mem.visits||0;
+  if(visits>1)memLines.push('- Visitas totais: '+visits+' — cliente '+( visits>=50?'ultra fiel 🏆': visits>=20?'muito fiel ⭐⭐⭐': visits>=10?'fiel ⭐⭐': visits>=5?'recorrente ⭐':'em retorno'));
+  if(mem.name)memLines.push('- Nome: '+mem.name+' (use naturalmente na conversa)');
+  if(Array.isArray(mem.dishes)&&mem.dishes.length)memLines.push('- Pratos recomendados anteriormente: '+mem.dishes.slice(0,8).join(', '));
+  if(Array.isArray(mem.liked)&&mem.liked.length)memLines.push('- Pratos que GOSTOU (reaja positivamente se escolher novamente): '+mem.liked.slice(0,8).join(', '));
+  if(Array.isArray(mem.dislikes)&&mem.dislikes.length)memLines.push('- NUNCA sugerir — não gosta/alérgico: '+mem.dislikes.join(', '));
+  if(Array.isArray(mem.diet)&&mem.diet.length)memLines.push('- Dieta/restrição: '+mem.diet.join(', ')+' — filtre sugestões por isso SEMPRE');
+  if(mem.lastOrder)memLines.push('- Último prato sugerido: '+mem.lastOrder);
+  if(mem.occasion)memLines.push('- Ocasião especial: '+mem.occasion);
+  if(mem.lastSeen){const daysSince=Math.floor((Date.now()-new Date(mem.lastSeen))/(86400000));if(daysSince>0)memLines.push('- Última visita: '+daysSince+(daysSince===1?' dia':' dias')+' atrás');}
   const topDishData=LS.get('sab_clicks_dish',{});
   const topDishEntry=Object.entries(topDishData).sort((a,b)=>b[1]-a[1])[0];
-  if(topDishEntry&&topDishEntry[1]>3)memLines.push('- Prato mais clicado esta semana: '+topDishEntry[0]+' ('+topDishEntry[1]+' cliques) — mencione proativamente se relevante');
-  if(mem.name)memLines.push('- Nome do cliente: '+mem.name+' (use naturalmente na conversa)');
-  if(mem.dishes&&mem.dishes.length)memLines.push('- Pratos que já gostou: '+mem.dishes);
-  if(mem.dislikes&&mem.dislikes.length)memLines.push('- NÃO GOSTAR / evitar: '+mem.dislikes+' (NUNCA sugira estes)');
-  if(mem.lastOrder)memLines.push('- Último pedido: '+mem.lastOrder);
-  if(mem.occasion)memLines.push('- Ocasião especial detectada: '+mem.occasion);
+  if(topDishEntry&&topDishEntry[1]>3)memLines.push('- Prato mais popular desta semana: '+topDishEntry[0]+' ('+topDishEntry[1]+' pedidos)');
+  if(Array.isArray(mem.disliked)&&mem.disliked.length)memLines.push('- Pratos que NÃO gostou (NUNCA repetir): '+mem.disliked.slice(0,8).join(', '));
+  if(Array.isArray(mem.cuisines)&&mem.cuisines.length)memLines.push('- Culinárias preferidas (priorize nestas): '+mem.cuisines.join(', '));
+  if(mem.groupSize)memLines.push('- Tamanho do grupo: '+mem.groupSize+' pessoas — ajuste as porções e sugestões');
+  if(mem.budget)memLines.push('- Orçamento típico: R$'+mem.budget+' — respeite este limite');
+  if(mem.intensity)memLines.push('- Preferência de intensidade: '+mem.intensity+' — filtre sabores por isso');
+  if(mem.prefTime)memLines.push('- Horário preferido: '+mem.prefTime);
   const memCtx=memLines.length?'\n\nMEMÓRIA DO CLIENTE:\n'+memLines.join('\n'):'';
   // Session history context
   const hist=typeof LS!=='undefined'?LS.get('sab_chef_full_history',[]):[];
-  const histLines=hist.slice(0,2).map((s,i)=>{
-    const ago=i===0?'última visita':'visita anterior';
-    const items=s.msgs.map(m=>'  Cliente: '+m.q.slice(0,60)+(m.dish?' → sugeriu: '+m.dish:'')).join('\n');
-    return '['+ago+' — '+new Date(s.date).toLocaleDateString('pt-BR')+']\n'+items;
+  const histLines=hist.slice(0,5).map((s,i)=>{
+    const labels=['última visita','2 visitas atrás','3 visitas atrás','4 visitas atrás','5 visitas atrás'];
+    const dateStr=new Date(s.date).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+    const dishes=s.dishes&&s.dishes.length?'  Pratos sugeridos: '+s.dishes.join(', '):'';
+    const items=s.msgs.slice(-3).map(m=>'  > '+m.q.slice(0,80)+(m.dish?' ['+m.dish+']':'')).join('\n');
+    return '['+labels[i]+' — '+dateStr+(s.msgCount?' · '+s.msgCount+' mensagens':'')+']\n'+items+(dishes?'\n'+dishes:'');
   }).join('\n');
   const histCtx=histLines?'\n\nHISTÓRICO DE VISITAS ANTERIORES (use para personalizar, mas não mencione explicitamente a menos que relevante):\n'+histLines:''
   const dayCtx='CONTEXTO DIA: Hoje é '+dayName+(isWeekend?' (fim de semana — clientes com mais tempo, sugestões mais elaboradas e especiais)':' (dia útil — clientes podem estar ocupados, equilibre rapidez com sofisticação)')+'.';
@@ -2644,11 +2656,33 @@ function ChefChat(){
       const visits=LS.get('sab_visits',1);
       const hist=LS.get('sab_chef_full_history',[]);
       const name=mem.name;
-      if(visits>=7&&name)return 'Bonsoir, '+name+'! Percebo que você é um cliente muito fiel — '+visits+'ª visita conosco 🎖️\n\nComo alguém que conheço tão bem, permitam-me sugerir algo que ainda não experimentou. Ou prefere seus favoritos de sempre?';
-      if(visits>=4&&name)return 'Ravi de vous revoir, '+name+'! Já é sua '+visits+'ª visita — conheço bem o seu paladar 😊\n\nHoje tenho uma sugestão especial pensada para você. Quer ouvir?';
-      if(name&&hist.length>0)return 'Bonsoir, '+name+'! Que prazer tê-lo de volta. Da última vez você explorou algumas opções interessantes — estamos aqui para superar isso hoje 🍽️';
-      if(name)return 'Bonsoir, '+name+'! Que prazer tê-lo de volta. Estou pronto para uma nova experiência gastronômica — em que posso servi-lo hoje?';
-      return 'Bonsoir! Sou o Chef René Dubois — sommelier e curador gastronômico do Sabores.\n\nAntes de começar, posso perguntar: tem alguma restrição alimentar? E que tipo de experiência busca hoje — algo para celebrar, para confortar, ou simplesmente o melhor que temos?';
+      const hr=new Date().getHours();
+      const saudacao=hr<12?'Bonjour':'Bonsoir';
+      const daysSince=mem.lastSeen?Math.floor((Date.now()-new Date(mem.lastSeen))/(86400000)):null;
+      const lastDishes=Array.isArray(mem.dishes)&&mem.dishes.length?mem.dishes.slice(0,2).join(' e '):'';
+      const favCuisine=Array.isArray(mem.cuisines)&&mem.cuisines.length?mem.cuisines[0]:'';
+      // VIP (50+)
+      if(visits>=50&&name)return saudacao+', '+name+'! '+visits+' visitas — você é praticamente família aqui 🏆\n\nJá sei exatamente o que você gosta. Que tal algo novo hoje ou prefere um dos seus clássicos favoritos?';
+      // Ultra fiel (20+)
+      if(visits>=20&&name){
+        const sugg=favCuisine?'Vejo que ama '+favCuisine+' — tenho algo especial nessa linha.':'Conheço bem o seu paladar.';
+        return saudacao+', '+name+'! Sua '+visits+'ª visita 🥂 '+sugg+'\n\nO que será hoje?';
+      }
+      // Fiel com retorno após muitos dias
+      if(name&&daysSince&&daysSince>30)return saudacao+', '+name+'! Saudades — já fazia '+daysSince+' dias sem sua visita. Muita coisa nova no cardápio esperando por você 🍽️';
+      // Fiel (7+)
+      if(visits>=7&&name)return saudacao+', '+name+'! '+(visits+'ª visita — cliente fiel 🎖️'+(lastDishes?' Da última vez exploramos '+lastDishes+'.':'')+' O que o traz ao Sabores hoje?');
+      // Recorrente (4+)
+      if(visits>=4&&name)return 'Ravi de vous revoir, '+name+'! '+visits+'ª visita — já conheço bem seu paladar 😊\n\nHoje tenho uma sugestão pensada especialmente para você. Quer ouvir?';
+      // Retornando com histórico
+      if(name&&hist.length>0){
+        const lastDate=hist[0]?new Date(hist[0].date).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'';
+        return saudacao+', '+name+'! Que prazer tê-lo de volta'+(lastDate?' (última visita: '+lastDate+')':'')+'. Estamos prontos para superar a última experiência 🍽️';
+      }
+      // Conhece o nome mas é novo
+      if(name)return saudacao+', '+name+'! Que prazer tê-lo de volta. Estou pronto para uma nova experiência gastronômica — em que posso servi-lo hoje?';
+      // Primeira visita
+      return saudacao+'! Sou o Chef René Dubois — sommelier e curador gastronômico do Sabores.\n\nAntes de começar: tem alguma restrição alimentar ou preferência de culinária? Assim garanto a sugestão perfeita para você 🍽️';
     })(),
     time:new Date(),
     liked:false,
@@ -2677,7 +2711,18 @@ function ChefChat(){
   useEffect(()=>{
     const el=msgsRef.current;
     if(!el)return;
-    el.scrollTop=el.scrollHeight;
+    if(loading){
+      // Show typing indicator at bottom
+      el.scrollTop=el.scrollHeight;
+    } else {
+      // Scroll to TOP of last message (not scrollIntoView which scrolls the page)
+      const lastMsg=el.querySelector('.chef-msg-wrap:last-child');
+      if(lastMsg){
+        el.scrollTop=lastMsg.offsetTop - 8;
+      } else {
+        el.scrollTop=el.scrollHeight;
+      }
+    }
   },[msgs,loading]);
 
   // Salvar msgs no LS sempre que mudar
@@ -2742,17 +2787,99 @@ function ChefChat(){
       // ── Memory Learning ──
       const mem=LS.get('sab_chef_memory',{});
       let memChanged=false;
-      // Name detection
-      const nameMatcher=q.match(/(?:me chamo|meu nome é|sou o|sou a)\s+([A-ZÀ-Ú][a-zà-ú]+)/i);
-      if(nameMatcher){mem.name=nameMatcher[1];memChanged=true;}
-      // Dish preferences from cards
-      if(replyCards.length>0){mem.dishes=(mem.dishes?mem.dishes+', ':'')+replyCards[0];mem.lastOrder=replyCards[0];memChanged=true;}
-      // Dislikes detection
-      const dislikeMatcher=q.match(/(?:não gosto|detesto|odeio|alérgico|sem|não quero)\s+(?:de\s+)?([a-zà-ú]+)/i);
-      if(dislikeMatcher){mem.dislikes=(mem.dislikes?mem.dislikes+', ':'')+dislikeMatcher[1];memChanged=true;}
-      // Occasion detection
-      const occasionMap=[['aniversário','Aniversário 🎂'],['casamento','Casamento 💍'],['namorado','Jantar romântico 💑'],['namorada','Jantar romântico 💑'],['formatura','Formatura 🎓'],['pedido de namoro','Pedido especial 💝'],['noivado','Noivado 💍']];
+
+      // ── Name detection (tolerates lowercase) ──
+      const nameRx=q.match(/(?:me chamo|meu nome(?: é)?|pode me chamar(?: de)?|chama(?:-me)? de|sou (?:o|a))\s+([A-Za-zÀ-úÀ-ÿ]{2,20})/i)
+                 ||q.match(/^(?:aqui é|aqui fala)\s+([A-Za-zÀ-úÀ-ÿ]{2,20})/i);
+      if(nameRx){mem.name=nameRx[1].charAt(0).toUpperCase()+nameRx[1].slice(1);memChanged=true;}
+
+      // ── Diet/allergen detection ──
+      if(!mem.diet)mem.diet=[];
+      const dietMap=[
+        [/vegetariano|vegetariana/i,'vegetariano'],
+        [/vegano|vegana/i,'vegano'],
+        [/sem glúten|celíaco|celíaca/i,'sem glúten'],
+        [/sem lactose|intolerante a lactose/i,'sem lactose'],
+        [/halal/i,'halal'],
+      ];
+      for(const[rx,label]of dietMap){
+        if(rx.test(q)&&!mem.diet.includes(label)){mem.diet.push(label);memChanged=true;}
+      }
+
+      // ── Dislikes/allergens detection (array, dedup) ──
+      if(!mem.dislikes)mem.dislikes=[];
+      const dislikeRx=q.match(/(?:não gosto|detesto|odeio|alérgico a|alergia a|sem|não como|não quero)\s+(?:de\s+)?([a-zà-úA-ZÀ-Ú][a-zà-ú]+(?:\s+[a-zà-ú]+)?)/i);
+      if(dislikeRx){const d=dislikeRx[1].toLowerCase().trim();if(!mem.dislikes.includes(d)){mem.dislikes.push(d);memChanged=true;}}
+
+      // ── Liked dishes (array, dedup, max 20) ──
+      if(!mem.liked)mem.liked=[];
+      if(replyCards.length>0){
+        const dish=replyCards[0];
+        if(!mem.liked.includes(dish)){mem.liked.unshift(dish);mem.liked=mem.liked.slice(0,20);}
+        mem.lastOrder=dish;memChanged=true;
+      }
+
+      // ── All dishes seen (for chef context, dedup, max 30) ──
+      if(!mem.dishes)mem.dishes=[];
+      if(replyCards.length>0){
+        const dish=replyCards[0];
+        if(!mem.dishes.includes(dish)){mem.dishes.unshift(dish);mem.dishes=mem.dishes.slice(0,30);}
+        memChanged=true;
+      }
+
+      // ── Occasion detection ──
+      const occasionMap=[
+        ['aniversário','Aniversário 🎂'],['casamento','Casamento 💍'],
+        ['namorado','Jantar romântico 💑'],['namorada','Jantar romântico 💑'],
+        ['formatura','Formatura 🎓'],['pedido de namoro','Pedido especial 💝'],
+        ['noivado','Noivado 💍'],['dia das mães','Dia das Mães 💐'],
+        ['dia dos pais','Dia dos Pais 👨'],['natal','Natal 🎄'],['réveillon','Réveillon 🥂']
+      ];
       for(const[kw,label]of occasionMap){if(q.toLowerCase().includes(kw)){mem.occasion=label;memChanged=true;break;}}
+
+      // ── Visit count ──
+      mem.visits=(mem.visits||0)+1;memChanged=true;
+
+      // ── Last seen timestamp ──
+      mem.lastSeen=new Date().toISOString();
+
+
+      // ── Cuisine preference detection ──
+      if(!mem.cuisines)mem.cuisines=[];
+      const cuisineMap=[
+        [/japon[eê]s|sushi|temaki|omakase|jap/i,'Japonesa'],
+        [/italian[ao]|pizza|massa|macarr[aã]o|risoto/i,'Italiana'],
+        [/mexicano|tacos?|burrito|guacamole/i,'Mexicana'],
+        [/hamburguer|burger|smash|wagyu/i,'Hambúrguer'],
+        [/churrasco|costela|picanha|angus/i,'Churrasco'],
+        [/amaz[oô]nico|nordestino|brasileiro|brasileiro/i,'Brasileira'],
+        [/fr(?:anc[eê]s|ench)|bistr[ôo]/i,'Francesa'],
+      ];
+      for(const[rx,label]of cuisineMap){
+        if(rx.test(q)&&!mem.cuisines.includes(label)){mem.cuisines.unshift(label);mem.cuisines=mem.cuisines.slice(0,5);memChanged=true;}
+      }
+
+      // ── Group size detection ──
+      const groupRx=q.match(/(?:somos|para|éramos)\s+(\d+)\s*(?:pessoas?|adultos?|amigos?)/i)
+                   ||q.match(/(?:casal|a dois|para dois)/i);
+      if(groupRx){mem.groupSize=groupRx[1]?parseInt(groupRx[1]):2;memChanged=true;}
+
+      // ── Budget detection ──
+      const budgetRx=q.match(/(?:tenho|até|orçamento de?|gastar?|valor[:\s])\s*R?\$?\s*(\d+)/i);
+      if(budgetRx){mem.budget=parseInt(budgetRx[1]);memChanged=true;}
+
+      // ── Intensity preference ──
+      if(/intenso|picante|apimentado|forte/i.test(q)){mem.intensity='intenso';memChanged=true;}
+      else if(/leve|suave|delicado|light|saud[aá]vel/i.test(q)){mem.intensity='leve';memChanged=true;}
+
+      // ── Preferred time (lunch vs dinner) ──
+      const hr=new Date().getHours();
+      if(!mem.prefTime){
+        if(hr>=11&&hr<15)mem.prefTime='almoço';
+        else if(hr>=18)mem.prefTime='jantar';
+        if(mem.prefTime)memChanged=true;
+      }
+
       if(memChanged)LS.set('sab_chef_memory',mem);
       LS.set('sab_chef_session',session);
       if(!logs.find(l=>l.id===session.id))logs.unshift(session);
@@ -2760,8 +2887,13 @@ function ChefChat(){
       LS.set('sab_chef_logs',logs.slice(0,50));// keep last 50 sessions
       // Save full history for Chef context (last 3 sessions, last 5 msgs each)
       const fullHistory=LS.get('sab_chef_full_history',[]);
-      const sessionSummary={date:new Date().toISOString(),msgs:session.msgs.slice(-5)};
-      LS.set('sab_chef_full_history',[sessionSummary,...fullHistory].slice(0,3));
+      const sessionSummary={
+        date:new Date().toISOString(),
+        msgs:session.msgs.slice(-8),
+        dishes:session.msgs.filter(m=>m.dish).map(m=>m.dish).slice(0,5),
+        msgCount:session.msgs.length
+      };
+      LS.set('sab_chef_full_history',[sessionSummary,...fullHistory].slice(0,10));
     }catch(e){
       let errMsg;
       if(!navigator.onLine){
@@ -2832,6 +2964,8 @@ function ChefChat(){
   const clearChat=()=>{
     setMsgs([{role:'ai',text:'Conversa reiniciada. Em que posso ajudá-lo? 😊',time:new Date(),liked:false}]);
     LS.set('sab_chef_session',{id:Date.now(),start:new Date().toISOString(),msgs:[]});
+    LS.del('sab_chat_msgs');LS.del('sab_chat_saved_at');
+    setSavedMsgs(null);setShowResume(false);
     setCleared(true);setTimeout(()=>setCleared(false),1500);
   };
   // New session on each open
@@ -2968,6 +3102,11 @@ function ChefChat(){
               h('button',{className:'chef-react-btn'+(m.rating===-1?' disliked':''),
                 onClick:()=>{
                   setMsgs(ms=>ms.map((msg,idx)=>idx===i?{...msg,rating:-1}:msg));
+                  // Save disliked dish to memory
+                  const memD=LS.get('sab_chef_memory',{});
+                  if(!memD.disliked)memD.disliked=[];
+                  const dishD=msgs[i]&&msgs[i].text&&msgs[i].text.match(/DISH_CARD:\s*([^\n]+)/);
+                  if(dishD){const dn=dishD[1].trim();if(!memD.disliked.includes(dn)){memD.disliked.unshift(dn);memD.disliked=memD.disliked.slice(0,20);LS.set('sab_chef_memory',memD);}}
                   setTimeout(()=>send('Não gostei desta sugestão. Pode indicar algo diferente?'),300);
                 }
               },m.rating===-1?'👎 Entendido!':'👎'),
@@ -2994,7 +3133,7 @@ function ChefChat(){
               if(listening){recognition.current&&recognition.current.stop();setListening(false);return;}
               const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
               recognition.current=new SR();
-              recognition.current.lang='pt-BR';recognition.current.interimResults=false;
+              recognition.current.lang=navigator.language||'pt-BR';recognition.current.interimResults=false;
               recognition.current.onresult=e=>{const t=e.results[0][0].transcript;setInput(t);setListening(false);setTimeout(()=>send(t),150);};
               recognition.current.onerror=()=>setListening(false);
               recognition.current.onend=()=>setListening(false);
