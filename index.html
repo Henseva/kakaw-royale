@@ -554,6 +554,20 @@ body{overflow-x:hidden;background:#0a0805;cursor:none}
   .hero-h1{min-height:3.2em}
   .nav-status{font-size:8px!important;padding:4px 8px!important}
 .momento-card{flex-direction:column;text-align:center;padding:24px}.momento-clock{display:none}}
+/* ── Chef Theme Picker ── */
+.chef-theme-picker{position:absolute;top:calc(100% + 8px);right:0;background:rgba(10,8,5,.97);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:8px 10px;display:flex;gap:8px;z-index:900;box-shadow:0 8px 32px rgba(0,0,0,.8)}
+.chef-theme-dot{width:20px;height:20px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .2s,border-color .2s;flex-shrink:0}
+.chef-theme-dot:hover{transform:scale(1.2)}
+.chef-theme-dot.active{border-color:#fff;transform:scale(1.15)}
+
+/* ── Chef panel CSS variables ── */
+.chef-panel{border-color:var(--cb,rgba(201,168,76,.22))}
+.chef-head-bg{background:var(--ch,#0e0b06)!important}
+.chef-msg-ai .chef-msg-bubble{background:var(--cm,#141009)!important;border-color:var(--ci,rgba(201,168,76,.18))!important}
+.chef-input{border-color:var(--ci,rgba(201,168,76,.18))!important}
+.chef-footer{background:var(--cp,#090805)!important}
+.chef-chip-tab.active,.chef-chip{border-color:var(--cb,rgba(201,168,76,.22))!important}
+.chef-chip-tab.active{color:var(--cl,#dfc070)!important}
 </style>
 </head>
 <body>
@@ -2628,8 +2642,19 @@ function ChefAvatar({waving}){
   );
 }
 
+
+const CHEF_THEMES={
+  gold:  {name:'Ouro',    accent:'#C9A84C', accentL:'#dfc070', panel:'#0e0b06', head:'#0e0b06', border:'rgba(201,168,76,.22)',  glow:'rgba(201,168,76,.12)', msg:'#141009', input:'rgba(201,168,76,.18)', dot:'#C9A84C'},
+  ruby:  {name:'Rubi',    accent:'#8B1a1a', accentL:'#c0392b', panel:'#0a0606', head:'#0d0606', border:'rgba(180,30,30,.28)',   glow:'rgba(180,30,30,.15)',  msg:'#120808', input:'rgba(180,30,30,.22)', dot:'#c0392b'},
+  rose:  {name:'Rosa',    accent:'#6b1a3a', accentL:'#9b2355', panel:'#0a0608', head:'#0d0609', border:'rgba(155,35,85,.28)',   glow:'rgba(155,35,85,.15)',  msg:'#110609', input:'rgba(155,35,85,.22)', dot:'#9b2355'},
+  ocean: {name:'Oceano',  accent:'#0d3b5e', accentL:'#1a5c8a', panel:'#04080d', head:'#050a0f', border:'rgba(26,92,138,.28)',   glow:'rgba(26,92,138,.15)',  msg:'#060c12', input:'rgba(26,92,138,.22)', dot:'#1a5c8a'},
+  forest:{name:'Floresta', accent:'#1a3d1a', accentL:'#2d6a2d', panel:'#050a05', head:'#070d07', border:'rgba(45,106,45,.28)',  glow:'rgba(45,106,45,.15)',  msg:'#080d08', input:'rgba(45,106,45,.22)', dot:'#2d6a2d'},
+};
 function ChefChat(){
   const [open,setOpen]=useState(false);
+  const [themeKey,setThemeKey]=useState(()=>LS.get('sab_chef_theme','gold'));
+  const [showThemes,setShowThemes]=useState(false);
+  const ct=CHEF_THEMES[themeKey]||CHEF_THEMES.gold;
   // Track opens for abandonment metric
   const openTracked=useRef(false);
   const [waving,setWaving]=useState(false);
@@ -2988,7 +3013,7 @@ function ChefChat(){
       h('span',{className:'chef-btn-label'},open?'fechar':'chef ia'),
       !open&&h('span',{className:'chef-pulse'})
     ),
-    h('div',{id:'chef-panel',className:open?'open':''},
+    h('div',{id:'chef-panel',className:open?'open':'',style:{background:ct.panel,borderColor:ct.border,'--ca':ct.accent,'--cl':ct.accentL,'--cb':ct.border,'--cg':ct.glow,'--cm':ct.msg,'--ci':ct.input}},
       h('div',{className:'chef-drag-handle'}),
 
       showResume&&savedMsgs&&h('div',{className:'chef-resume-bar'},
@@ -3036,6 +3061,18 @@ function ChefChat(){
           ),
           h('div',{className:'chef-head-actions'},
             
+            h('div',{style:{position:'relative'}},
+              h('button',{className:'chef-icon-btn',title:'Tema',onClick:()=>setShowThemes(v=>!v),style:{fontSize:13}},'🎨'),
+              showThemes&&h('div',{className:'chef-theme-picker'},
+                ...Object.entries(CHEF_THEMES).map(([k,t])=>
+                  h('button',{key:k,className:'chef-theme-dot'+(themeKey===k?' active':''),
+                    title:t.name,
+                    style:{background:t.dot},
+                    onClick:()=>{setThemeKey(k);LS.set('sab_chef_theme',k);setShowThemes(false);}
+                  })
+                )
+              )
+            ),
             h('button',{className:'chef-icon-btn',title:'Limpar conversa',onClick:clearChat},cleared?'✓':'🗑'),
 
             h('button',{className:'chef-icon-btn',title:'Fechar',onClick:()=>{const s=LS.get('sab_chef_session',null);if(s&&s.msgs&&s.msgs.length>0)sendWhatsAppSummary(s);setOpen(false);}},'×')
