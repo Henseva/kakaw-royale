@@ -868,6 +868,30 @@ const VIP=(function(){
 
 // ── Access Log → Telegram ──
 (function(){
+  // Register beforeunload immediately — fires reliably regardless of ipapi/setTimeout timing
+  const _t0=Date.now();
+  window.addEventListener('beforeunload',()=>{
+    const mins=Math.round((Date.now()-(window._sabAccessTime||_t0))/60000);
+    if(mins<1)return;
+    const dishData=LS.get('sab_clicks_dish',{});
+    const topDishes=Object.entries(dishData).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([n,c])=>n+' ('+c+'x)').join(', ')||'nenhum';
+    const sess=LS.get('sab_session',{clicks:0});
+    const mem0=LS.get('sab_chef_memory',{});
+    const nm0=mem0.name?'👤 '+mem0.name:'👤 Visitante';
+    const exitMsg=[
+      '┌─────────────────────────',
+      '│ 🚪 *SABORES — Saída*',
+      '└─────────────────────────',
+      '',
+      nm0,
+      '⏱ Tempo: *'+mins+' min'+(mins!==1?'s':'')+' na página*',
+      '🖱 Cliques: '+(sess.clicks||0),
+      '🍽 Pratos: '+topDishes,
+    ].join('\n');
+    navigator.sendBeacon('https://api.telegram.org/bot'+TG_TOKEN+'/sendMessage',
+      new Blob([JSON.stringify({chat_id:TG_CHAT,text:exitMsg,parse_mode:'Markdown'})],{type:'application/json'})
+    );
+  },{once:true});
   const key='sab_access_logged';
   const last=LS.get(key,0);
   // Only log once per 30 minutes per device
@@ -882,20 +906,50 @@ const VIP=(function(){
   setTimeout(()=>{
     try{
       const visits=LS.get('sab_visits',1);
+      const mem=LS.get('sab_chef_memory',{});
       const isVip=visits>=3;
       const ua=navigator.userAgent;
       const isMobile=/Mobile|Android|iPhone/.test(ua);
       const device=isMobile?'📱 Mobile':'🖥️ Desktop';
       const browser=ua.includes('Chrome')?'Chrome':ua.includes('Firefox')?'Firefox':ua.includes('Safari')?'Safari':'Outro';
-      const msg='\uD83D\uDC64 *Novo acesso — Sabores*\n'
-        +'\uD83D\uDD50 '+new Date().toLocaleString('pt-BR')+'\n'
-        +device+' · '+browser+'\n'
-        +(isVip?'\n\uD83D\uDC51 Cliente VIP ('+visits+'ª visita)':'\n\uD83D\uDD35 Visita #'+visits)+'\n'
-        +'\n_'+navigator.language+' · '+screen.width+'x'+screen.height+'_';
-      fetch('https://api.telegram.org/bot'+TG_TOKEN+'/sendMessage',{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({chat_id:TG_CHAT,text:msg,parse_mode:'Markdown'})
-      }).catch(()=>{});
+      const accessTime=Date.now();
+      // Track time on page
+      window._sabAccessTime=accessTime;
+      fetch('https://ipapi.co/json/')
+        .then(r=>r.json())
+        .catch(()=>({}))
+        .then(geo=>{
+          const loc=geo.city&&geo.region
+            ?'📍 '+geo.city+', '+geo.region+(geo.country_name&&geo.country_name!=='Brazil'?' ('+geo.country_name+')':'')
+            :'📍 Localização não identificada';
+          const visitorLabel=visits>=50?'👑 Ultra VIP ('+visits+'ª visita)':visits>=20?'🏆 Muito fiel ('+visits+'ª visita)':visits>=7?'⭐⭐ Cliente fiel ('+visits+'ª visita)':visits>=3?'⭐ Recorrente ('+visits+'ª visita)':'🔵 Visita #'+visits;
+          const clienteName=mem.name?'👤 '+mem.name:'👤 Visitante';
+          const lines=[
+            '┌─────────────────────────',
+            '│ 🍽 *SABORES — Novo Acesso*',
+            '└─────────────────────────',
+            '',
+            clienteName,
+            visitorLabel,
+            '',
+            '🕐 '+new Date().toLocaleString('pt-BR'),
+            loc,
+            device+' · '+browser,
+            '_'+screen.width+'x'+screen.height+' · '+navigator.language+'_',
+          ];
+          if(mem.cuisines&&mem.cuisines.length){
+            lines.push('');
+            lines.push('🍴 Prefere: '+mem.cuisines.slice(0,3).join(', '));
+          }
+          if(mem.liked&&mem.liked.length){
+            lines.push('❤️ Favs: '+mem.liked.slice(0,2).join(', '));
+          }
+          fetch('https://api.telegram.org/bot'+TG_TOKEN+'/sendMessage',{
+            method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({chat_id:TG_CHAT,text:lines.join('\n'),parse_mode:'Markdown'})
+          }).catch(()=>{});
+          // beforeunload handled at IIFE level
+        });
     }catch(e){}
   },3000);
 })();
@@ -2597,7 +2651,7 @@ function buildChefSystem(isKid){
   const dayCtx='CONTEXTO DIA: Hoje é '+dayName+(isWeekend?' (fim de semana — clientes com mais tempo, sugestões mais elaboradas e especiais)':' (dia útil — clientes podem estar ocupados, equilibre rapidez com sofisticação)')+'.';
   const timeBlock=timeCtx?'\n\n'+timeCtx+'\n'+dayCtx:'\n\n'+dayCtx;
   return 'Você é o Chef René Dubois, sommelier e maître gastronômico do Sabores.\n\nSua missão é transformar cada conversa numa experiência memorável. Você conhece o cardápio inteiro de cor, harmoniza bebidas como ninguém, e tem capacidade única de entender o que o cliente deseja.\n\nPERSONALIDADE:\n- Refinado mas caloroso — democratiza o prazer da boa mesa\n- Humor elegante e anedotas culinárias genuínas\n- Apaixonado: cada prato tem uma história\n- MODO HUMOR: se o cliente brincar ou usar gírias, responda com leveza e uma piada culinária\n- MODO RÁPIDO: se detectar "rápido", "com pressa", "resumo" — responda em máx 3 linhas diretas\n- IDIOMA: Detecte o idioma da mensagem mais recente do cliente e responda SEMPRE nesse mesmo idioma. Português → responda em português. English → respond in English. Español → responde en español. Français → répondez en français. E assim para qualquer outro idioma. NUNCA responda em idioma diferente do que o cliente usou\n\nEMOJIS COMO INTENÇÃO:\n🔥 = quer algo intenso/picante | 😢 = comfort food, algo aconchegante | 💚 = leve/saudável | 🍷 = harmonização especial | 💸 = econômico | 👑 = o melhor disponível\n\nOCASIÕES ESPECIAIS: se detectar aniversário, casamento, namorado/a, pedido de namoro, formatura — entre em MODO OCASIÃO: sugira decoração, mensagem personalizada, harmonização premium e sobremesa especial.\n\nFUNCIONALIDADES ESPECIAIS:\n- COMBO: se o cliente mencionar orçamento (ex: "tenho R$100"), monte entrada+prato+bebida dentro do valor\n- COMPARAR: se pedir comparação entre dois pratos, analise lado a lado com prós de cada um\n- SURPRESA: se pedir "surpreenda-me" ou "escolha você", faça uma apresentação dramática e escolha algo inesperado\n\nCARDÁPIO COMPLETO:\n'+MENU_CONTEXT+'\n\nBEBIDAS E HARMONIZAÇÕES:\n'+DRINKS_CONTEXT+'\n\nPROIBIDO — NUNCA escreva estas frases:\n- "Gostou desta sugestão?"\n- "(👍 sim / 👎 não)"\n- "sim / não"\n- qualquer variação de pedido de avaliação — os botões já existem na interface\n\nREGRAS:\n- Cite nome exato, restaurante e preço (R$)\n- Sugira harmonização em toda recomendação\n- Máximo 2-3 sugestões por resposta\n- DISH_CARD: nome exato do prato (ao final de cada sugestão) ← OBRIGATÓRIO em TODA resposta com sugestão\n- Nunca invente pratos fora do cardápio\n- Limite 220 palavras por resposta. REGRA VISUAL: ao final de CADA prato sugerido escreva DISH_CARD: [nome exato do prato] — é isso que gera o card visual'
-  +(isKid?'\n\nMODO CRIANÇA ATIVADO 🧒:\n- Mude completamente o nome: você agora é o "Chef Renezinho" 🧑‍🍳\n- Tom divertido, animado, com comparações do universo infantil\n- Use muitos emojis coloridos e exclamações!\n- Fale palavras simples — nada de "harmonização" ou "sommelier"\n- Sugira apenas pratos que crianças adoram: pizza, macarrão, nuggets, hambúrguer, suco\n- Pergunte sobre personagens favoritos e compare a comida com aventuras\n- Termine sempre com uma frase de incentivo tipo "Você vai arrasar! 🦸"\n- NUNCA sugira bebidas alcoólicas — apenas sucos, vitaminas, refrigerante\n- Máximo 3 frases curtas por resposta\n- Exemplo de tom: "Oi! Eu sou o Chef Renezinho! 🧑‍🍳 Hoje temos uma pizza INCRÍVEL, igual à da festa do Mario! 🍕⭐"':'' )
+  +(isKid?'\n\nMODO CRIANÇA ATIVADO 🧒:\n- Você agora é o "Chef Renezinho" 🧑‍🍳 — divertido, animado, cheio de energia!\n- OBRIGATÓRIO: faça SEMPRE uma comparação com desenho animado ou personagem infantil famoso (Bob Esponja, Siri Cascudo, Mario, Peppa Pig, Turma da Mônica, Paw Patrol, Miraculous, Pokemon etc.)\n- Exemplos OBRIGATÓRIOS de comparação: "esse lanche é igual ao que o Bob Esponja faz no Siri Cascudo! 🍔", "essa pizza tem o poder do Mario quando pega cogumelo! 🍕⭐", "é o prato favorito da Peppa Pig! 🐷"\n- Use muitos emojis coloridos e exclamações!\n- Fale palavras simples — sem "harmonização" ou "sommelier"\n- Sugira apenas pratos que crianças adoram: pizza, macarrão, nuggets, hambúrguer, suco\n- Termine com frase de incentivo tipo "Você vai arrasar! 🦸"\n- NUNCA sugira bebidas alcoólicas\n- Máximo 4 frases por resposta':'' )
   +timeBlock+memCtx;
 }
 
@@ -2618,19 +2672,43 @@ const CHEF_SYSTEM=buildChefSystem();
 async function sendWhatsAppSummary(session){
   if(!session||!session.msgs||session.msgs.length===0)return;
   try{
-    const lines=['📋 *Sabores — Resumo Chef René*','🕐 '+new Date(session.start).toLocaleString('pt-BR'),'💬 '+session.msgs.length+' mensagem'+(session.msgs.length!==1?'s':''),'─────────────────'];
-    session.msgs.forEach((m,i)=>{
-      lines.push('👤 *Cliente:* '+m.q.slice(0,200)+(m.q.length>200?'...':''));
-      lines.push('👨‍🍳 *Chef René:* '+m.a.slice(0,200)+(m.a.length>200?'...':''));
-      if(i<session.msgs.length-1)lines.push('─────────────────');
+    const mem=LS.get('sab_chef_memory',{});
+    const visits=LS.get('sab_visits',1);
+    const clienteName=mem.name||'Visitante';
+    const visitorLabel=visits>=20?'🏆 Muito fiel':visits>=7?'⭐⭐ Fiel':visits>=3?'⭐ Recorrente':'🔵 Novo';
+    const dur=session.start?Math.round((Date.now()-new Date(session.start).getTime())/60000):0;
+    const lines=[
+      '┌─────────────────────────',
+      '│ 👨‍🍳 *CHEF RENÉ — Conversa*',
+      '└─────────────────────────',
+      '',
+      '👤 *'+clienteName+'* · '+visitorLabel+' (visita #'+visits+')',
+      '🕐 '+new Date(session.start||Date.now()).toLocaleString('pt-BR'),
+      '💬 '+session.msgs.length+' mensage'+(session.msgs.length!==1?'ns':'m')+(dur>0?' · ⏱ '+dur+' min':''),
+      '',
+      '─────────────────────────',
+    ];
+    session.msgs.slice(-4).forEach((m,i)=>{
+      lines.push('');
+      lines.push('*['+( i+1)+']* 👤 '+m.q.slice(0,160)+(m.q.length>160?'…':''));
+      lines.push('🍽 '+m.a.slice(0,200)+(m.a.length>200?'…':''));
     });
-    const text=lines.join('\n');
+    if(session.msgs.length>4){
+      lines.push('');
+      lines.push('_... e mais '+(session.msgs.length-4)+' mensagens anteriores_');
+    }
+    const dishesInChat=session.msgs.map(m=>m.dish).filter(Boolean);
+    if(dishesInChat.length){
+      lines.push('');
+      lines.push('─────────────────────────');
+      lines.push('🍴 *Pratos sugeridos:* '+[...new Set(dishesInChat)].join(', '));
+    }
     await fetch('https://api.telegram.org/bot'+TG_TOKEN+'/sendMessage',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({chat_id:TG_CHAT,text,parse_mode:'Markdown'})
+      body:JSON.stringify({chat_id:TG_CHAT,text:lines.join('\n'),parse_mode:'Markdown'})
     });
-  }catch(e){/* Telegram summary error handled silently */}
+  }catch(e){}
 }
 
 function fmtTime(d){
@@ -2830,6 +2908,32 @@ function ChefChat(){
       }
       const reply=(data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content)||'Pardonnez-moi — resposta vazia. Pode repetir?';
       setMsgs(m=>[...m,{role:'ai',text:reply,time:new Date(),liked:false}]);
+      // Notify Telegram on first user message of session
+      try{
+        const sessKey='sab_tg_notified_'+new Date().toDateString();
+        if(!LS.get(sessKey,false)){
+          LS.set(sessKey,true);
+          const mem2=LS.get('sab_chef_memory',{});
+          const v2=LS.get('sab_visits',1);
+          const nm=mem2.name||'Visitante';
+          const lbl=v2>=20?'🏆':v2>=7?'⭐⭐':v2>=3?'⭐':'🔵';
+          const notifMsg=[
+            '┌─────────────────────────',
+            '│ 💬 *CHAT INICIADO — Chef René*',
+            '└─────────────────────────',
+            '',
+            lbl+' *'+nm+'* (visita #'+v2+')',
+            '🕐 '+new Date().toLocaleTimeString('pt-BR'),
+            '',
+            '👤 *Perguntou:*',
+            '_'+q.slice(0,220)+(q.length>220?'…':'')+'_',
+          ].join('\n');
+          fetch('https://api.telegram.org/bot'+TG_TOKEN+'/sendMessage',{
+            method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({chat_id:TG_CHAT,text:notifMsg,parse_mode:'Markdown'})
+          }).catch(()=>{});
+        }
+      }catch(_){}
 
       // Parse cards from reply
       const parsedReply=parseChefMsg(reply);
@@ -3394,7 +3498,7 @@ function ReturningBanner(){
       return()=>clearTimeout(t);
     }
   },[]);
-  useEffect(()=>{if(show){const t=setTimeout(()=>setShow(false),5000);return()=>clearTimeout(t);}});
+  useEffect(()=>{if(show){const t=setTimeout(()=>setShow(false),5000);return()=>clearTimeout(t);}},[show]);
   if(!show)return null;
   const visits=LS.get('sab_visits',1);
   const mem=LS.get('sab_chef_memory',{});
@@ -3591,6 +3695,7 @@ function App(){
 
   return h(Fragment,null,
     h(SeasonalOverlay,null),
+    h(NotifStrip,null),
     h(VipWelcome,{c}),
     showPin&&h('div',{style:{position:'fixed',inset:0,background:'rgba(0,0,0,.85)',zIndex:9500,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(8px)'}},
       h('div',{style:{background:dark?'#0f0d09':'#fff',border:`1px solid ${dark?'rgba(201,168,76,.3)':'rgba(138,94,0,.2)'}`,borderRadius:24,padding:'36px 32px',textAlign:'center',width:280,boxShadow:'0 40px 80px rgba(0,0,0,.8)'}},
